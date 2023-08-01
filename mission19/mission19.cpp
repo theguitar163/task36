@@ -9,80 +9,92 @@
 #define	HEIGHT	480
 #define	MAXSTEP	9
 
-// 节点（多个连续的节点环，组成一个顶点）
-typedef struct tagPointNode
-{
-	POINT pos;					// 位置
-	struct tagPointNode* next;	// 指向下一个节点的指针
-} TPointNode;
-
 // 顶点（四个顶点，组成一个多边形）
 typedef struct tagVertex
 {
-	TPointNode* m_head;		// 头结点的指针
+	POINT* m_points;		// 顶点环形队列，每个顶点队列包含多个临近的顶点坐标
+	int m_headidx;			// 顶点环形队列当前的头下标
+	int m_count;			// 顶点环形队列的长度
 	POINT m_step;			// 移动步长
 } TVertex;
 
 // 析构函数
-void vertexFree(TVertex* pv)
+void vertexFree(TVertex* pvt)
 {
-	if (pv->m_head != NULL)
-		free(pv->m_head);
+	if (pvt->m_points != NULL)
+		free(pvt->m_points);
 }
 
 // 初始化环链
-void vertexInit(TVertex* pv, int count)
+void vertexInit(TVertex* pvt, int linecount)
 {
 	// 初始化前进方向
-	pv->m_step.x = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
-	pv->m_step.y = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
+	pvt->m_step.x = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
+	pvt->m_step.y = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
 
-	// 初始化节点环
-	pv->m_head = (TPointNode*)malloc(count * sizeof(TPointNode));
-	pv->m_head[0].pos.x = rand() % WIDTH;
-	pv->m_head[0].pos.y = rand() % HEIGHT;
-	pv->m_head[0].next = &(pv->m_head[count - 1]);
-	for (int i = 1; i < count; i++)
-	{
-		pv->m_head[i].pos.x = pv->m_head[i - 1].pos.x - pv->m_step.x;
-		pv->m_head[i].pos.y = pv->m_head[i - 1].pos.y - pv->m_step.y;
-		pv->m_head[i].next = &(pv->m_head[i - 1]);
+	// 初始化节点环型队列
+	pvt->m_points = (POINT*)malloc(linecount * sizeof(POINT));
+	pvt->m_headidx = 0;
+	pvt->m_count = linecount;
+
+	POINT* pp = &(pvt->m_points[0]);
+	POINT* pp0;
+	pp->x = rand() % WIDTH;
+	pp->y = rand() % HEIGHT;
+	for (int i = 1; i < linecount; i++) {
+		pp = &(pvt->m_points[i]);
+		pp0 = &(pvt->m_points[i - 1]);
+		pp->x = pp0->x - pvt->m_step.x;
+		pp->y = pp0->y - pvt->m_step.y;
 	}
+}
+
+int vertexTailIndex(TVertex* pvt)
+{
+	return (pvt->m_headidx > 0) ? (pvt->m_headidx - 1) : pvt->m_count - 1;
 }
 
 // 获取头部节点坐标
 POINT vertexGetHead(TVertex* pv)
 {
-	return pv->m_head->pos;
+	return pv->m_points[pv->m_headidx];
 }
 
 // 获取尾部节点坐标
-POINT vertexGetTail(TVertex* pv)
+POINT vertexGetTail(TVertex* pvt)
 {
-	return pv->m_head->next->pos;
+	// 环形队列尾
+	return pvt->m_points[vertexTailIndex(pvt)];
 }
 
-// 移动顶点
-void vertexMove(TVertex* pv)
+// 移动顶点，将环形队列头尾位置
+void vertexMove(TVertex* pvt)
 {
-	pv->m_head->next->pos.x = pv->m_head->pos.x + pv->m_step.x;
-	pv->m_head->next->pos.y = pv->m_head->pos.y + pv->m_step.y;
-	pv->m_head = pv->m_head->next;
+	POINT* pphead = &(pvt->m_points[pvt->m_headidx]);
+	POINT* pptail = &(pvt->m_points[vertexTailIndex(pvt)]);
 
+	pptail->x = pphead->x + pvt->m_step.x;
+	pptail->y = pphead->y + pvt->m_step.y;
+	// 将环形队列头索引替换为尾部索引
+	pvt->m_headidx = vertexTailIndex(pvt);
+
+	pphead = &(pvt->m_points[pvt->m_headidx]);
 	// 判断顶点是否越界
-	if (pv->m_head->pos.x < 0) {
-		pv->m_head->pos.x = -pv->m_head->pos.x;
-		pv->m_step.x = rand() % MAXSTEP + 1;
+	if (pphead->x < 0) {
+		pphead->x = -pphead->x;
+		pvt->m_step.x = rand() % MAXSTEP + 1;
 	}
-	else if (pv->m_head->pos.x >= WIDTH) {
-		pv->m_head->pos.x -= pv->m_head->pos.x - WIDTH + 1;
-		pv->m_step.x = -rand() % MAXSTEP - 1; }
-	if (pv->m_head->pos.y < 0) {
-		pv->m_head->pos.y = -pv->m_head->pos.y;
-		pv->m_step.y = rand() % MAXSTEP + 1; }
-	else if (pv->m_head->pos.y >= HEIGHT) {
-		pv->m_head->pos.y -= pv->m_head->pos.y - HEIGHT + 1;
-		pv->m_step.y = -rand() % MAXSTEP - 1;
+	else if (pphead->x >= WIDTH) {
+		pphead->x -= pphead->x - WIDTH + 1;
+		pvt->m_step.x = -rand() % MAXSTEP - 1;
+	}
+	if (pphead->y < 0) {
+		pphead->y = -pphead->y;
+		pvt->m_step.y = rand() % MAXSTEP + 1;
+	}
+	else if (pphead->y >= HEIGHT) {
+		pphead->y -= pphead->y - HEIGHT + 1;
+		pvt->m_step.y = -rand() % MAXSTEP - 1;
 	}
 }
 
@@ -93,47 +105,58 @@ typedef struct tagPolygon
 	TVertex m_vertex[4];	// 构成多边形的四个顶点
 } TPolygon;
 
-	// 构造函数
-void polygonInit(TPolygon* pp, int lines)
+// 构造函数
+void polygonInit(TPolygon* ppl, int linecount)
 {
 	// 初始化颜色
-	pp->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
+	ppl->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
 
 	// 初始化四个顶点
 	for (int i = 0; i < 4; i++)
-		vertexInit(&(pp->m_vertex[i]), lines);
+		vertexInit(&(ppl->m_vertex[i]), linecount);
 }
 
-	// 移动多边形
-void polygonMove(TPolygon* pp)
+void polygonFree(TPolygon* pp)
+{
+	for (int i = 0; i < 4; i++)
+		vertexFree(&(pp->m_vertex[i]));
+}
+
+// 移动多边形
+// 每次绘制多边形时，只有两步操作：
+// 1.擦除顶点队列最后一组（pvt->m_count-1）多边形
+// 2.将顶点队列向后移动，空出位置0
+// 3.更新位置0顶点的坐标
+// 4.绘制位置0顶点的多边形（其他位置顶点不变）
+void polygonMove(TPolygon* ppl)
 {
 	int i;
 	POINT p;
-	// 擦掉多边形的尾部
+	// 擦掉环形队列尾部多边形
 	setcolor(BLACK);
-	p = vertexGetTail(&(pp->m_vertex[3]));
+	p = vertexGetTail(&(ppl->m_vertex[3]));
 	moveto(p.x,  p.y);
 	for (i = 0; i < 4; i++) {
-		p = vertexGetTail(&(pp->m_vertex[i]));
+		p = vertexGetTail(&(ppl->m_vertex[i]));
 		lineto(p.x, p.y);
 	}
 
-	// 移动每个顶点
+	// 移动每个顶点环形队列，将尾部变成头部
 	for (i = 0; i < 4; i++)
-		vertexMove(&(pp->m_vertex[i]));
+		vertexMove(&(ppl->m_vertex[i]));
 
-	// 画多边形的头部
-	setcolor(pp->m_color);
-	p = vertexGetHead(&(pp->m_vertex[3]));
+	// 绘制环形队列头部多边形
+	setcolor(ppl->m_color);
+	p = vertexGetHead(&(ppl->m_vertex[3]));
 	moveto(p.x, p.y);
 	for (i = 0; i < 4; i++) {
-		p = vertexGetHead(&(pp->m_vertex[i]));
+		p = vertexGetHead(&(ppl->m_vertex[i]));
 		lineto(p.x, p.y);
 	}
 
 	// 有 1% 的概率更换颜色
 	if (rand() % 100 == 0)
-		pp->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
+		ppl->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
 }
 
 // 主函数
@@ -157,7 +180,8 @@ int main()
 		polygonMove(&s2);
 		Sleep(20);
 	}
-
+	polygonFree(&s1);
+	polygonFree(&s2);
 	// 关闭绘图窗口
 	closegraph();
 	return 0;
