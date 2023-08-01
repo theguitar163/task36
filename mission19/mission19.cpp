@@ -31,18 +31,18 @@ void vertexFree(TVertex* pv)
 }
 
 // 初始化环链
-void vertexInit(TVertex* pv, int count)
+void vertexInit(TVertex* pv, int linecount)
 {
 	// 初始化前进方向
 	pv->m_step.x = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
 	pv->m_step.y = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
 
 	// 初始化节点环
-	pv->m_head = (TPointNode*)malloc(count * sizeof(TPointNode));
+	pv->m_head = (TPointNode*)malloc(linecount * sizeof(TPointNode));
 	pv->m_head[0].pos.x = rand() % WIDTH;
 	pv->m_head[0].pos.y = rand() % HEIGHT;
-	pv->m_head[0].next = &(pv->m_head[count - 1]);
-	for (int i = 1; i < count; i++)
+	pv->m_head[0].next = &(pv->m_head[linecount - 1]);
+	for (int i = 1; i < linecount; i++)
 	{
 		pv->m_head[i].pos.x = pv->m_head[i - 1].pos.x - pv->m_step.x;
 		pv->m_head[i].pos.y = pv->m_head[i - 1].pos.y - pv->m_step.y;
@@ -76,10 +76,12 @@ void vertexMove(TVertex* pv)
 	}
 	else if (pv->m_head->pos.x >= WIDTH) {
 		pv->m_head->pos.x -= pv->m_head->pos.x - WIDTH + 1;
-		pv->m_step.x = -rand() % MAXSTEP - 1; }
+		pv->m_step.x = -rand() % MAXSTEP - 1;
+	}
 	if (pv->m_head->pos.y < 0) {
 		pv->m_head->pos.y = -pv->m_head->pos.y;
-		pv->m_step.y = rand() % MAXSTEP + 1; }
+		pv->m_step.y = rand() % MAXSTEP + 1;
+	}
 	else if (pv->m_head->pos.y >= HEIGHT) {
 		pv->m_head->pos.y -= pv->m_head->pos.y - HEIGHT + 1;
 		pv->m_step.y = -rand() % MAXSTEP - 1;
@@ -93,15 +95,15 @@ typedef struct tagPolygon
 	TVertex m_vertex[4];	// 构成多边形的四个顶点
 } TPolygon;
 
-	// 构造函数
-void polygonInit(TPolygon* pp, int lines)
+// 构造函数
+void polygonInit(TPolygon* pp, int linecount)
 {
 	// 初始化颜色
 	pp->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
 
 	// 初始化四个顶点
 	for (int i = 0; i < 4; i++)
-		vertexInit(&(pp->m_vertex[i]), lines);
+		vertexInit(&(pp->m_vertex[i]), linecount);
 }
 
 	// 移动多边形
@@ -155,7 +157,7 @@ int main()
 	{
 		polygonMove(&s1);
 		polygonMove(&s2);
-		Sleep(20);
+		Sleep(1000);
 	}
 
 	// 关闭绘图窗口
