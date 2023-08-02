@@ -1,4 +1,6 @@
-﻿// 任务：模拟 Windows XP 的屏保“变幻线”。
+﻿// 任务：模拟 Windows XP 的屏保“变幻线”
+// 变幻线每一个顶点都由一组等距的点组成
+// 每一次更新，只需要擦除最后一根线，重新绘制第一根线，其他的线不动
 
 #include <easyx.h>
 #include <graphics.h>
@@ -12,60 +14,56 @@
 // 顶点Vertex由一组点POINT构成
 typedef struct tagVertex {
 	POINT* m_points;		// 点数组，多个坐标
-	int m_pcount;			// 点数组的长度
+	int m_pcount;			// 点数组中点的数量
 	POINT m_step;			// 移动步长
 } TVertex;
 
-// 析构函数
-void vertexFree(TVertex* pvt)
-{
-	if (pvt->m_points != NULL)
-		free(pvt->m_points);
-}
-
-// 初始化环链
+// 初始化顶点Vertex
 void vertexInit(TVertex* pvt, int linecount)
 {
 	// 初始化前进方向
 	pvt->m_step.x = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
 	pvt->m_step.y = ((rand() % 2) * 2 - 1) * (rand() % MAXSTEP + 1);
 
-	// 初始化节点环型队列
+	// 分配点数组内存
 	pvt->m_points = (POINT*)malloc(linecount * sizeof(POINT));
 	pvt->m_pcount = linecount;
 
+	// 随机生成顶点第一个点的坐标
 	POINT* pp = &(pvt->m_points[0]);
-	POINT* pp0;
 	pp->x = rand() % WIDTH;
 	pp->y = rand() % HEIGHT;
+	// 根据第一个点的坐标，计算其他点的坐标
 	for (int i = 1; i < linecount; i++) {
-		pp0 = &(pvt->m_points[i - 1]);		// 取前一个点的指针
-		pp = &(pvt->m_points[i]);			// 取当前点的指针
-		// 按移动步长计算当前点的坐标。使用减步长，保证每个点不会超界
+		POINT *pp0 = &(pvt->m_points[i - 1]);		// 取前一个点的指针
+		pp = &(pvt->m_points[i]);					// 取当前点的指针
+		// 以前一个点坐标为基准，按移动步长计算当前点的坐标
+		// 注意：使用减步长，保证每个点不会超界
 		pp->x = pp0->x - pvt->m_step.x;		
 		pp->y = pp0->y - pvt->m_step.y;
 	}
 }
 
-int vertexTailIndex(TVertex* pvt)
+// 释放顶点Vertex，主要是释放m_points分配的内存
+void vertexFree(TVertex* pvt)
 {
-	return pvt->m_pcount - 1;
+	if (pvt->m_points != NULL)
+		free(pvt->m_points);
 }
 
-// 获取头部节点坐标
+// 获取第一个点坐标
 POINT vertexGetHead(TVertex* pv)
 {
 	return pv->m_points[0];
 }
 
-// 获取尾部节点坐标
+// 获取最后一个点坐标
 POINT vertexGetTail(TVertex* pvt)
 {
-	// 环形队列尾
-	return pvt->m_points[vertexTailIndex(pvt)];
+	return pvt->m_points[pvt->m_pcount-1];
 }
 
-// 移动顶点，将环形队列头尾位置
+// 移动点数组中每个点的位置，更新[0]的坐标，丢弃最后一个点[m_count-1]的坐标
 void vertexMove(TVertex* pvt)
 {
 	// 移动点数组[0,1,2,3,...n-1] => [0,0,1,2,...n-2]，丢弃最后一个点
@@ -73,11 +71,11 @@ void vertexMove(TVertex* pvt)
 		pvt->m_points[i] = pvt->m_points[i - 1];
 	}
 
-	// 按照原来[0]的点计算新位置
+	// 依据[0]点坐标，计算[0]点新位置
 	POINT p;
 	p.x = pvt->m_points[0].x + pvt->m_step.x;
 	p.y = pvt->m_points[0].y + pvt->m_step.y;
-	// 判断顶点是否越界
+	// 判断p点是否越界
 	if (p.x < 0) {
 		p.x = -p.x;
 		pvt->m_step.x = rand() % MAXSTEP + 1;
@@ -86,6 +84,7 @@ void vertexMove(TVertex* pvt)
 		p.x -= p.x - WIDTH + 1;
 		pvt->m_step.x = -rand() % MAXSTEP - 1;
 	}
+
 	if (p.y < 0) {
 		p.y = -p.y;
 		pvt->m_step.y = rand() % MAXSTEP + 1;
@@ -94,7 +93,7 @@ void vertexMove(TVertex* pvt)
 		p.y -= p.y - HEIGHT + 1;
 		pvt->m_step.y = -rand() % MAXSTEP - 1;
 	}
-	// 更新第一个点作为为p点
+	// 更新[0]点坐标
 	pvt->m_points[0] = p;
 }
 
@@ -106,21 +105,28 @@ typedef struct tagPolygon
 	int m_vcount;		// 多边形顶点数量
 } TPolygon;
 
-// 构造函数
+// 初始化多边形polygon
+// vertexcount: 顶点数量
+// linecount: 线的数量（顶点所含点的数量）
 void polygonInit(TPolygon* ppl, int vertexcount, int linecount)
 {
 	// 初始化颜色
 	ppl->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
+
+	// 为每个顶点分配内存
 	ppl->m_vcount = vertexcount;
 	ppl->m_vertexs = (TVertex*)malloc(ppl->m_vcount * sizeof(TVertex));
-	// 初始化四个顶点
+
+	// 初始化每个顶点
 	for (int i = 0; i < ppl->m_vcount; i++)
 		vertexInit(&(ppl->m_vertexs[i]), linecount);
 }
 
+// 释放多边形
+// 注意：需要释放每个顶点（每个顶点内含有为点数组申请的内存）
 void polygonFree(TPolygon* ppl)
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < ppl->m_vcount; i++)
 		vertexFree(&(ppl->m_vertexs[i]));
 	free(ppl->m_vertexs);
 }
@@ -168,7 +174,7 @@ int main()
 	// 定义两个多边形对象，分别有 7 层线和 12 层线
 	TPolygon s1, s2;
 	polygonInit(&s1, 5, 7);
-	polygonInit(&s2, 9, 12);
+	polygonInit(&s2, 3, 12);
 
 	// 移动多边形，按任意键退出
 	while (!_kbhit())
