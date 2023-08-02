@@ -19,8 +19,10 @@ typedef struct tagBall {
 	COLORREF color;
 } TBall;
 
-int ballCount = 10;
-TBall* balls;
+typedef struct tagBounce {
+	int ballCount = 10;
+	TBall* balls;
+} TBounce;
 
 
 int randRange(int from, int to)
@@ -28,11 +30,12 @@ int randRange(int from, int to)
 	return rand() % (to - from + 1) + from;
 }
 
-void initBall(TBall* pb)
+void ballInit(TBall* pb)
 {
+	pb->r = randRange(10, 30);
 	pb->x = randRange(-400 + pb->r, 400 - pb->r);
 	pb->y = randRange(-300 + pb->r, 300 - pb->r);
-	pb->r = 10;
+
 	pb->color = HSVtoRGB((float)(rand() % 360), 0.8f, 0.9f);
 	int v = randRange(3, 8);
 	double theta = rand() % 360;
@@ -40,94 +43,104 @@ void initBall(TBall* pb)
 	pb->vy = v * sin(theta * PI / 180);
 }
 
-void initAllBalls(int count)
+void bounceInitBalls(TBounce* pbc, int count)
 {
-	ballCount = 0;
-	balls = (TBall*)malloc(sizeof(TBall) * count);
-	if (balls != NULL) {
-		ballCount = count;
+	pbc->ballCount = 0;
+	pbc->balls = (TBall*)malloc(sizeof(TBall) * count);
+	if (pbc->balls != NULL) {
+		pbc->ballCount = count;
 		for (int i = 0; i < count; i++) {
-			initBall(&(balls[i]));
+			ballInit(&(pbc->balls[i]));
 		}
 	}
 }
 
-void addBall()
+void bounceAddBall(TBounce* pbc)
 {
-	TBall* pb = (TBall*)realloc(balls, sizeof(TBall) * (ballCount + 1));
+	TBall* pb = (TBall*)realloc(pbc->balls, sizeof(TBall) * (pbc->ballCount + 1));
 	if (pb != NULL) {
-		balls = pb;
-		ballCount++;
-		initBall(&(balls[ballCount - 1]));
+		pbc->balls = pb;
+		pbc->ballCount++;
+		ballInit(&(pbc->balls[pbc->ballCount - 1]));
 	}
 }
 
-void removeBall()
+void bounceDelBall(TBounce* pbc)
 {
-	if (ballCount < 1)
+	if (pbc->ballCount < 1)
 		return;
-	else if (ballCount==1) {
-		TBall* pb = (TBall*)realloc(balls, sizeof(TBall) * (ballCount - 1));
-		ballCount--;
+	else if (pbc->ballCount==1) {
+		TBall* pb = (TBall*)realloc(pbc->balls, sizeof(TBall) * (pbc->ballCount - 1));
+		pbc->ballCount--;
+		pbc->balls = pb;
 	}
 	else {
-		TBall* pb = (TBall*)realloc(balls, sizeof(TBall) * (ballCount - 1));
+		TBall* pb = (TBall*)realloc(pbc->balls, sizeof(TBall) * (pbc->ballCount - 1));
 		if (pb != NULL) {
-			ballCount--;
-			balls = pb;
+			pbc->ballCount--;
+			pbc->balls = pb;
 		}
 	}
 }
 
-void freeBalls()
+void bounceFreeBalls(TBounce* pbc)
 {
-	free(balls);
-	ballCount = 0;
+	free(pbc->balls);
+	pbc->ballCount = 0;
 }
 
-void drawBalls()
+void bounceDrawBalls(TBounce* pbc)
 {
-	for (int i = 0; i < ballCount; i++) {
-		setfillcolor(balls[i].color);
-		fillcircle(balls[i].x, balls[i].y, balls[i].r);
+	for (int i = 0; i < pbc->ballCount; i++) {
+		setfillcolor(pbc->balls[i].color);
+		fillcircle(pbc->balls[i].x, pbc->balls[i].y, pbc->balls[i].r);
 	}
 }
 
-void moveBalls()
+void bounceMoveBalls(TBounce* pbc)
 {
-	for (int i = 0; i < ballCount; i++) {
-		if (balls[i].x >= 400 - balls[i].r || balls[i].x <= -400 + balls[i].r) {
-			balls[i].vx = -balls[i].vx;
+	TBall* pb;
+	for (int i = 0; i < pbc->ballCount; i++) {
+		pb = &(pbc->balls[i]);
+		if (pb->x >= 400 - pb->r || pb->x <= -400 + pb->r) {
+			pb->vx = - pb->vx;
 		}
-		if (balls[i].y >= 300 - balls[i].r || balls[i].y <= -300 + balls[i].r) {
-			balls[i].vy = -balls[i].vy;
+		if (pb->y >= 300 - pb->r || pb->y <= -300 + pb->r) {
+			pb->vy = - pb->vy;
 		}
-		balls[i].x += balls[i].vx;
-		balls[i].y += balls[i].vy;
+		pb->x += pb->vx;
+		pb->y += pb->vy;
 	}
 }
+
 int main()
 {
 	initgraph(800, 600);
 	setorigin(400, 300);
 	setaspectratio(1, -1);
 
-	initAllBalls(ballCount);
+	TBounce bc;
+	bounceInitBalls(&bc, 10);
+
 	BeginBatchDraw();
 	ExMessage m;
 	while (1) {
 		cleardevice();
-		drawBalls();
+		bounceDrawBalls(&bc);
 		FlushBatchDraw();
 		Sleep(40);
-		moveBalls();
-		peekmessage(&m);
+
+		bounceMoveBalls(&bc);
+
+		peekmessage(&m, EX_KEY|EX_CHAR);
+		if (m.vkcode == VK_ESCAPE)
+			break;
 		if (m.ch == '+')
-			addBall();
+			bounceAddBall(&bc);
 		else if (m.ch == '-')
-			removeBall();
+			bounceDelBall(&bc);
 	}
-	freeBalls();
+	bounceFreeBalls(&bc);
 	EndBatchDraw();
 	closegraph();
 	return 0;
