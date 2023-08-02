@@ -8,11 +8,11 @@
 #define	HEIGHT	480
 #define	MAXSTEP	9
 
-// 顶点（四个顶点，组成一个多边形）
-typedef struct tagVertex
-{
-	POINT* m_points;		// 顶点环形队列，每个顶点队列包含多个临近的顶点坐标
-	int m_count;			// 顶点环形队列的长度
+// 多边形顶点Vertex
+// 顶点Vertex由一组点POINT构成
+typedef struct tagVertex {
+	POINT* m_points;		// 点数组，多个坐标
+	int m_count;			// 顶点队列的长度
 	POINT m_step;			// 移动步长
 } TVertex;
 
@@ -68,32 +68,34 @@ POINT vertexGetTail(TVertex* pvt)
 // 移动顶点，将环形队列头尾位置
 void vertexMove(TVertex* pvt)
 {
-	POINT* pphead = &(pvt->m_points[pvt->m_headidx]);
-	POINT* pptail = &(pvt->m_points[vertexTailIndex(pvt)]);
+	// 移动点数组[0,1,2,3,...n-1] => [0,0,1,2,...n-2]，丢弃最后一个点
+	for (int i = pvt->m_count - 1; i > 0; i--) {
+		pvt->m_points[i] = pvt->m_points[i - 1];
+	}
 
-	pptail->x = pphead->x + pvt->m_step.x;
-	pptail->y = pphead->y + pvt->m_step.y;
-	// 将环形队列头索引替换为尾部索引
-	pvt->m_headidx = vertexTailIndex(pvt);
-
-	pphead = &(pvt->m_points[pvt->m_headidx]);
+	// 按照原来[0]的点计算新位置
+	POINT p;
+	p.x = pvt->m_points[0].x + pvt->m_step.x;
+	p.y = pvt->m_points[0].y + pvt->m_step.y;
 	// 判断顶点是否越界
-	if (pphead->x < 0) {
-		pphead->x = -pphead->x;
+	if (p.x < 0) {
+		p.x = -p.x;
 		pvt->m_step.x = rand() % MAXSTEP + 1;
 	}
-	else if (pphead->x >= WIDTH) {
-		pphead->x -= pphead->x - WIDTH + 1;
+	else if (p.x >= WIDTH) {
+		p.x -= p.x - WIDTH + 1;
 		pvt->m_step.x = -rand() % MAXSTEP - 1;
 	}
-	if (pphead->y < 0) {
-		pphead->y = -pphead->y;
+	if (p.y < 0) {
+		p.y = -p.y;
 		pvt->m_step.y = rand() % MAXSTEP + 1;
 	}
-	else if (pphead->y >= HEIGHT) {
-		pphead->y -= pphead->y - HEIGHT + 1;
+	else if (p.y >= HEIGHT) {
+		p.y -= p.y - HEIGHT + 1;
 		pvt->m_step.y = -rand() % MAXSTEP - 1;
 	}
+	// 更新第一个点作为为p点
+	pvt->m_points[0] = p;
 }
 
 // 多边形
@@ -176,7 +178,7 @@ int main()
 	{
 		polygonMove(&s1);
 		polygonMove(&s2);
-		Sleep(1000);
+		Sleep(20);
 	}
 	polygonFree(&s1);
 	polygonFree(&s2);
