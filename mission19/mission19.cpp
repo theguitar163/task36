@@ -178,7 +178,7 @@ int main()
 	{
 		polygonMove(&s1);
 		polygonMove(&s2);
-		Sleep(20);
+		Sleep(1000);
 	}
 	polygonFree(&s1);
 	polygonFree(&s2);
