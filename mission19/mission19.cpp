@@ -12,7 +12,7 @@
 // 顶点Vertex由一组点POINT构成
 typedef struct tagVertex {
 	POINT* m_points;		// 点数组，多个坐标
-	int m_count;			// 顶点队列的长度
+	int m_pcount;			// 点数组的长度
 	POINT m_step;			// 移动步长
 } TVertex;
 
@@ -32,7 +32,7 @@ void vertexInit(TVertex* pvt, int linecount)
 
 	// 初始化节点环型队列
 	pvt->m_points = (POINT*)malloc(linecount * sizeof(POINT));
-	pvt->m_count = linecount;
+	pvt->m_pcount = linecount;
 
 	POINT* pp = &(pvt->m_points[0]);
 	POINT* pp0;
@@ -49,7 +49,7 @@ void vertexInit(TVertex* pvt, int linecount)
 
 int vertexTailIndex(TVertex* pvt)
 {
-	return pvt->m_count - 1;
+	return pvt->m_pcount - 1;
 }
 
 // 获取头部节点坐标
@@ -69,7 +69,7 @@ POINT vertexGetTail(TVertex* pvt)
 void vertexMove(TVertex* pvt)
 {
 	// 移动点数组[0,1,2,3,...n-1] => [0,0,1,2,...n-2]，丢弃最后一个点
-	for (int i = pvt->m_count - 1; i > 0; i--) {
+	for (int i = pvt->m_pcount - 1; i > 0; i--) {
 		pvt->m_points[i] = pvt->m_points[i - 1];
 	}
 
@@ -101,60 +101,57 @@ void vertexMove(TVertex* pvt)
 // 多边形
 typedef struct tagPolygon
 {
-	COLORREF m_color;		// 多边形的颜色
-	TVertex m_vertex[4];	// 构成多边形的四个顶点
+	COLORREF m_color;	// 多边形的颜色
+	TVertex* m_vertexs;	// 多边形顶点数组
+	int m_vcount;		// 多边形顶点数量
 } TPolygon;
 
 // 构造函数
-void polygonInit(TPolygon* ppl, int linecount)
+void polygonInit(TPolygon* ppl, int vertexcount, int linecount)
 {
 	// 初始化颜色
 	ppl->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
-
+	ppl->m_vcount = vertexcount;
+	ppl->m_vertexs = (TVertex*)malloc(ppl->m_vcount * sizeof(TVertex));
 	// 初始化四个顶点
-	for (int i = 0; i < 4; i++)
-		vertexInit(&(ppl->m_vertex[i]), linecount);
+	for (int i = 0; i < ppl->m_vcount; i++)
+		vertexInit(&(ppl->m_vertexs[i]), linecount);
 }
 
-void polygonFree(TPolygon* pp)
+void polygonFree(TPolygon* ppl)
 {
 	for (int i = 0; i < 4; i++)
-		vertexFree(&(pp->m_vertex[i]));
+		vertexFree(&(ppl->m_vertexs[i]));
+	free(ppl->m_vertexs);
 }
 
-// 移动多边形
-// 每次绘制多边形时，只有两步操作：
-// 1.擦除顶点队列最后一组（pvt->m_count-1）多边形
-// 2.将顶点队列向后移动，空出位置0
-// 3.更新位置0顶点的坐标
-// 4.绘制位置0顶点的多边形（其他位置顶点不变）
+// 绘制并移动多边形
 void polygonMove(TPolygon* ppl)
 {
-	int i;
 	POINT p;
-	// 擦掉环形队列尾部多边形
+	// 1.擦除顶点所含点数组中最后一个点[m_count-1]包围的多边形
 	setcolor(BLACK);
-	p = vertexGetTail(&(ppl->m_vertex[3]));
+	p = vertexGetTail(&(ppl->m_vertexs[ppl->m_vcount-1]));
 	moveto(p.x,  p.y);
-	for (i = 0; i < 4; i++) {
-		p = vertexGetTail(&(ppl->m_vertex[i]));
+	for (int i = 0; i < ppl->m_vcount; i++) {
+		p = vertexGetTail(&(ppl->m_vertexs[i]));
 		lineto(p.x, p.y);
 	}
 
-	// 移动每个顶点环形队列，将尾部变成头部
-	for (i = 0; i < 4; i++)
-		vertexMove(&(ppl->m_vertex[i]));
+	// 2.移动顶点所含点数组的位置+1，丢弃最后一个点[m_count-1]，更新第一个点[0]坐标
+	for (int i = 0; i < ppl->m_vcount; i++)
+		vertexMove(&(ppl->m_vertexs[i]));
 
-	// 绘制环形队列头部多边形
+	// 3.绘制顶点所含点数组中第一个点[0]包围的多边形（其他位置顶点不变）
 	setcolor(ppl->m_color);
-	p = vertexGetHead(&(ppl->m_vertex[3]));
+	p = vertexGetHead(&(ppl->m_vertexs[ppl->m_vcount-1]));
 	moveto(p.x, p.y);
-	for (i = 0; i < 4; i++) {
-		p = vertexGetHead(&(ppl->m_vertex[i]));
+	for (int i = 0; i < ppl->m_vcount; i++) {
+		p = vertexGetHead(&(ppl->m_vertexs[i]));
 		lineto(p.x, p.y);
 	}
 
-	// 有 1% 的概率更换颜色
+	// 4.有 1% 的概率更换颜色
 	if (rand() % 100 == 0)
 		ppl->m_color = HSLtoRGB(float(rand() % 360), 1.0, 0.5);
 }
@@ -170,8 +167,8 @@ int main()
 
 	// 定义两个多边形对象，分别有 7 层线和 12 层线
 	TPolygon s1, s2;
-	polygonInit(&s1, 7);
-	polygonInit(&s2, 12);
+	polygonInit(&s1, 5, 7);
+	polygonInit(&s2, 9, 12);
 
 	// 移动多边形，按任意键退出
 	while (!_kbhit())
