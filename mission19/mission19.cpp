@@ -1,5 +1,4 @@
 ﻿// 任务：模拟 Windows XP 的屏保“变幻线”。
-//
 
 #include <easyx.h>
 #include <graphics.h>
@@ -13,7 +12,6 @@
 typedef struct tagVertex
 {
 	POINT* m_points;		// 顶点环形队列，每个顶点队列包含多个临近的顶点坐标
-	int m_headidx;			// 顶点环形队列当前的头下标
 	int m_count;			// 顶点环形队列的长度
 	POINT m_step;			// 移动步长
 } TVertex;
@@ -34,7 +32,6 @@ void vertexInit(TVertex* pvt, int linecount)
 
 	// 初始化节点环型队列
 	pvt->m_points = (POINT*)malloc(linecount * sizeof(POINT));
-	pvt->m_headidx = 0;
 	pvt->m_count = linecount;
 
 	POINT* pp = &(pvt->m_points[0]);
@@ -42,22 +39,23 @@ void vertexInit(TVertex* pvt, int linecount)
 	pp->x = rand() % WIDTH;
 	pp->y = rand() % HEIGHT;
 	for (int i = 1; i < linecount; i++) {
-		pp = &(pvt->m_points[i]);
-		pp0 = &(pvt->m_points[i - 1]);
-		pp->x = pp0->x - pvt->m_step.x;
+		pp0 = &(pvt->m_points[i - 1]);		// 取前一个点的指针
+		pp = &(pvt->m_points[i]);			// 取当前点的指针
+		// 按移动步长计算当前点的坐标。使用减步长，保证每个点不会超界
+		pp->x = pp0->x - pvt->m_step.x;		
 		pp->y = pp0->y - pvt->m_step.y;
 	}
 }
 
 int vertexTailIndex(TVertex* pvt)
 {
-	return (pvt->m_headidx > 0) ? (pvt->m_headidx - 1) : pvt->m_count - 1;
+	return pvt->m_count - 1;
 }
 
 // 获取头部节点坐标
 POINT vertexGetHead(TVertex* pv)
 {
-	return pv->m_points[pv->m_headidx];
+	return pv->m_points[0];
 }
 
 // 获取尾部节点坐标
@@ -178,7 +176,7 @@ int main()
 	{
 		polygonMove(&s1);
 		polygonMove(&s2);
-		Sleep(20);
+		Sleep(1000);
 	}
 	polygonFree(&s1);
 	polygonFree(&s2);
