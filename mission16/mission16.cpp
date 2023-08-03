@@ -31,7 +31,7 @@ typedef struct {
 	int speed;
 } TLetter;
 
-TLetter* newLetter(int speed)
+TLetter* letterInit(int speed)
 {
 	TLetter* pletter = (TLetter*)malloc(sizeof(TLetter));
 	char asc = (rand() % 2) ? 'A' : 'a';
@@ -55,7 +55,6 @@ void incCount(TTyping* typing)
 		typing->lettercount++;
 }
 
-
 void AddLetter(TTyping* typing)
 {
 	int n = 0;
@@ -69,7 +68,7 @@ void AddLetter(TTyping* typing)
 	for (int i = 0; i < MAX_LETTER; i++) {
 		if (!typing->letters[i]) {
 			if (n < typing->lettercount) {
-				typing->letters[i] = newLetter(typing->speed);
+				typing->letters[i] = letterInit(typing->speed);
 				n++;
 			}
 			else
@@ -131,6 +130,8 @@ int main()
 
 	typing.lettercount = 3;
 	AddLetter(&typing);
+
+	settextstyle(48, 0, _T("Consolas"));
 	BeginBatchDraw();
 	ExMessage m;
 	while (true) {
@@ -139,6 +140,8 @@ int main()
 
 		if (_kbhit()) {
 			char ch = _getch();
+			if (ch == 27)
+				break;
 			if (hitLetters(&typing, ch)) {
 				AddLetter(&typing);
 			}
