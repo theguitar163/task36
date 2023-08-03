@@ -7,8 +7,10 @@
 #include <easyx.h>
 #include <graphics.h>
 #include <conio.h>
+#include <time.h>
 
 #define MAX_STACK 100
+#define FRAME_RATE 1000/60
 
 typedef struct tagRing {
 	int size;
@@ -55,7 +57,7 @@ TRing stackPop(TStack* ps)
 		ps->top--;
 
 		drawStack(ps);
-		Sleep(10);
+		Sleep(FRAME_RATE);
 	}
 	return r;
 }
@@ -65,9 +67,6 @@ void stackPush(TStack* ps, TRing r)
 	if (ps->top < MAX_STACK - 1) {
 		ps->top++;
 		ps->stack[ps->top] = r;
-
-		drawStack(ps);
-		Sleep(10);
 	}
 }
 
@@ -84,7 +83,6 @@ typedef struct tagHanoiStack {
 	int pole_h;
 } THanoiStack;
 
-
 void initHanoiStack(THanoiStack* phs, int count, int bx, int by, int bw, int bh, int pw, int ph)
 {
 	phs->layercount = count;
@@ -99,7 +97,7 @@ void initHanoiStack(THanoiStack* phs, int count, int bx, int by, int bw, int bh,
 	stackInit(&(phs->stkB), bx + bw / 3 * 1.5, by, 20, 20);
 	stackInit(&(phs->stkC), bx + bw / 3 * 2.5, by, 20, 20);
 
-	for (int i = count; i > 1; i--) {
+	for (int i = count; i > 0; i--) {
 		TRing r = { i, RGB(rand() % 256, 128 + rand() % 128, rand() % 256) };
 		stackPush(&(phs->stkA), r);
 	};
@@ -122,38 +120,50 @@ void drawHanoiStack(THanoiStack* phs)
 	fillrectangle(phs->base_x + 1.5 * w - phs->pole_w / 2, phs->base_y, phs->base_x + 1.5 * w + phs->pole_w / 2, phs->base_y - phs->pole_h);
 	fillrectangle(phs->base_x + 2.5 * w - phs->pole_w / 2, phs->base_y, phs->base_x + 2.5 * w + phs->pole_w / 2, phs->base_y - phs->pole_h);
 
-	// 绘制圆圈
+	// 绘制堆叠的圆环
 	drawStack(&(phs->stkA));
 	drawStack(&(phs->stkB));
 	drawStack(&(phs->stkC));
+	FlushBatchDraw();
 }
 
-void move(int count, TStack* psrc, TStack* pvia, TStack* pdst)
+void solveHanoiStack(THanoiStack* phs, int count, TStack* psrc, TStack* pvia, TStack* pdst)
 {
 	TRing rtmp;
 	if (count == 1) {
 		rtmp = stackPop(psrc);
 		stackPush(pdst, rtmp);
+
+		drawHanoiStack(phs);
+		Sleep(FRAME_RATE);
 	}
 	else {
-		move(count - 1, psrc, pdst, pvia);
+		solveHanoiStack(phs, count - 1, psrc, pdst, pvia);
+		
 		rtmp = stackPop(psrc);
 		stackPush(pdst, rtmp);
-		move(count - 1, pvia, psrc, pdst);
+
+		drawHanoiStack(phs);
+		Sleep(FRAME_RATE);
+
+		solveHanoiStack(phs, count - 1, pvia, psrc, pdst);
 	}
 }
 
-TStack stkA, stkB, stkC;
-THanoiStack hanoi;
-
 int main()
 {
-	initgraph(800, 600);
-	initHanoiStack(&hanoi, 8, 50, getheight() - 50, getwidth() - 100, 20, 10, getheight() - 200);
+	THanoiStack hanoi;
 
+	initgraph(800, 600);
+	srand(time(NULL));
+	initHanoiStack(&hanoi, 8, 50, getheight() - 150, getwidth() - 100, 20, 10, getheight() - 300);
+
+	BeginBatchDraw();
 	drawHanoiStack(&hanoi);
 
-	move(hanoi.layercount, &hanoi.stkA, &hanoi.stkB, &hanoi.stkC);
+	solveHanoiStack(&hanoi, hanoi.layercount, &hanoi.stkA, &hanoi.stkB, &hanoi.stkC);
+	EndBatchDraw();
+
 	_getch();
 	closegraph();
 	return 0;
