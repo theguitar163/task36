@@ -10,7 +10,7 @@
 #include <time.h>
 
 #define MAX_STACK 100
-#define FRAME_RATE 1000/60
+#define FRAME_RATE (1000/60)
 
 typedef struct tagRing {
 	int size;
