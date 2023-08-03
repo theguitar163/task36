@@ -33,12 +33,29 @@ void stackInit(TStack* ps, int x, int y, int rw, int rh)
 	ps->rh = rh;
 }
 
+void drawStack(TStack* ps)
+{
+	for (int i = 0; i <= ps->top; i++) {
+		setlinecolor(BLACK);
+		setfillcolor(ps->stack[i].color);
+		fillroundrect(
+			ps->x - (ps->rw * ps->stack[i].size) / 2,
+			ps->y - ps->rh * (i + 1) - 5,
+			ps->x + (ps->rw * ps->stack[i].size) / 2,
+			ps->y - ps->rh * (i + 1) + 5,
+			ps->rw / 4, ps->rh / 4);
+	}
+}
+
 TRing stackPop(TStack* ps)
 {
 	TRing r = { 0 };
 	if (ps->top >= 0) {
 		r = ps->stack[ps->top];
 		ps->top--;
+
+		drawStack(ps);
+		Sleep(10);
 	}
 	return r;
 }
@@ -48,6 +65,9 @@ void stackPush(TStack* ps, TRing r)
 	if (ps->top < MAX_STACK - 1) {
 		ps->top++;
 		ps->stack[ps->top] = r;
+
+		drawStack(ps);
+		Sleep(10);
 	}
 }
 
@@ -56,62 +76,56 @@ typedef struct tagHanoiStack {
 	TStack stkA;
 	TStack stkB;
 	TStack stkC;
-	int board_x;
-	int board_y;
-	int board_w;
-	int board_h;
+	int base_x;
+	int base_y;
+	int base_w;
+	int base_h;
 	int pole_w;
 	int pole_h;
 } THanoiStack;
 
 
-void initHanoiStack(THanoiStack* phs, int count)
+void initHanoiStack(THanoiStack* phs, int count, int bx, int by, int bw, int bh, int pw, int ph)
 {
+	phs->layercount = count;
+	phs->base_x = bx;
+	phs->base_y = by;
+	phs->base_w = bw;
+	phs->base_h = bh;
+	phs->pole_w = pw;
+	phs->pole_h = ph;
 
-	stackInit(&(phs->stkA));
+	stackInit(&(phs->stkA), bx + bw / 3 * 0.5, by, 20, 20);
+	stackInit(&(phs->stkB), bx + bw / 3 * 1.5, by, 20, 20);
+	stackInit(&(phs->stkC), bx + bw / 3 * 2.5, by, 20, 20);
+
 	for (int i = count; i > 1; i--) {
 		TRing r = { i, RGB(rand() % 256, 128 + rand() % 128, rand() % 256) };
-		stackPush(ps, r);
+		stackPush(&(phs->stkA), r);
 	};
 }
 
-void drawStack(TStack* ps, int x, int y, int w, int h)
+void drawHanoiStack(THanoiStack* phs)
 {
-	for (int i = 0; i <= ps->top; i++) {
-		setlinecolor(BLACK);
-		setfillcolor(ps->stack[i].color);
-		fillroundrect(x - (w * ps->stack[i].size) / 2,
-			y - h * i - 5,
-			x + (w * ps->stack[i].size) / 2,
-			y - h * i + 5,
-			5, 5);
-	}
-}
-
-void drawHanoiStack(TStack* psa, TStack* psb, TStack* psc, int count)
-{
-	int x = 50;
-	int y = getheight() - 50;
 	setbkcolor(WHITE);
 	cleardevice();
 
 	// 绘制底座
 	setlinecolor(BLACK);
 	setfillcolor(LIGHTGRAY);
-	fillrectangle(x, y, getwidth() - x, y + 20);
-
+	fillrectangle(phs->base_x, phs->base_y, phs->base_x + phs->base_w, phs->base_y + phs->base_h);
+	
 	// 绘制宝石针
-	int w = (getwidth() - x * 2) / 3;
+	int w = phs->base_w / 3;
 	setfillcolor(DARKGRAY);
-	fillrectangle(x + 0.5 * w-2, y, x + 0.5 * w+2, 50);
-	fillrectangle(x + 1.5 * w-2, y, x + 1.5 * w+2, 50);
-	fillrectangle(x + 2.5 * w-2, y, x + 2.5 * w+2, 50);
+	fillrectangle(phs->base_x + 0.5 * w - phs->pole_w / 2, phs->base_y, phs->base_x + 0.5 * w + phs->pole_w / 2, phs->base_y - phs->pole_h);
+	fillrectangle(phs->base_x + 1.5 * w - phs->pole_w / 2, phs->base_y, phs->base_x + 1.5 * w + phs->pole_w / 2, phs->base_y - phs->pole_h);
+	fillrectangle(phs->base_x + 2.5 * w - phs->pole_w / 2, phs->base_y, phs->base_x + 2.5 * w + phs->pole_w / 2, phs->base_y - phs->pole_h);
 
 	// 绘制圆圈
-	int h = (getheight() - 50 * 2) / (count+1);
-	drawStack(psa, x + 0.5 * w, y - 20, 20, 20);
-	drawStack(psb, x + 1.5 * w, y - 20, 20, 20);
-	drawStack(psc, x + 2.5 * w, y - 20, 20, 20);
+	drawStack(&(phs->stkA));
+	drawStack(&(phs->stkB));
+	drawStack(&(phs->stkC));
 }
 
 void move(int count, TStack* psrc, TStack* pvia, TStack* pdst)
@@ -130,15 +144,16 @@ void move(int count, TStack* psrc, TStack* pvia, TStack* pdst)
 }
 
 TStack stkA, stkB, stkC;
+THanoiStack hanoi;
 
 int main()
 {
 	initgraph(800, 600);
-	initHanoiStack(&stkA, 8);
+	initHanoiStack(&hanoi, 8, 50, getheight() - 50, getwidth() - 100, 20, 10, getheight() - 200);
 
-	drawHanoiStack(&stkA, &stkB, &stkC, 8);
-	drawHanoiStack(&stkA, &stkB, &stkC, 8);
+	drawHanoiStack(&hanoi);
 
+	move(hanoi.layercount, &hanoi.stkA, &hanoi.stkB, &hanoi.stkC);
 	_getch();
 	closegraph();
 	return 0;
