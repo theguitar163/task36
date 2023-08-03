@@ -49,19 +49,38 @@ void swapData(TData *pd1, TData* pd2)
 
 void sortBubble() 
 {
-    int done = 0;
-    while (!done) {
-        done = 1;
-        for (int i = 0; i < DATA_COUNT - 1; i++) {
-            if (data[i].num > data[i + 1].num) {
-                swapData(&data[i], &data[i + 1]);
+    for (int i = 0; i < DATA_COUNT - 1; i++) {
+        // 每轮循环确保最大的数，通过交换冒泡至最后        
+        for (int j = 0; j < DATA_COUNT - 1 - i; j++) {
+            if (data[j].num > data[j + 1].num) {        // 相邻两数两两对比
+                swapData(&data[j], &data[j + 1]);       // 交换两数
+
                 cleardevice();
                 drawData(50, 50, 240, 200);
                 FlushBatchDraw();
                 Sleep(5);
-                done = 0;
             }
         }
+    }
+}
+
+void sortSelect()
+{
+    int minIdx;
+    for (int i = 0; i < DATA_COUNT - 1; i++) {
+        minIdx = i;
+        // 寻找剩余数组中最小的数据，记录其下标
+        for (int j = i + 1; j < DATA_COUNT; j++) {
+            if (data[minIdx].num > data[j].num) {
+                minIdx = j;
+            }
+        }
+        // 找到后，将最小数[minIdx]与当前待排序的第一个数据[i]进行交换
+        swapData(&data[i], &data[minIdx]);
+        cleardevice();
+        drawData(50, 50, 240, 200);
+        FlushBatchDraw();
+        Sleep(5);
     }
 }
 
@@ -73,6 +92,8 @@ int main()
     drawData(50, 50, 200, 200);
     BeginBatchDraw();
     sortBubble();
+    initData();
+    sortSelect();
     EndBatchDraw();
     _getch();
     closegraph();
