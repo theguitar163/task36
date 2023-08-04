@@ -123,6 +123,8 @@ int main()
     for (int i = 0; i < info.biHeight; i++) {
         for (int j = 0; j < info.biWidth; j++) {
             unsigned char* p = &buff[i * lineByteCnt + j * info.biBitCount / 8];
+            // 注意BMP图片是上下颠倒的，所以需要从下往上输出
+            // 每像素连续三个字节为BGR，所以需要调整为RGB
             putpixel(j, info.biHeight - i -1, RGB(*(p + 2), *(p + 1), *p));
         }
     }
