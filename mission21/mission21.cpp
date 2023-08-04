@@ -46,6 +46,7 @@ void drawData()
         x = left + i * width / DATA_COUNT;
         y = bottom - data[i].num * height / MAX_NUM;
         solidrectangle(x, bottom, x+barwidth-2, y);
+        // 在矩形底部绘制数字
         swprintf_s(s, L"%d", data[i].num);
         outtextxy(x + (barwidth - textwidth(s)) / 2, bottom - 20, s);
     }
@@ -107,6 +108,7 @@ int main()
     initgraph(800, 600);
     srand(time(NULL));
     BeginBatchDraw();
+
     // 冒泡排序
     initData();
     bubbleSort();
