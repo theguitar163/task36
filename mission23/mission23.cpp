@@ -62,8 +62,11 @@ int main()
     setaspectratio(1, -1);
     setorigin(0, getheight());
 
-    drawSnowflake(10, 100, 600, 600, 0.0);
-    _getch();
+    for (int i = 1; i <= 10; i++) {
+        cleardevice();
+        drawSnowflake(i, 100, 600, 600, 0.0);
+        _getch();
+    }
     closegraph();
     return 0;
 }
