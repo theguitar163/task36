@@ -27,9 +27,11 @@ void drawline(int n, double x, double y, double len, double alpha)
             px = px + cos(theta) * r;
             py = py + sin(theta) * r;
         }
+        // i=0、2时，逆时针旋转60°
         if (i % 2 == 0) {
             theta = theta + PI / 3;
         }
+        // i=1时，顺时针旋转120°
         else {
             theta = theta - 2 * PI / 3;
 
