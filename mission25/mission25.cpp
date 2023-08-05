@@ -51,34 +51,33 @@ void drawCrown(TCrown* pcrown, int cx, int cy)
 }
 
 // 棋盘格 ---------------------------------------------
-typedef struct tagGrid {
+typedef struct tagBoard {
     TCrown* pcrown;           // 皇冠图形指针
     int rows[MAX_CELL];       // 使用一维数组保存皇后位置，数组值为列cx，数组下标为行cy
-} TGrid;
+} TBoard;
 
 // 初始化单元格
-void initGrid(TGrid* pgrid, TCrown* pcrown = NULL)
+void initBoard(TBoard* pboard, TCrown* pcrown = NULL)
 {
     // 首次初始化时，需传入皇冠图形对象指针
     if (pcrown != NULL)
-        pgrid->pcrown = pcrown;
+        pboard->pcrown = pcrown;
     for (int i = 0; i < MAX_CELL; i++)
-            pgrid->rows[i] = -1;   // -1表示该行未放置皇后
+            pboard->rows[i] = -1;   // -1表示该行未放置皇后
 }
 
 // 依据每行皇后位置，绘制皇冠
-void drawCells(TGrid* pgrid)
+void drawQueens(TBoard* pboard)
 {
     for (int i = 0; i < MAX_CELL; i++) {
-        if (pgrid->rows[i] >= 0)
-            drawCrown(pgrid->pcrown, pgrid->rows[i], i);  // 数组值为列cx，数组下标为行cy
+        if (pboard->rows[i] >= 0)
+            drawCrown(pboard->pcrown, pboard->rows[i], i);  // 数组值为列cx，数组下标为行cy
     }
 }
 
 // 绘制棋盘
 void drawBoard()
 {
-
     setbkcolor(WHITE);
     setbkmode(TRANSPARENT);  // 输出字符时保持透明背景
     cleardevice();
@@ -120,12 +119,12 @@ void drawBoard()
 }
 
 // 检查该位置能否放入皇后，此处仅检查从 [0 .. cy-1] 行
-int checkQueenPos(TGrid* pgrid, int cx, int cy)
+int checkQueenPos(TBoard* pboard, int cx, int cy)
 {
     for (int i = 0; i < cy; i++) {
-        if (pgrid->rows[i] == cx ||     // 同一列
-            (pgrid->rows[i] - i) == (cx - cy) ||   // 左侧斜线，x-y相等
-            (pgrid->rows[i] + i) == (cx + cy)) {   // 右侧斜线，x+y相等
+        if (pboard->rows[i] == cx ||     // 同一列
+            (pboard->rows[i] - i) == (cx - cy) ||   // 左侧斜线，x-y相等
+            (pboard->rows[i] + i) == (cx + cy)) {   // 右侧斜线，x+y相等
             return 0;
         }
     }
@@ -143,11 +142,11 @@ void drawSolveCount(int solvecount)
 }
 
 // 添加皇后
-void addQueen(TGrid* pgrid, int cy, int* psolvecount)
+void addQueen(TBoard* pboard, int cy, int* psolvecount)
 {
     if (cy > MAX_CELL - 1) {
         drawBoard();
-        drawCells(pgrid);
+        drawQueens(pboard);
         (*psolvecount)++;
         drawSolveCount(*psolvecount);
         FlushBatchDraw();
@@ -156,9 +155,9 @@ void addQueen(TGrid* pgrid, int cy, int* psolvecount)
     }
 
     for (int cx = 0; cx < MAX_CELL; cx++) {
-        if (checkQueenPos(pgrid, cx, cy)) {
-            pgrid->rows[cy] = cx;
-            addQueen(pgrid, cy + 1, psolvecount);
+        if (checkQueenPos(pboard, cx, cy)) {
+            pboard->rows[cy] = cx;
+            addQueen(pboard, cy + 1, psolvecount);
         }
     }
 }
@@ -173,13 +172,13 @@ int main()
         L"\\C语言编程\\mission\\mission25\\crown.png",
         L"\\C语言编程\\mission\\mission25\\crownmask.png");
 
-    TGrid grid;
-    initGrid(&grid, &crown);
+    TBoard board;
+    initBoard(&board, &crown);
 
     BeginBatchDraw();
 
     int solvecount = 0;
-    addQueen(&grid, 0, &solvecount);
+    addQueen(&board, 0, &solvecount);
 
     EndBatchDraw();
     _getch();
