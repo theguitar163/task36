@@ -55,16 +55,7 @@ void initBoard(TBoard* pboard, TCrownImage* pcrown = NULL)
     pboard->solvecount = 0;
 }
 
-// 依据每行皇后位置，绘制皇冠
-void drawQueens(TBoard* pboard)
-{
-    for (int i = 0; i < MAX_CELL; i++) {
-        if (pboard->rows[i] >= 0)
-            drawCrown(pboard->pcrown, pboard->rows[i], i);  // 数组值为列cx，数组下标为行cy
-    }
-}
-
-// 绘制棋盘
+// 绘制棋盘以及棋盘上的皇后
 void drawBoard(TBoard* pboard)
 {
     setbkcolor(WHITE);
@@ -104,7 +95,7 @@ void drawBoard(TBoard* pboard)
         drawtext(str, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     }
 
-    // 绘制棋盘横纵坐标
+    // 在左侧和底部边框上绘制棋盘横纵坐标
     settextcolor(WHITE);
     for (int i = 0; i < MAX_CELL; i++) {
         // 绘制纵向坐标值1-8
