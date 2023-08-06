@@ -9,13 +9,13 @@
 //   鼠标在图像上选取一个矩形区域，然后可以对该区域应用图像滤镜，包括：
 //   马赛克效果、高斯模糊效果、灰度效果、黑白二值图效果等。
 
-/////////// 头文件 ////////////
-#include<graphics.h>
-#include<stdio.h>
-#include<conio.h>
-#include<cmath>
-#include<cstdlib>
-#include<commdlg.h>
+#include <graphics.h>
+#include <stdio.h>
+#include <conio.h>
+#include <cmath>
+#include <cstdlib>
+#include <commdlg.h>
+
 HWND hout;
 int con = 0; // 控制切换绘图板和插图
 int key = 0;
@@ -27,11 +27,11 @@ struct Push_Button
 	int x1, y1, x2, y2;		// 按钮的坐标
 	int radius;				// 圆形按钮的半径
 	COLORREF color;			// 按钮的颜色
-	LPCSTR text;			// 按钮上的文字
+	TCHAR* text;			// 按钮上的文字
 	int mod;				// 按钮模样
 };
 // 从电脑中获取图片
-int FileDialog(char* path)
+int FileDialog(TCHAR* path)
 {
 	OPENFILENAME ofn;
 	ZeroMemory(&ofn, sizeof(ofn));
