@@ -21,6 +21,7 @@ int con = 0; // 控制切换绘图板和插图
 int key = 0;
 const double PI = acos(-1.0);
 char szFile[MAX_PATH] = { 0 }; // 存储打开图片的路径
+
 // 定义一个按钮结构体
 struct Push_Button
 {
@@ -41,6 +42,29 @@ int FileDialog(TCHAR* path)
 	ofn.lpstrFilter = TEXT("图片文件(bmp; jpg; png; tiff; tif; jpeg; gif)\0*.bmp; *.jpg; *.png; *.tiff; *.jpeg; *.gif; *.tif\0\0"); // 文件类型
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // 标志
 	return GetOpenFileName(&ofn);
+}
+
+COLORREF chooseColor()
+{
+	CHOOSECOLOR cc;                 // common dialog box structure 
+	static COLORREF acrCustClr[16]; // array of custom colors 
+	HWND hwnd;                      // owner window
+	HBRUSH hbrush;                  // brush handle
+	static DWORD rgbCurrent;        // initial color selection
+
+	// Initialize CHOOSECOLOR 
+	ZeroMemory(&cc, sizeof(cc));
+	cc.lStructSize = sizeof(cc);
+	cc.hwndOwner = hwnd;
+	cc.lpCustColors = (LPDWORD)acrCustClr;
+	cc.rgbResult = rgbCurrent;
+	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+	if (ChooseColor(&cc) == TRUE)
+	{
+		hbrush = CreateSolidBrush(cc.rgbResult);
+		rgbCurrent = cc.rgbResult;
+	}
 }
 // 定义一个处理图像的类
 class Algorithm
