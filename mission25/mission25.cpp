@@ -9,7 +9,6 @@
 #include <easyx.h>
 #include <graphics.h>
 #include <conio.h>
-#include <iostream>
 
 #define CELL_WIDTH 64
 #define BORDER_WIDTH 32
@@ -120,11 +119,11 @@ void drawBoard(TBoard* pboard)
     }
 }
 
-
-// 检查该位置能否放入皇后，此处仅检查从 [0 .. cy-1] 行
+// 检查该位置能否放入皇后
+// 此处仅检查从 [0 .. cy-1] 行
 int checkQueenPos(TBoard* pboard, int cx, int cy)
 {
-    for (int i = 0; i < cy; i++) {
+    for (int i = 0; i < cy; i++) {      // 检查0至cy-1行
         if (pboard->rows[i] == cx ||    // 同一列
             (pboard->rows[i] - i) == (cx - cy) ||   // 左侧斜线，x-y相等
             (pboard->rows[i] + i) == (cx + cy)) {   // 右侧斜线，x+y相等
@@ -132,6 +131,25 @@ int checkQueenPos(TBoard* pboard, int cx, int cy)
         }
     }
     return 1;
+}
+
+// 控制延时等待
+int wait()
+{
+    static int delay = 500;
+    if (_kbhit()) {
+        switch (_getch()) {
+        case VK_ESCAPE:
+            delay = 0;  // ESC键，不延时
+            break;
+        case VK_SPACE:
+            _getch();      // 空格键，暂停
+            break;
+        default:            // 其他键，增速一倍
+            delay = 0.5 * delay;
+        }
+    }
+    return delay;
 }
 
 /*
@@ -149,22 +167,13 @@ int checkQueenPos(TBoard* pboard, int cx, int cy)
 角线是否有皇后占据建立标志数组。放下一个新皇后做标志，回溯时挪动一个旧皇后清
 除标志。
 */
-// 添加皇后
+// 在cy行添加皇后。
+// 添加成功，则继续尝试在cy+1行添加皇后
 void addQueen(TBoard* pboard, int cy)
 {
-    static int delay = 500;
-    if (_kbhit()) {
-        switch (_getch()) {
-        case VK_ESCAPE:
-            delay = 0;
-            break;
-        case VK_SPACE:
-            _getch();
-            break;
-        default:
-            delay = 0.5 * delay;
-        }
-    }
+    int delay = wait();
+
+    // 求完所有行[0..MAX_CELL-1]后，输出结果
     if (cy > MAX_CELL - 1) {
         pboard->solvecount++;
         drawBoard(pboard);
@@ -173,9 +182,13 @@ void addQueen(TBoard* pboard, int cy)
         return;
     }
 
+    // 列cx循环
     for (int cx = 0; cx < MAX_CELL; cx++) {
+        // 在当前行cy，遍历每一列cx，找出合适的位置
         if (checkQueenPos(pboard, cx, cy)) {
+            // 找到后，更新该行[cy]数组的值为该列cx
             pboard->rows[cy] = cx;
+            // 通过递归调用，继续在cy+1行添加皇后
             addQueen(pboard, cy + 1);
         }
     }
@@ -189,17 +202,18 @@ int main()
     initgraph(BORDER_WIDTH * 2 + CELL_WIDTH * MAX_CELL, BORDER_WIDTH * 2 + CELL_WIDTH * MAX_CELL);
     srand(GetTickCount());
 
+    // 加载皇冠图形
     initCrown(&crown,
         L"\\C语言编程\\mission\\mission25\\crown.png",
         L"\\C语言编程\\mission\\mission25\\crownmask.png");
-
+    // 初始化棋盘
     initBoard(&board, &crown);
 
     BeginBatchDraw();
-
+    // 求解八皇后问题
     addQueen(&board, 0);
-
     EndBatchDraw();
+
     _getch();
     closegraph();
     return 0;
