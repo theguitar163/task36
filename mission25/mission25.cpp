@@ -111,7 +111,7 @@ void drawBoard(TBoard* pboard)
 }
 
 // 检查该位置能否放入皇后
-// 此处仅检查从 [0 .. cy-1] 行
+// 此处仅检查从 [0 .. cy-1] 行是否有冲突
 int checkQueenPos(TBoard* pboard, int cx, int cy)
 {
     for (int i = 0; i < cy; i++) {      // 检查0至cy-1行
