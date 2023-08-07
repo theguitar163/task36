@@ -38,14 +38,14 @@ typedef void (TFunction)();
 
 // 按钮结构
 typedef struct tagButton {
+    TCHAR* text;          // 按钮上的文字
+    COLORREF color;           // 按钮的颜色
+    int type;                 // 按钮类型btCIRCLE\btRDRECT\btRECT
     int x, y, x2, y2;         // 按钮的坐标
     int w, h;
-    int radius;               // 圆形按钮的半径
-    COLORREF color;           // 按钮的颜色
-    TCHAR text[100];          // 按钮上的文字
-    int type;                 // 按钮类型btCIRCLE\btRDRECT\btRECT
+    int radius;               // 圆形按钮的半径    
     struct tagPanel* container;
-//    TFunction* pfun = NULL;
+    TFunction* pfun = NULL;
 } TButton;
 
 // 简易控制面板
@@ -68,7 +68,8 @@ void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCH
     pbtn->w = x2 - x;
     pbtn->h = y2 - y;
     pbtn->color = color;
-    wcscpy_s(pbtn->text, text);
+    pbtn->text = text;
+ //   wcscpy_s(pbtn->text, text);
     pbtn->type = mod;
 }
 
@@ -87,7 +88,11 @@ void initButton(TButton* pbtn, int x, int y, int w, int h, int mod)
     pbtn->w = w;
     pbtn->h = h;
     pbtn->type = mod;
+    pbtn->color = LIGHTGRAY;
+    pbtn->text = NULL;
+//    wcscpy_s(pbtn->text, L"\0");
 }
+
 // 绘制按钮
 void drawButton(TButton* pbtn)
 {
@@ -275,8 +280,7 @@ Algorithm::Algorithm(IMAGE* img, int width, int height)
     for (int i = 0; i<6; i++)
         initButton(&button[i], 20+i*30, height + 15, 10, 0);
 
-
-    button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; wcscpy_s(button[6].text,L"笔"); button[6].type = 1;
+/*    button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; button[6].text = TCHAR("笔"); button[6].type = 1;
     button[7].x = 220; button[7].y = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; wcscpy_s(button[7].text,L"编辑颜色"); button[7].type = 1;
     button[8].x = 300; button[8].y = height + 5; button[8].x2 = 325; button[8].y2 = height + 25; wcscpy_s(button[8].text,L"□"); button[8].type = 1;
     button[9].x = 335; button[9].y = height + 5; button[9].x2 = 375; button[9].y2 = height + 25; wcscpy_s(button[9].text,L"椭圆"); button[9].type = 1;
@@ -293,7 +297,7 @@ Algorithm::Algorithm(IMAGE* img, int width, int height)
     button[19].x = 410; button[19].y = height + 35; button[19].x2 = 480; button[19].y2 = height + 55; wcscpy_s(button[19].text,L"高斯模糊"); button[19].type = 1;
     button[20].x = 490; button[20].y = height + 35; button[20].x2 = 560; button[20].y2 = height + 55; wcscpy_s(button[20].text,L"灰度效果"); button[20].type = 1;
     button[21].x = 570; button[21].y = height + 35; button[21].x2 = 630; button[21].y2 = height + 55; wcscpy_s(button[21].text,L"马赛克"); button[21].type = 1;
-    bluex = button[0].x; bluey = button[0].y;
+ */   bluex = button[0].x; bluey = button[0].y;
     bluecolor = RGB(GetPrivateProfileInt(_T("COLOR0"), _T("R"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("G"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("B"), 0, _T("color.ini")));
 }
 // 选取状态
@@ -1131,7 +1135,7 @@ void Algorithm::getGaussianArray()
     }
 }
 
-int main1()
+int main()
 {
     int Height, Width;
     IMAGE image;
@@ -1144,7 +1148,9 @@ int main1()
     cleardevice();
 
     TPanel panel;
-    TButton buttons[22];
+    TButton buttons[22] = {
+        {NULL, RED, btCIRCLE}
+    };
 
  /*   button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; wcscpy_s(button[6].text, L"笔"); button[6].type = 1;
     button[7].x = 220; button[7].y = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; wcscpy_s(button[7].text, L"编辑颜色"); button[7].type = 1;
@@ -1209,7 +1215,7 @@ int main1()
     return 0;
 }
 
-int main()
+int main1()
 {
     int Height, Width;
     IMAGE* m_img;
