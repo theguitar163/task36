@@ -38,11 +38,11 @@ typedef void (TFunction)();
 
 // 按钮结构
 typedef struct tagButton {
-    TCHAR* text;          // 按钮上的文字
-    COLORREF color;           // 按钮的颜色
     int type;                 // 按钮类型btCIRCLE\btRDRECT\btRECT
-    int x, y, x2, y2;         // 按钮的坐标
+    const TCHAR* text;          // 按钮上的文字
+    COLORREF color;           // 按钮的颜色
     int w, h;
+    int x, y, x2, y2;         // 按钮的坐标
     int radius;               // 圆形按钮的半径    
     struct tagPanel* container;
     TFunction* pfun = NULL;
@@ -88,9 +88,14 @@ void initButton(TButton* pbtn, int x, int y, int w, int h, int mod)
     pbtn->w = w;
     pbtn->h = h;
     pbtn->type = mod;
-    pbtn->color = LIGHTGRAY;
     pbtn->text = NULL;
 //    wcscpy_s(pbtn->text, L"\0");
+}
+
+void initButton(TButton* pbtn, int x, int y)
+{
+    pbtn->x = x;
+    pbtn->y = y;
 }
 
 // 绘制按钮
@@ -109,6 +114,8 @@ void drawButton(TButton* pbtn)
 
     // 绘制按钮，包括椭圆形、圆角矩形、矩形三种
     setfillcolor(pbtn->color);
+    setlinecolor(BLACK);
+    settextcolor(BLACK);
     RECT r = { ox + pbtn->x, oy + pbtn->y, ox + pbtn->x + pbtn->w, oy + pbtn->y + pbtn->h };
     if (pbtn->type==btCIRCLE) {
         fillellipse(r.left, r.top, r.right, r.bottom);
@@ -280,24 +287,24 @@ Algorithm::Algorithm(IMAGE* img, int width, int height)
     for (int i = 0; i<6; i++)
         initButton(&button[i], 20+i*30, height + 15, 10, 0);
 
-/*    button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; button[6].text = TCHAR("笔"); button[6].type = 1;
-    button[7].x = 220; button[7].y = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; wcscpy_s(button[7].text,L"编辑颜色"); button[7].type = 1;
-    button[8].x = 300; button[8].y = height + 5; button[8].x2 = 325; button[8].y2 = height + 25; wcscpy_s(button[8].text,L"□"); button[8].type = 1;
-    button[9].x = 335; button[9].y = height + 5; button[9].x2 = 375; button[9].y2 = height + 25; wcscpy_s(button[9].text,L"椭圆"); button[9].type = 1;
-    button[10].x = 385; button[10].y = height + 5; button[10].x2 = 455; button[10].y2 = height + 25; wcscpy_s(button[10].text,L"画笔型号"); button[10].type = 1;
-    button[11].x = 470; button[11].y = height + 5; button[11].x2 = 530; button[11].y2 = height + 25; wcscpy_s(button[11].text,L"橡皮擦"); button[11].type = 1;
-    button[12].x = 545; button[12].y = height + 5; button[12].x2 = 585; button[12].y2 = height + 25; wcscpy_s(button[12].text,L"保存"); button[12].type = 1;
-    button[13].x = 595; button[13].y = height + 5; button[13].x2 = 635; button[13].y2 = height + 25; wcscpy_s(button[13].text,L"绘画"); button[13].type = 1;
+    button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; button[6].text = L"笔"; button[6].type = 1;
+    button[7].x = 220; button[7].y = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; button[7].text = L"编辑颜色"; button[7].type = 1;
+    button[8].x = 300; button[8].y = height + 5; button[8].x2 = 325; button[8].y2 = height + 25; button[8].text = L"□"; button[8].type = 1;
+    button[9].x = 335; button[9].y = height + 5; button[9].x2 = 375; button[9].y2 = height + 25; button[9].text = L"椭圆"; button[9].type = 1;
+    button[10].x = 385; button[10].y = height + 5; button[10].x2 = 455; button[10].y2 = height + 25; button[10].text = L"画笔型号"; button[10].type = 1;
+    button[11].x = 470; button[11].y = height + 5; button[11].x2 = 530; button[11].y2 = height + 25; button[11].text = L"橡皮擦"; button[11].type = 1;
+    button[12].x = 545; button[12].y = height + 5; button[12].x2 = 585; button[12].y2 = height + 25; button[12].text = L"保存"; button[12].type = 1;
+    button[13].x = 595; button[13].y = height + 5; button[13].x2 = 635; button[13].y2 = height + 25; button[13].text = L"绘画"; button[13].type = 1;
 
-    button[14].x = 20; button[14].y = height + 35; button[14].x2 = 90; button[14].y2 = height + 55; wcscpy_s(button[14].text,L"打开图片"); button[14].type = 1;
-    button[15].x = 100; button[15].y = height + 35; button[15].x2 = 170; button[15].y2 = height + 55; wcscpy_s(button[15].text,L"水平镜像"); button[15].type = 1;
-    button[16].x = 180; button[16].y = height + 35; button[16].x2 = 250; button[16].y2 = height + 55; wcscpy_s(button[16].text,L"垂直镜像"); button[16].type = 1;
-    button[17].x = 260; button[17].y = height + 35; button[17].x2 = 300; button[17].y2 = height + 55; wcscpy_s(button[17].text,L"截图"); button[17].type = 1;
-    button[18].x = 310; button[18].y = height + 35; button[18].x2 = 400; button[18].y2 = height + 55; wcscpy_s(button[18].text,L"黑白二值图"); button[18].type = 1;
-    button[19].x = 410; button[19].y = height + 35; button[19].x2 = 480; button[19].y2 = height + 55; wcscpy_s(button[19].text,L"高斯模糊"); button[19].type = 1;
-    button[20].x = 490; button[20].y = height + 35; button[20].x2 = 560; button[20].y2 = height + 55; wcscpy_s(button[20].text,L"灰度效果"); button[20].type = 1;
-    button[21].x = 570; button[21].y = height + 35; button[21].x2 = 630; button[21].y2 = height + 55; wcscpy_s(button[21].text,L"马赛克"); button[21].type = 1;
- */   bluex = button[0].x; bluey = button[0].y;
+    button[14].x = 20; button[14].y = height + 35; button[14].x2 = 90; button[14].y2 = height + 55; button[14].text = L"打开图片"; button[14].type = 1;
+    button[15].x = 100; button[15].y = height + 35; button[15].x2 = 170; button[15].y2 = height + 55; button[15].text = L"水平镜像"; button[15].type = 1;
+    button[16].x = 180; button[16].y = height + 35; button[16].x2 = 250; button[16].y2 = height + 55; button[16].text = L"垂直镜像"; button[16].type = 1;
+    button[17].x = 260; button[17].y = height + 35; button[17].x2 = 300; button[17].y2 = height + 55; button[17].text = L"截图"; button[17].type = 1;
+    button[18].x = 310; button[18].y = height + 35; button[18].x2 = 400; button[18].y2 = height + 55; button[18].text = L"黑白二值图"; button[18].type = 1;
+    button[19].x = 410; button[19].y = height + 35; button[19].x2 = 480; button[19].y2 = height + 55; button[19].text = L"高斯模糊"; button[19].type = 1;
+    button[20].x = 490; button[20].y = height + 35; button[20].x2 = 560; button[20].y2 = height + 55; button[20].text = L"灰度效果"; button[20].type = 1;
+    button[21].x = 570; button[21].y = height + 35; button[21].x2 = 630; button[21].y2 = height + 55; button[21].text = L"马赛克"; button[21].type = 1;
+    bluex = button[0].x; bluey = button[0].y;
     bluecolor = RGB(GetPrivateProfileInt(_T("COLOR0"), _T("R"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("G"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("B"), 0, _T("color.ini")));
 }
 // 选取状态
@@ -1135,7 +1142,7 @@ void Algorithm::getGaussianArray()
     }
 }
 
-int main()
+int main1()
 {
     int Height, Width;
     IMAGE image;
@@ -1145,11 +1152,25 @@ int main()
     
     hout = initgraph(800, 800);
     setbkcolor(WHITE);
+    setbkmode(TRANSPARENT);
     cleardevice();
 
     TPanel panel;
     TButton buttons[22] = {
-        {NULL, RED, btCIRCLE}
+        {btCIRCLE, NULL, RED, 20, 20},
+        {btCIRCLE, NULL, GREEN, 20, 20},
+        {btCIRCLE, NULL, BLUE, 20, 20},
+        {btCIRCLE, NULL, YELLOW, 20, 20},
+        {btCIRCLE, NULL, CYAN, 20, 20},
+        {btCIRCLE, NULL, BROWN, 20, 20},
+        {btRDRECT, L"画线", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"颜色", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"矩形", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"椭圆", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"画笔", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"橡皮", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"保存", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"绘画", LIGHTGRAY, 50, 30},
     };
 
  /*   button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; wcscpy_s(button[6].text, L"笔"); button[6].type = 1;
@@ -1172,8 +1193,12 @@ int main()
 */
     initPanel(&panel, 60, alBOTTOM);
     for (int i = 0; i < 6; i++) {
-        initButton(&buttons[i], 20 + i * 30, 15, 20, 20, btCIRCLE);
+        initButton(&buttons[i], 20 + i * 30, 15);
         addButton(&panel, &buttons[i]);
+    }
+    for (int i = 0; i < 7; i++) {
+        initButton(&buttons[i+6], 220 + i * 60, 10);
+        addButton(&panel, &buttons[6+i]);
     }
     drawPanel(&panel);
 
@@ -1215,7 +1240,7 @@ int main()
     return 0;
 }
 
-int main1()
+int main()
 {
     int Height, Width;
     IMAGE* m_img;
