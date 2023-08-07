@@ -20,17 +20,36 @@ HWND hout;
 int con = 0; // 控制切换绘图板和插图
 int key = 0;
 const double PI = acos(-1.0);
-char szFile[MAX_PATH] = { 0 }; // 存储打开图片的路径
+TCHAR szFile[MAX_PATH] = { 0 }; // 存储打开图片的路径
 
-// 定义一个按钮结构体
-struct Push_Button
-{
+// 按钮结构
+typedef struct tagButton {
 	int x1, y1, x2, y2;		// 按钮的坐标
 	int radius;				// 圆形按钮的半径
 	COLORREF color;			// 按钮的颜色
-	TCHAR* text;			// 按钮上的文字
+	TCHAR text[100];			// 按钮上的文字
 	int mod;				// 按钮模样
-};
+} TButton;
+
+void initButton(TButton* pbtn, int x1, int y1, int x2, int y2, COLORREF color, TCHAR* text, int mod)
+{
+	pbtn->x1 = x1;
+	pbtn->y1 = y1;
+	pbtn->x2 = x2;
+	pbtn->y2 = y2;
+	pbtn->color = color;
+	wcscpy_s(pbtn->text, text);
+	pbtn->mod = mod;
+}
+
+void initButton(TButton* pbtn, int x1, int y1, int radius, int mod)
+{
+	pbtn->x1 = x1;
+	pbtn->y1 = y1;
+	pbtn->radius = radius;
+	pbtn->mod = mod;
+}
+
 // 从电脑中获取图片
 int FileDialog(TCHAR* path)
 {
@@ -44,11 +63,11 @@ int FileDialog(TCHAR* path)
 	return GetOpenFileName(&ofn);
 }
 
-COLORREF chooseColor()
+COLORREF chooseColor(HWND hwnd)
 {
 	CHOOSECOLOR cc;                 // common dialog box structure 
 	static COLORREF acrCustClr[16]; // array of custom colors 
-	HWND hwnd;                      // owner window
+//	HWND hwnd;                      // owner window
 	HBRUSH hbrush;                  // brush handle
 	static DWORD rgbCurrent;        // initial color selection
 
@@ -65,6 +84,7 @@ COLORREF chooseColor()
 		hbrush = CreateSolidBrush(cc.rgbResult);
 		rgbCurrent = cc.rgbResult;
 	}
+	return rgbCurrent;
 }
 // 定义一个处理图像的类
 class Algorithm
@@ -88,7 +108,7 @@ public:
 	double** Gaussian_Ker; // 高斯滤盒
 	IMAGE* pimg;
 	COLORREF bluecolor;
-	Push_Button button[30]; // 预置三十个按钮
+	TButton button[30]; // 预置三十个按钮
 };
 // 初始化绘图场景
 Algorithm::Algorithm(IMAGE* img, int width, int height)
@@ -97,28 +117,27 @@ Algorithm::Algorithm(IMAGE* img, int width, int height)
 	Width = width;
 	Height = height;
 	size = 1;
-	button[0].x1 = 20; button[0].y1 = height + 15; button[0].radius = 10; button[0].mod = 0;
-	button[1].x1 = 50; button[1].y1 = height + 15; button[1].radius = 10; button[1].mod = 0;
-	button[2].x1 = 80; button[2].y1 = height + 15; button[2].radius = 10; button[2].mod = 0;
-	button[3].x1 = 110; button[3].y1 = height + 15; button[3].radius = 10; button[3].mod = 0;
-	button[4].x1 = 140; button[4].y1 = height + 15; button[4].radius = 10; button[4].mod = 0;
-	button[5].x1 = 170; button[5].y1 = height + 15; button[5].radius = 10; button[5].mod = 0;
-	button[6].x1 = 190; button[6].y1 = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; button[6].text = _T("笔"); button[6].mod = 1;
-	button[7].x1 = 220; button[7].y1 = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; button[7].text = _T("编辑颜色"); button[7].mod = 1;
-	button[8].x1 = 300; button[8].y1 = height + 5; button[8].x2 = 325; button[8].y2 = height + 25; button[8].text = _T("□"); button[8].mod = 1;
-	button[9].x1 = 335; button[9].y1 = height + 5; button[9].x2 = 375; button[9].y2 = height + 25; button[9].text = _T("椭圆"); button[9].mod = 1;
-	button[10].x1 = 385; button[10].y1 = height + 5; button[10].x2 = 455; button[10].y2 = height + 25; button[10].text = _T("画笔型号"); button[10].mod = 1;
-	button[11].x1 = 470; button[11].y1 = height + 5; button[11].x2 = 530; button[11].y2 = height + 25; button[11].text = _T("橡皮擦"); button[11].mod = 1;
-	button[12].x1 = 545; button[12].y1 = height + 5; button[12].x2 = 585; button[12].y2 = height + 25; button[12].text = _T("保存"); button[12].mod = 1;
-	button[13].x1 = 595; button[13].y1 = height + 5; button[13].x2 = 635; button[13].y2 = height + 25; button[13].text = _T("绘画"); button[13].mod = 1;
-	button[14].x1 = 20; button[14].y1 = height + 35; button[14].x2 = 90; button[14].y2 = height + 55; button[14].text = _T("打开图片"); button[14].mod = 1;
-	button[15].x1 = 100; button[15].y1 = height + 35; button[15].x2 = 170; button[15].y2 = height + 55; button[15].text = _T("水平镜像"); button[15].mod = 1;
-	button[16].x1 = 180; button[16].y1 = height + 35; button[16].x2 = 250; button[16].y2 = height + 55; button[16].text = _T("垂直镜像"); button[16].mod = 1;
-	button[17].x1 = 260; button[17].y1 = height + 35; button[17].x2 = 300; button[17].y2 = height + 55; button[17].text = _T("截图"); button[17].mod = 1;
-	button[18].x1 = 310; button[18].y1 = height + 35; button[18].x2 = 400; button[18].y2 = height + 55; button[18].text = _T("黑白二值图"); button[18].mod = 1;
-	button[19].x1 = 410; button[19].y1 = height + 35; button[19].x2 = 480; button[19].y2 = height + 55; button[19].text = _T("高斯模糊"); button[19].mod = 1;
-	button[20].x1 = 490; button[20].y1 = height + 35; button[20].x2 = 560; button[20].y2 = height + 55; button[20].text = _T("灰度效果"); button[20].mod = 1;
-	button[21].x1 = 570; button[21].y1 = height + 35; button[21].x2 = 630; button[21].y2 = height + 55; button[21].text = _T("马赛克"); button[21].mod = 1;
+	for (int i = 0; i<6; i++)
+		initButton(&button[i], 20+i*30, height + 15, 10, 0);
+
+
+	button[6].x1 = 190; button[6].y1 = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; wcscpy_s(button[6].text,L"笔"); button[6].mod = 1;
+	button[7].x1 = 220; button[7].y1 = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; wcscpy_s(button[7].text,L"编辑颜色"); button[7].mod = 1;
+	button[8].x1 = 300; button[8].y1 = height + 5; button[8].x2 = 325; button[8].y2 = height + 25; wcscpy_s(button[8].text,L"□"); button[8].mod = 1;
+	button[9].x1 = 335; button[9].y1 = height + 5; button[9].x2 = 375; button[9].y2 = height + 25; wcscpy_s(button[9].text,L"椭圆"); button[9].mod = 1;
+	button[10].x1 = 385; button[10].y1 = height + 5; button[10].x2 = 455; button[10].y2 = height + 25; wcscpy_s(button[10].text,L"画笔型号"); button[10].mod = 1;
+	button[11].x1 = 470; button[11].y1 = height + 5; button[11].x2 = 530; button[11].y2 = height + 25; wcscpy_s(button[11].text,L"橡皮擦"); button[11].mod = 1;
+	button[12].x1 = 545; button[12].y1 = height + 5; button[12].x2 = 585; button[12].y2 = height + 25; wcscpy_s(button[12].text,L"保存"); button[12].mod = 1;
+	button[13].x1 = 595; button[13].y1 = height + 5; button[13].x2 = 635; button[13].y2 = height + 25; wcscpy_s(button[13].text,L"绘画"); button[13].mod = 1;
+
+	button[14].x1 = 20; button[14].y1 = height + 35; button[14].x2 = 90; button[14].y2 = height + 55; wcscpy_s(button[14].text,L"打开图片"); button[14].mod = 1;
+	button[15].x1 = 100; button[15].y1 = height + 35; button[15].x2 = 170; button[15].y2 = height + 55; wcscpy_s(button[15].text,L"水平镜像"); button[15].mod = 1;
+	button[16].x1 = 180; button[16].y1 = height + 35; button[16].x2 = 250; button[16].y2 = height + 55; wcscpy_s(button[16].text,L"垂直镜像"); button[16].mod = 1;
+	button[17].x1 = 260; button[17].y1 = height + 35; button[17].x2 = 300; button[17].y2 = height + 55; wcscpy_s(button[17].text,L"截图"); button[17].mod = 1;
+	button[18].x1 = 310; button[18].y1 = height + 35; button[18].x2 = 400; button[18].y2 = height + 55; wcscpy_s(button[18].text,L"黑白二值图"); button[18].mod = 1;
+	button[19].x1 = 410; button[19].y1 = height + 35; button[19].x2 = 480; button[19].y2 = height + 55; wcscpy_s(button[19].text,L"高斯模糊"); button[19].mod = 1;
+	button[20].x1 = 490; button[20].y1 = height + 35; button[20].x2 = 560; button[20].y2 = height + 55; wcscpy_s(button[20].text,L"灰度效果"); button[20].mod = 1;
+	button[21].x1 = 570; button[21].y1 = height + 35; button[21].x2 = 630; button[21].y2 = height + 55; wcscpy_s(button[21].text,L"马赛克"); button[21].mod = 1;
 	bluex = button[0].x1; bluey = button[0].y1;
 	bluecolor = RGB(GetPrivateProfileInt(_T("COLOR0"), _T("R"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("G"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("B"), 0, _T("color.ini")));
 }
@@ -146,8 +165,8 @@ void Algorithm::bluebk()
 void Algorithm::message_proce(IMAGE read_img)
 {
 	int pen = 0;							// 控制画笔
-	int openr;							// 控制画矩形
-	int opene;							// 控制画椭圆
+	int openr = 0;							// 控制画矩形
+	int opene = 0;							// 控制画椭圆
 	ExMessage m;						// 鼠标消息
 	TCHAR str[10];						// 字符数组
 	static int x, y;					// 记录上一次鼠标位置
@@ -347,41 +366,41 @@ void Algorithm::message_proce(IMAGE read_img)
 						B[i] = GetBValue(button[i].color);
 					}
 					// 写配置文件，记录喜爱的颜色
-					_stprintf(str, _T("%d"), R[0]);
+					swprintf_s(str, _T("%d"), R[0]);
 					::WritePrivateProfileString(_T("COLOR0"), _T("R"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), G[0]);
+					swprintf_s(str, _T("%d"), G[0]);
 					::WritePrivateProfileString(_T("COLOR0"), _T("G"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), B[0]);
+					swprintf_s(str, _T("%d"), B[0]);
 					::WritePrivateProfileString(_T("COLOR0"), _T("B"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), R[1]);
+					swprintf_s(str, _T("%d"), R[1]);
 					::WritePrivateProfileString(_T("COLOR1"), _T("R"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), G[1]);
+					swprintf_s(str, _T("%d"), G[1]);
 					::WritePrivateProfileString(_T("COLOR1"), _T("G"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), B[1]);
+					swprintf_s(str, _T("%d"), B[1]);
 					::WritePrivateProfileString(_T("COLOR1"), _T("B"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), R[2]);
+					swprintf_s(str, _T("%d"), R[2]);
 					::WritePrivateProfileString(_T("COLOR2"), _T("R"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), G[2]);
+					swprintf_s(str, _T("%d"), G[2]);
 					::WritePrivateProfileString(_T("COLOR2"), _T("G"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), B[2]);
+					swprintf_s(str, _T("%d"), B[2]);
 					::WritePrivateProfileString(_T("COLOR2"), _T("B"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), R[3]);
+					swprintf_s(str, _T("%d"), R[3]);
 					::WritePrivateProfileString(_T("COLOR3"), _T("R"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), G[3]);
+					swprintf_s(str, _T("%d"), G[3]);
 					::WritePrivateProfileString(_T("COLOR3"), _T("G"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), B[3]);
+					swprintf_s(str, _T("%d"), B[3]);
 					::WritePrivateProfileString(_T("COLOR3"), _T("B"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), R[4]);
+					swprintf_s(str, _T("%d"), R[4]);
 					::WritePrivateProfileString(_T("COLOR4"), _T("R"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), G[4]);
+					swprintf_s(str, _T("%d"), G[4]);
 					::WritePrivateProfileString(_T("COLOR4"), _T("G"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), B[4]);
+					swprintf_s(str, _T("%d"), B[4]);
 					::WritePrivateProfileString(_T("COLOR4"), _T("B"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), R[5]);
+					swprintf_s(str, _T("%d"), R[5]);
 					::WritePrivateProfileString(_T("COLOR5"), _T("R"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), G[5]);
+					swprintf_s(str, _T("%d"), G[5]);
 					::WritePrivateProfileString(_T("COLOR5"), _T("G"), str, _T("color.ini"));
-					_stprintf(str, _T("%d"), B[5]);
+					swprintf_s(str, _T("%d"), B[5]);
 					::WritePrivateProfileString(_T("COLOR5"), _T("B"), str, _T("color.ini"));
 					draw_sence(); // 更改当前喜欢的颜色，并重新绘制场景
 					break;
@@ -411,7 +430,7 @@ void Algorithm::message_proce(IMAGE read_img)
 					break;
 				case 10: // 画笔型号
 					InputBox(str, 5, _T("请输入画笔型号(1~5)"));
-					sscanf(str, _T("%d"), &i);
+					swscanf_s(str, _T("%d"), &i);
 					if (i >= 1 && i <= 5)
 					{
 						size = i;
@@ -727,8 +746,7 @@ void Algorithm::draw_sence()
 	R[5] = GetPrivateProfileInt(_T("COLOR5"), _T("R"), 255, _T("color.ini"));
 	G[5] = GetPrivateProfileInt(_T("COLOR5"), _T("G"), 215, _T("color.ini"));
 	B[5] = GetPrivateProfileInt(_T("COLOR5"), _T("B"), 0, _T("color.ini"));
-	for (int j = 0; j < 6; j++)
-	{
+	for (int j = 0; j < 6; j++) {
 		button[j].color = RGB(R[j], G[j], B[j]);
 	}
 	// 设置文字的背景模式
@@ -738,19 +756,19 @@ void Algorithm::draw_sence()
 	setlinestyle(PS_SOLID, 1);
 	if (Width <= 640) line(0, Height, 640, Height);
 	else line(0, Height, Width, Height);
-	for (i = 0; i < 6; i++)
-	{
+	// 绘制按钮
+	for (i = 0; i < 6; i++)	{
 		setfillcolor(button[i].color);
 		fillcircle(button[i].x1, button[i].y1, button[i].radius);
 	}
-	for (i = 6; i < 22; i++)
-	{
+	for (i = 6; i < 22; i++) {
 		rectangle(button[i].x1, button[i].y1, button[i].x2, button[i].y2);
 		outtextxy(button[i].x1 + 5, button[i].y1 + 2, button[i].text);
 	}
 	if (Width <= 640)
 		line(0, Height + 30, 640, Height + 30);
-	else line(0, Height + 30, Width, Height + 30);
+	else
+		line(0, Height + 30, Width, Height + 30);
 	// 控制画笔型号以及当前颜色
 	setlinestyle(PS_SOLID, size);
 	setlinecolor(bluecolor);
@@ -843,7 +861,7 @@ void Algorithm::Black_White()
 	}
 	Gray();
 	InputBox(str, 5, _T("请输入阀值(1~254)"));
-	sscanf(str, _T("%d"), &j);
+	swscanf_s(str, _T("%d"), &j);
 	if (j >= 1 && j <= 254)
 	{
 		DWORD* p = GetImageBuffer(pimg);
@@ -916,13 +934,13 @@ void Algorithm::getGaussianArray()
 	double a, sum = 0;
 	TCHAR str[10];
 	InputBox(str, 5, _T("请输入滤波窗口大小(3~15 奇数)"));
-	sscanf(str, _T("%d"), &i);
+	swscanf_s(str, _T("%d"), &i);
 	if (i >= 3 && i <= 15 && (i % 2 == 1))
 	{
 		Gaussian_Ker = (double**)calloc(i, sizeof(double*));
 		for (j = 0; j < i; j++)Gaussian_Ker[j] = (double*)calloc(i, sizeof(double));
 		InputBox(str, 5, _T("请输入滤波窗口大小(0.5~3.5)"));
-		sscanf(str, _T("%lf"), &sigma);
+		swscanf_s(str, _T("%lf"), &sigma);
 		if (sigma >= 0.5 && sigma <= 3.5)
 		{
 			sigma2 = sigma * sigma;
