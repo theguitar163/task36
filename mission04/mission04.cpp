@@ -19,13 +19,6 @@
 #define PI 3.14159265359
 #define ULEN 30
 
-struct tagA {
-	struct tagB* b;
-};
-
-struct tagB {
-	struct tagA* a;
-};
 void drawPolygon(POINT op, int r, int n)
 {
 	POINT *pts = (POINT *)malloc( n * sizeof(POINT));
