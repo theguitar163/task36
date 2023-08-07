@@ -36,7 +36,6 @@ TCHAR szFile[MAX_PATH] = { 0 }; // 存储打开图片的路径
 // 函数指针类型
 typedef void (TFunction)();
 
-struct tagTPanel;
 // 按钮结构
 typedef struct tagButton {
     int x, y, x2, y2;         // 按钮的坐标
@@ -45,9 +44,20 @@ typedef struct tagButton {
     COLORREF color;           // 按钮的颜色
     TCHAR text[100];          // 按钮上的文字
     int type;                 // 按钮类型btCIRCLE\btRDRECT\btRECT
-    TPanel* container = NULL; // 容器，默认为空。若存在容器，所有坐标位相对坐标
+    struct tagPanel* container;
 //    TFunction* pfun = NULL;
 } TButton;
+
+// 简易控制面板
+// 可在上面添加按钮（因为使用纯C，不太方便实现抽象类多态添加其他控件）
+typedef struct tagPanel {
+    int x;
+    int y;
+    int w;
+    int h;
+    TButton* pbuttons[MAX_BUTTON];
+    int btnCount = 0;
+} TPanel;
 
 void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int mod)
 {
@@ -138,17 +148,6 @@ int ptInButton(POINT p, TButton* pbtn)
     }
     return 0;
 }
-
-// 简易控制面板
-// 可在上面添加按钮（因为使用纯C，不太方便实现抽象类多态添加其他控件）
-typedef struct tagPanel {
-    int x;
-    int y;
-    int w;
-    int h;
-    TButton* pbuttons[MAX_BUTTON];
-    int btnCount = 0;
-} TPanel;
 
 void initPanel(TPanel* ppanel, int x, int y, int w, int h)
 {
