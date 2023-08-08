@@ -38,7 +38,7 @@ void drawCrown(TCrownImage* pcrown, int cx, int cy)
 
 // 棋盘格 ---------------------------------------------
 typedef struct tagBoard {
-    TCrownImage* pcrown;      // 皇冠图形指针
+    TCrownImage* pcrown;      // 皇冠图像指针
     int rows[MAX_CELL];       // 使用一维数组保存皇后位置，数组值为列cx，数组下标为行cy
     int solvecount;           // 
 } TBoard;
