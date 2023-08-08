@@ -1,4 +1,5 @@
 #include <easyx.h>
+#include <graphics.h>
 #include "painter.h"
 #include "imageproc.h"
 
@@ -207,9 +208,13 @@ void drawPainter(TPainter* ppainter)
     drawPanel(ppainter->ppanel);
 }
 
-int ptInPainter(POINT p, TPainter* ppainter)
+int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
 {
-    if (p.x > ppainter->x && p.x < ppainter->x+ppainter->w && p.y > ppainter->y && p.y < ppainter->y + ppainter->h)
+    int left = ppainter->x + shrinksize;
+    int right = ppainter->x + ppainter->w - shrinksize;
+    int top = ppainter->y + shrinksize;
+    int bottom = ppainter->y + ppainter->h - shrinksize;
+    if (p.x > left && p.x < right && p.y > top && p.y < bottom)
         return 1;
     return 0;
 }
@@ -225,4 +230,172 @@ void painterClick(TPainter* ppainter, int startx, int starty)
     else if (ppainter->penType == ptELLIPSE) {
         PaintEllipse(ppainter, startx, starty);
     }
+    else if (ppainter->penType == ptERASER) {
+        PaintEraser(ppainter, startx, starty);
+    }
+}
+
+void PaintLine(TPainter* ppainter, int startx, int starty)
+{
+    int x = startx;
+    int y = starty;
+    // ¿ØÖÆ»­Ïß
+    setlinecolor(ppainter->penColor);
+    if (ptInPainter({ x, y }, ppainter)) {
+        ExMessage m;
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x,m.y }, ppainter)) {
+                    line(x, y, m.x, m.y);
+                    x = m.x;
+                    y = m.y;
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+}
+
+void PaintRect(TPainter* ppainter, int startx, int starty)
+{
+    setlinestyle(PS_SOLID, 1);
+    if (ptInPainter({ startx, starty }, ppainter)) {
+        ExMessage m;
+        int x = startx;
+        int y = starty;
+        setlinecolor(WHITE);
+        setrop2(R2_XORPEN);
+        rectangle(startx, starty, x, y);
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x, m.y }, ppainter)) {
+                    rectangle(startx, starty, x, y);
+                    x = m.x;
+                    y = m.y;
+                    rectangle(startx, starty, x, y);
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                setlinecolor(ppainter->penColor);
+                setrop2(R2_COPYPEN);
+                rectangle(startx, starty, x, y);
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+    //   setlinestyle(PS_SOLID, m_size);
+}
+
+void PaintEllipse(TPainter* ppainter, int startx, int starty)
+{
+    setlinestyle(PS_SOLID, 1);
+    if (ptInPainter({ startx, starty }, ppainter)) {
+        ExMessage m;
+        int x = startx;
+        int y = starty;
+        setlinecolor(WHITE);
+        setrop2(R2_XORPEN);
+        rectangle(startx, starty, x, y);
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x, m.y }, ppainter)) {
+                    ellipse(startx, starty, x, y);
+                    x = m.x;
+                    y = m.y;
+                    ellipse(startx, starty, x, y);
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                setlinecolor(ppainter->penColor);
+                setrop2(R2_COPYPEN);
+                ellipse(startx, starty, x, y);
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+    //   setlinestyle(PS_SOLID, m_size);
+}
+
+void PaintEraser(TPainter* ppainter, int startx, int starty)
+{
+    int r = 20;
+    if (ptInPainter({ startx, starty}, ppainter, r)) {
+        ExMessage m;
+        int x = startx;
+        int y = starty;
+        setfillcolor(WHITE);
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x, m.y }, ppainter, r)) {
+                    solidcircle(m.x, m.y, r);
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+}
+
+void PaintMosaic(TPainter* ppainter, int startx, int starty)
+{
+    int r = 20;
+    if (ptInPainter({ startx, starty }, ppainter, r)) {
+        ExMessage m;
+        int x = startx;
+        int y = starty;
+        setfillcolor(WHITE);
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x, m.y }, ppainter, r)) {
+                    solidcircle(m.x, m.y, r);
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+    while (true)
+    {
+        if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
+            if (m.message == WM_LBUTTONDOWN) {
+                while (true) {
+                    m = getmessage(EM_MOUSE);
+                    if (m.message == WM_MOUSEMOVE) {
+                        if (m.y < m_height - 12) {
+                            for (int w = -12; w < 12; w = w + 4) {
+                                for (int n = -12; n < 12; n = n + 4) {
+                                    setfillcolor(getpixel(m.x + w + rand() % 4, m.y + n + rand() % 4));
+                                    solidrectangle(m.x + w, m.y + n, m.x + w + 4, m.y + n + 4);
+                                }
+                            }
+                        }
+                    }
+                    else if (m.message == WM_LBUTTONUP) {
+                        break;
+                    }
+                }
+            }
+            if ((m.message == WM_LBUTTONUP) && (m.y < m_height)) {
+                setfillcolor(WHITE);
+                solidrectangle(button[m_btnIdx].x + 1, button[m_btnIdx].y + 1, button[m_btnIdx].x2 - 1, button[m_btnIdx].y2 - 1);
+                outtextxy(button[m_btnIdx].x + 5, button[m_btnIdx].y + 2, button[m_btnIdx].text);
+                break;
+            }
+        }
+    }
+    penType = ptMOSAIC;
 }

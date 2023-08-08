@@ -5,6 +5,12 @@
 
 #define PI 3.141592653589793
 
+void SetPenColor(TPainter* ppainter)
+{
+    int btnIdx = ppainter->ppanel->btnFocused;
+    ppainter->penColor = ppainter->ppanel->pbuttons[btnIdx]->color;
+}
+
 void SetPenLine(TPainter* ppainter)
 {
     ppainter->penType = ptLINE;
@@ -20,92 +26,14 @@ void SetPenEllipse(TPainter* ppainter)
     ppainter->penType = ptELLIPSE;
 }
 
-void PaintLine(TPainter* ppainter, int startx, int starty)
+void SetPenEraser(TPainter* ppainter)
 {
-    int x = startx;
-    int y = starty;
-    // 控制画线
-    if (ptInPainter({ x, y }, ppainter)) {
-        ExMessage m;
-        while (true) {
-            m = getmessage(EM_MOUSE);
-            if (m.message == WM_MOUSEMOVE) {
-                if (ptInPainter({ m.x,m.y }, ppainter)) {
-                    line(x, y, m.x, m.y);
-                    x = m.x; 
-                    y = m.y;
-                }
-            }
-            else if (m.message == WM_LBUTTONUP) {
-                break;
-            }
-            FlushBatchDraw();
-        }
-    }
+    ppainter->penType = ptERASER;
 }
 
-void PaintRect(TPainter* ppainter, int startx, int starty)
+void SetPenMosaic(TPainter* ppainter)
 {
-    setlinestyle(PS_SOLID, 1);
-    if (ptInPainter({ startx, starty }, ppainter)) {
-        ExMessage m;
-        int x = startx; 
-        int y = starty;
-        setlinecolor(WHITE);
-        setrop2(R2_XORPEN);
-        rectangle(startx, starty, x, y);
-        while (true) {
-            m = getmessage(EM_MOUSE);
-            if (m.message == WM_MOUSEMOVE) {
-                if (ptInPainter({m.x, m.y}, ppainter)) {
-                    rectangle(startx, starty, x, y);
-                    x = m.x; 
-                    y = m.y;
-                    rectangle(startx, starty, x, y);
-                }
-            }
-            else if (m.message == WM_LBUTTONUP) {
-                setlinecolor(ppainter->penColor);
-                setrop2(R2_COPYPEN);
-                rectangle(startx, starty, x, y);
-                break;
-            }
-            FlushBatchDraw();
-        }
-    }
- //   setlinestyle(PS_SOLID, m_size);
-}
-
-void PaintEllipse(TPainter* ppainter, int startx, int starty)
-{
-    setlinestyle(PS_SOLID, 1);
-    if (ptInPainter({ startx, starty }, ppainter)) {
-        ExMessage m;
-        int x = startx;
-        int y = starty;
-        setlinecolor(WHITE);
-        setrop2(R2_XORPEN);
-        rectangle(startx, starty, x, y);
-        while (true) {
-            m = getmessage(EM_MOUSE);
-            if (m.message == WM_MOUSEMOVE) {
-                if (ptInPainter({ m.x, m.y }, ppainter)) {
-                    ellipse(startx, starty, x, y);
-                    x = m.x;
-                    y = m.y;
-                    ellipse(startx, starty, x, y);
-                }
-            }
-            else if (m.message == WM_LBUTTONUP) {
-                setlinecolor(ppainter->penColor);
-                setrop2(R2_COPYPEN);
-                ellipse(startx, starty, x, y);
-                break;
-            }
-            FlushBatchDraw();
-        }
-    }
-    //   setlinestyle(PS_SOLID, m_size);
+    ppainter->penType = ptMOSAIC;
 }
 
 // 从电脑中获取图片

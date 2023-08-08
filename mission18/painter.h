@@ -66,7 +66,7 @@ typedef struct tagPainter {
 void initPainter(TPainter* ppainter, TPanel*ppanel, int panelsize, int panelalign);
 void clearPainter(TPainter* ppainter);
 void drawPainter(TPainter* ppainter);
-int ptInPainter(POINT p, TPainter* ppainter);
+int ptInPainter(POINT p, TPainter* ppainter, int shrinksize=0);
 void painterClick(TPainter* ppainter, int startx, int starty);
 
 void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int mod);
@@ -83,4 +83,9 @@ void addButton(TPanel* ppanel, TButton* pbutton);
 void drawPanel(TPanel* ppanel);
 
 void buttonClick(TPanel* ppanel, int x, int y);
+
+void PaintLine(TPainter* ppainter, int startx, int starty);
+void PaintRect(TPainter* ppainter, int startx, int starty);
+void PaintEllipse(TPainter* ppainter, int startx, int starty);
+void PaintEraser(TPainter* ppainter, int startx, int starty);
 

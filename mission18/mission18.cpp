@@ -57,18 +57,18 @@ int main()
     cleardevice();
 
     TButton buttons[22] = {
-        {btCIRCLE, NULL, RED, 20, 20},
-        {btCIRCLE, NULL, GREEN, 20, 20},
-        {btCIRCLE, NULL, BLUE, 20, 20},
-        {btCIRCLE, NULL, YELLOW, 20, 20},
-        {btCIRCLE, NULL, CYAN, 20, 20},
-        {btCIRCLE, NULL, BROWN, 20, 20},
+        {btCIRCLE, NULL, RED, 20, 20, &SetPenColor},
+        {btCIRCLE, NULL, GREEN, 20, 20, &SetPenColor},
+        {btCIRCLE, NULL, BLUE, 20, 20, &SetPenColor},
+        {btCIRCLE, NULL, YELLOW, 20, 20, &SetPenColor},
+        {btCIRCLE, NULL, CYAN, 20, 20, &SetPenColor},
+        {btCIRCLE, NULL, BROWN, 20, 20, &SetPenColor},
         {btRDRECT, L"画线", LIGHTGRAY, 50, 30, &SetPenLine},
         {btRDRECT, L"颜色", LIGHTGRAY, 50, 30},
         {btRDRECT, L"矩形", LIGHTGRAY, 50, 30, &SetPenRect},
         {btRDRECT, L"椭圆", LIGHTGRAY, 50, 30, &SetPenEllipse},
         {btRDRECT, L"线宽", LIGHTGRAY, 50, 30},
-        {btRDRECT, L"橡皮", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"橡皮", LIGHTGRAY, 50, 30, &SetPenEraser},
         {btRDRECT, L"保存", LIGHTGRAY, 50, 30},
         {btRDRECT, L"绘画", LIGHTGRAY, 50, 30},
 

@@ -212,42 +212,6 @@ void Algorithm::message_proce(IMAGE read_img)
                 }
                 switch (m_btnIdx)
                 {
-                case 0:
-                    drawFocus();
-                    draw_sence();
-                    m_btnIdx = 0; // 防止当前选中的按钮序号丢失
-                    setlinecolor(button[m_btnIdx].color); break;
-                case 1:
-                    drawFocus();
-                    draw_sence();
-                    m_btnIdx = 1;
-                    setlinecolor(button[m_btnIdx].color); break;
-                case 2:
-                    drawFocus();
-                    draw_sence();
-                    m_btnIdx = 2;
-                    setlinecolor(button[m_btnIdx].color); break;
-                case 3:
-                    drawFocus();
-                    draw_sence();
-                    m_btnIdx = 3;
-                    setlinecolor(button[m_btnIdx].color); break;
-                case 4:
-                    drawFocus();
-                    draw_sence();
-                    m_btnIdx = 4;
-                    setlinecolor(button[m_btnIdx].color); break;
-                case 5:
-                    drawFocus();
-                    draw_sence();
-                    m_btnIdx = 5;
-                    setlinecolor(button[m_btnIdx].color); break;
-                case 6: // 笔
-                    penType = ptLINE;
-                    drawFocus();
-                    setlinecolor(m_focuscolor);
-                    draw_sence();
-                    break;
                 case 7: // 编辑颜色
                     if (ChooseColor(&stChooseColor)) {
                         rgbLineColor = stChooseColor.rgbResult;
@@ -262,16 +226,6 @@ void Algorithm::message_proce(IMAGE read_img)
                         B[m_btnIdx] = GetBValue(button[m_btnIdx].color);
                     }
                     draw_sence(); // 更改当前喜欢的颜色，并重新绘制场景
-                    break;
-                case 8: // 画矩形
-                    drawFocus();
-                    draw_sence();
-                    penType = ptRECT;
-                    break;
-                case 9: // 画椭圆
-                    drawFocus();
-                    draw_sence();
-                    penType = ptELLIPSE;
                     break;
                 case 10: // 画笔型号
                     InputBox(str, 5, _T("请输入画笔型号(1~5)"));
