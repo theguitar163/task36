@@ -1,13 +1,13 @@
 #pragma once
 
-void LoadImage();
+void LoadImage(TPainter* ppainter);
 // 水平镜像
-void HorizontalMirrorImage();
+void HorizontalMirrorImage(TPainter* ppainter);
 // 垂直镜像
-void VerticalMirrorImage();
+void VerticalMirrorImage(TPainter* ppainter);
 // 灰度图像
-void GrayImage();
+void GrayImage(TPainter* ppainter);
 // 黑白二值
-void BlackWhiteImage();
+void BlackWhiteImage(TPainter* ppainter);
 // 高斯模糊
-void GaussImage();
+void GaussImage(TPainter* ppainter);

@@ -56,7 +56,6 @@ int main()
     setbkmode(TRANSPARENT);
     cleardevice();
 
-    TPanel panel;
     TButton buttons[22] = {
         {btCIRCLE, NULL, RED, 20, 20},
         {btCIRCLE, NULL, GREEN, 20, 20},
@@ -83,7 +82,10 @@ int main()
         {btRDRECT, L"马赛克", LIGHTGRAY, 80, 30},
     };
 
-    initPanel(&panel, 90, alBOTTOM);
+    TPanel panel;
+    TPainter painter;
+    initPainter(&painter, &panel, 90, alBOTTOM);
+
     for (int i = 0; i < 6; i++) {
         initButton(&buttons[i], 20 + i * 30, 15);
         addButton(&panel, &buttons[i]);
@@ -99,7 +101,7 @@ int main()
     }
 
     BeginBatchDraw();
-    drawPanel(&panel);
+    drawPainter(&painter);
     ExMessage m;
     while (true) {
         if (peekmessage(&m, EM_MOUSE | EM_KEY)) {

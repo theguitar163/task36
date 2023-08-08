@@ -13,8 +13,10 @@
 #define alLEFT   2
 #define alRIGHT  3
 
+struct tagPainter;
+
 // 函数指针类型
-typedef void (TFunction)();
+typedef void (TFunction)(struct tagPainter* ppainter);
 
 // 按钮结构
 typedef struct tagButton {
@@ -37,6 +39,7 @@ typedef struct tagPanel {
     int h;
     TButton* pbuttons[MAX_BUTTON];
     int btnCount = 0;
+    struct tagPainter* ppainter;
 } TPanel;
 
 #define dtFreehand 0
@@ -45,71 +48,19 @@ typedef struct tagPanel {
 #define dtCircle   3
 #define dtellipse  4
 
-typedef struct tagCanvas {
+typedef struct tagPainter {
     int x;
     int y;
     int w;
     int h;
     int drawType = 0;
     COLORREF drawColor = BLACK;
-} TCanvas;
-
-void initCanvas(TCanvas* pcanvas, int x, int y, int w, int h)
-{
-    pcanvas->x = x;
-    pcanvas->y = x;
-    pcanvas->w = w;
-    pcanvas->h = h;
-    clearCanvas(pcanvas);
-}
-
-void initCanvas(TCanvas* pcanvas, int panelsize, int panelalign)
-{
-    TPanel* pcanvas;
-    switch (panelalign) {
-    case alTOP:
-        pcanvas->x = 0;
-        pcanvas->y = panelsize;
-        pcanvas->w = getwidth();
-        pcanvas->h = getheight() - panelsize;
-        break;
-    case alBOTTOM:
-        pcanvas->x = 0;
-        pcanvas->y = 0;
-        pcanvas->w = getwidth();
-        pcanvas->h = getheight()-panelsize;
-        break;
-    case alLEFT:
-        pcanvas->x = 0;
-        pcanvas->y = 0;
-        pcanvas->w = panelsize;
-        pcanvas->h = getheight();
-        break;
-    case alRIGHT:
-        pcanvas->x = getwidth() - panelsize;
-        pcanvas->y = 0;
-        pcanvas->w = panelsize;
-        pcanvas->h = getheight();
-    }
-}
-
-typedef struct tagPainter {
-    TCanvas canvas;
-    TPanel panel;
+    TPanel* ppanel;
 } TPainter;
 
-void initPainter(TPainter* ppainter, int panelsize, int align)
-{
-    initCanvas(ppainter->canvas, )
-    
-}
-
-
-void clearCanvas(TCanvas* pcanvas)
-{
-    setfillcolor(WHITE);
-    solidrectangle(pcanvas->x, pcanvas->y, pcanvas->x + pcanvas->w, pcanvas->y + pcanvas->h);
-}
+void initPainter(TPainter* ppainter, TPanel*ppanel, int panelsize, int panelalign);
+void clearPainter(TPainter* ppainter);
+void drawPainter(TPainter* ppainter);
 
 void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int mod);
 void initButton(TButton* pbtn, int x1, int y1, int radius, int mod);

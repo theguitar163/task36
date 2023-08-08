@@ -103,14 +103,6 @@ int ptInButton(POINT p, TButton* pbtn)
     return 0;
 }
 
-void initPanel(TPanel* ppanel, int x, int y, int w, int h)
-{
-    ppanel->x = x;
-    ppanel->y = y;
-    ppanel->w = w;
-    ppanel->h = h;
-}
-
 void initPanel(TPanel* ppanel, int size, int align)
 {
     switch (align) {
@@ -164,9 +156,52 @@ void buttonClick(TPanel* ppanel, int x, int y)
     for (int i = 0; i < ppanel->btnCount; i++) {
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
             TFunction* pfun = ppanel->pbuttons[i]->pfun;
-            if (pfun!=NULL) (*pfun)();
+            if (pfun!=NULL) (*pfun)(ppanel->ppainter);
             break;
         }
     }
+}
 
+void initPainter(TPainter* ppainter, TPanel* ppanel, int panelsize, int panelalign)
+{
+    switch (panelalign) {
+    case alTOP:
+        ppainter->x = 0;
+        ppainter->y = panelsize;
+        ppainter->w = getwidth();
+        ppainter->h = getheight() - panelsize;
+        break;
+    case alBOTTOM:
+        ppainter->x = 0;
+        ppainter->y = 0;
+        ppainter->w = getwidth();
+        ppainter->h = getheight() - panelsize;
+        break;
+    case alLEFT:
+        ppainter->x = 0;
+        ppainter->y = 0;
+        ppainter->w = panelsize;
+        ppainter->h = getheight();
+        break;
+    case alRIGHT:
+        ppainter->x = 0;
+        ppainter->y = 0;
+        ppainter->w = getwidth() - panelsize;
+        ppainter->h = getheight();
+    }
+    clearPainter(ppainter);
+    initPanel(ppanel, panelsize, panelalign);
+    ppainter->ppanel = ppanel;
+    ppanel->ppainter = ppainter;
+}
+
+void clearPainter(TPainter* ppainter)
+{
+    setfillcolor(WHITE);
+    solidrectangle(ppainter->x, ppainter->y, ppainter->x + ppainter->w, ppainter->y + ppainter->h);
+}
+
+void drawPainter(TPainter* ppainter)
+{
+    drawPanel(ppainter->ppanel);
 }
