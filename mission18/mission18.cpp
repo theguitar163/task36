@@ -17,6 +17,7 @@
 #include <commdlg.h>
 #include "controls.h"
 #include "algorithm.h"
+#include "imageproc.h"
 
 COLORREF chooseColor(HWND hwnd)
 {
@@ -72,13 +73,13 @@ int main()
         {btRDRECT, L"保存", LIGHTGRAY, 50, 30},
         {btRDRECT, L"绘画", LIGHTGRAY, 50, 30},
 
-        {btRDRECT, L"打开图片", LIGHTGRAY, 80, 30},
-        {btRDRECT, L"水平镜像", LIGHTGRAY, 80, 30},
-        {btRDRECT, L"垂直镜像", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"打开图片", LIGHTGRAY, 80, 30, &LoadImage},
+        {btRDRECT, L"水平镜像", LIGHTGRAY, 80, 30, &HMirrorImage},
+        {btRDRECT, L"垂直镜像", LIGHTGRAY, 80, 30, &VMirrorImage},
         {btRDRECT, L"截图", LIGHTGRAY, 80, 30},
-        {btRDRECT, L"黑白二值", LIGHTGRAY, 80, 30},
-        {btRDRECT, L"高斯模糊", LIGHTGRAY, 80, 30},
-        {btRDRECT, L"灰度效果", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"黑白二值", LIGHTGRAY, 80, 30, &BlackWhiteImage},
+        {btRDRECT, L"高斯模糊", LIGHTGRAY, 80, 30, &GaussImage},
+        {btRDRECT, L"灰度效果", LIGHTGRAY, 80, 30, &GrayImage},
         {btRDRECT, L"马赛克", LIGHTGRAY, 80, 30},
     };
 
@@ -97,8 +98,20 @@ int main()
         addButton(&panel, &buttons[14 + i]);
     }
 
+    BeginBatchDraw();
     drawPanel(&panel);
-
+    ExMessage m;
+    while (true) {
+        if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
+            // 左键单击判断
+            if (m.message == WM_LBUTTONDOWN) {
+                buttonClick(&panel, m.x, m.y);
+            }
+        }
+        FlushBatchDraw();
+        Sleep(10);
+    }
+    EndBatchDraw();
     _getch();
     return 0;
 }

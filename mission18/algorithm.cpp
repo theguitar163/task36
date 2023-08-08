@@ -432,18 +432,10 @@ void Algorithm::message_proce(IMAGE read_img)
                     opene = 1;
                     break;
                 case 12: // 保存
-                    setfillcolor(WHITE);
-                    solidrectangle(button[6].x + 1, button[6].y + 1, button[6].x2 - 1, button[6].y2 - 1);
-                    solidrectangle(button[8].x + 1, button[8].y + 1, button[8].x2 - 1, button[8].y2 - 1);
-                    solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
-                    outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
-                    outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
-                    outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
                     saveimage(_T("D:\\效果图.jpg"));
                     loadimage(pimg, _T("D:\\效果图.jpg"));
                     getimage(pimg, 0, 0, Width, Height);
                     saveimage(_T("D:\\效果图.jpg"), pimg);
-                    setfillcolor(WHITE);
                     pen = 1;
                     opene = 1;
                     openr = 1;
@@ -455,8 +447,7 @@ void Algorithm::message_proce(IMAGE read_img)
                     closegraph();
                     break;
                 case 14: // 打开图片
-                    if (FileDialog(szFile))
-                    {
+                    if (FileDialog(szFile)) {
                         con = 1;
                         key = 1;
                     }
@@ -475,14 +466,6 @@ void Algorithm::message_proce(IMAGE read_img)
                     opene = 1;
                     break;
                 case 17: // 截图
-                    setfillcolor(WHITE);
-                    solidrectangle(button[6].x + 1, button[6].y + 1, button[6].x2 - 1, button[6].y2 - 1);
-                    solidrectangle(button[8].x + 1, button[8].y + 1, button[8].x2 - 1, button[8].y2 - 1);
-                    solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
-                    outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
-                    outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
-                    outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
-                    drawFocus();
                     draw_sence();
                     i = 17;
                     store = new IMAGE();
@@ -540,53 +523,24 @@ void Algorithm::message_proce(IMAGE read_img)
                     opene = 1;
                     break;
                 case 18: // 黑白二值图
-                    setfillcolor(WHITE);
-                    solidrectangle(button[6].x + 1, button[6].y + 1, button[6].x2 - 1, button[6].y2 - 1);
-                    solidrectangle(button[8].x + 1, button[8].y + 1, button[8].x2 - 1, button[8].y2 - 1);
-                    solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
-                    outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
-                    outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
-                    outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
                     Black_White();
                     pen = 1;
                     openr = 1;
                     opene = 1;
                     break;
                 case 19: // 高斯模糊
-                    setfillcolor(WHITE);
-                    solidrectangle(button[6].x + 1, button[6].y + 1, button[6].x2 - 1, button[6].y2 - 1);
-                    solidrectangle(button[8].x + 1, button[8].y + 1, button[8].x2 - 1, button[8].y2 - 1);
-                    solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
-                    outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
-                    outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
-                    outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
                     getGaussianArray();
                     pen = 1;
                     openr = 1;
                     opene = 1;
                     break;
                 case 20: // 灰度效果
-                    setfillcolor(WHITE);
-                    solidrectangle(button[6].x + 1, button[6].y + 1, button[6].x2 - 1, button[6].y2 - 1);
-                    solidrectangle(button[8].x + 1, button[8].y + 1, button[8].x2 - 1, button[8].y2 - 1);
-                    solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
-                    outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
-                    outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
-                    outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
                     Gray();
                     pen = 1;
                     openr = 1;
                     opene = 1;
                     break;
                 case 21: // 马赛克
-                    setfillcolor(WHITE);
-                    solidrectangle(button[6].x + 1, button[6].y + 1, button[6].x2 - 1, button[6].y2 - 1);
-                    solidrectangle(button[8].x + 1, button[8].y + 1, button[8].x2 - 1, button[8].y2 - 1);
-                    solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
-                    outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
-                    outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
-                    outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
-                    drawFocus();
                     draw_sence();
                     i = 21;
                     while (true)
@@ -720,28 +674,17 @@ void Algorithm::per_img(IMAGE read_img)
 // 垂直镜像
 void Algorithm::ver_img(IMAGE read_img)
 {
-    setfillcolor(WHITE);
-    solidrectangle(button[6].x + 1, button[6].y + 1, button[6].x2 - 1, button[6].y2 - 1);
-    solidrectangle(button[8].x + 1, button[8].y + 1, button[8].x2 - 1, button[8].y2 - 1);
-    solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
-    outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
-    outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
-    outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
-    if (con == 0)
-    {
+    if (con == 0) {
         getimage(pimg, 0, 0, 640, 480);
         getimage(&read_img, 0, 0, 640, 480);
     }
-    else if (con == 1)
-    {
+    else if (con == 1) {
         getimage(&read_img, 0, 0, Width, Height);
     }
     DWORD* pMem1 = GetImageBuffer(pimg);
     DWORD* pMem2 = GetImageBuffer(&read_img);
-    for (i = 0; i < Height; i++)
-    {
-        for (int j = 0; j < Width; j++)
-        {
+    for (i = 0; i < Height; i++) {
+        for (int j = 0; j < Width; j++) {
             pMem1[(Height - 1 - i) * Width + j] = pMem2[i * Width + j];
         }
     }

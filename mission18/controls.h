@@ -22,10 +22,10 @@ typedef struct tagButton {
     const TCHAR* text;        // 按钮上的文字
     COLORREF color;           // 按钮的颜色
     int w, h;
+    TFunction* pfun = NULL;
     int x, y, x2, y2;         // 按钮的坐标
     int radius;               // 圆形按钮的半径    
     struct tagPanel* container;
-    TFunction* pfun = NULL;
 } TButton;
 
 // 简易控制面板
@@ -51,3 +51,5 @@ void initPanel(TPanel* ppanel, int x, int y, int w, int h);
 void initPanel(TPanel* ppanel, int size, int align);
 void addButton(TPanel* ppanel, TButton* pbutton);
 void drawPanel(TPanel* ppanel);
+
+void buttonClick(TPanel* ppanel, int x, int y);

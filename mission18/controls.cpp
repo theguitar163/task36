@@ -1,7 +1,7 @@
 #include <easyx.h>
 #include "controls.h"
 
-void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int mod)
+void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int type)
 {
     pbtn->x = x;
     pbtn->y = y;
@@ -12,24 +12,24 @@ void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCH
     pbtn->color = color;
     pbtn->text = text;
     //   wcscpy_s(pbtn->text, text);
-    pbtn->type = mod;
+    pbtn->type = type;
 }
 
-void initButton(TButton* pbtn, int x1, int y1, int radius, int mod)
+void initButton(TButton* pbtn, int x1, int y1, int radius, int type)
 {
     pbtn->x = x1;
     pbtn->y = y1;
     pbtn->radius = radius;
-    pbtn->type = mod;
+    pbtn->type = type;
 }
 
-void initButton(TButton* pbtn, int x, int y, int w, int h, int mod)
+void initButton(TButton* pbtn, int x, int y, int w, int h, int type)
 {
     pbtn->x = x;
     pbtn->y = y;
     pbtn->w = w;
     pbtn->h = h;
-    pbtn->type = mod;
+    pbtn->type = type;
     pbtn->text = NULL;
     //    wcscpy_s(pbtn->text, L"\0");
 }
@@ -157,4 +157,16 @@ void drawPanel(TPanel* ppanel)
     for (int i = 0; i < ppanel->btnCount; i++) {
         drawButton(ppanel->pbuttons[i]);
     }
+}
+
+void buttonClick(TPanel* ppanel, int x, int y)
+{
+    for (int i = 0; i < ppanel->btnCount; i++) {
+        if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
+            TFunction* pfun = ppanel->pbuttons[i]->pfun;
+            if (pfun!=NULL) (*pfun)();
+            break;
+        }
+    }
+
 }

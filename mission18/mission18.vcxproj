@@ -129,11 +129,13 @@
   <ItemGroup>
     <ClCompile Include="algorithm.cpp" />
     <ClCompile Include="controls.cpp" />
+    <ClCompile Include="imageproc.cpp" />
     <ClCompile Include="mission18.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="algorithm.h" />
     <ClInclude Include="controls.h" />
+    <ClInclude Include="imageproc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
