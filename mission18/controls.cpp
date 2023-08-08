@@ -151,6 +151,9 @@ void addButton(TPanel* ppanel, TButton* pbutton)
 
 void drawPanel(TPanel* ppanel)
 {
+    setlinecolor(BLACK);
+    setfillcolor(WHITE);
+    fillrectangle(ppanel->x, ppanel->y, ppanel->x + ppanel->w, ppanel->y + ppanel->h);
     for (int i = 0; i < ppanel->btnCount; i++) {
         drawButton(ppanel->pbuttons[i]);
     }
