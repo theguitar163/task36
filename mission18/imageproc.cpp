@@ -30,7 +30,7 @@ void LoadImage()
     }
 }
 // 水平镜像
-void HMirrorImage()
+void HorizontalMirrorImage()
 {
     IMAGE img;
     getimage(&img, 0, 0, getwidth(), getheight() - 90);      // 取得当前窗口图像
@@ -46,7 +46,7 @@ void HMirrorImage()
     }
 }
 // 垂直镜像
-void VMirrorImage()
+void VerticalMirrorImage()
 {
     IMAGE img;
     getimage(&img, 0, 0, getwidth(), getheight() - 90);      // 取得当前窗口图像
@@ -94,7 +94,8 @@ void BlackWhiteImage()
     }
     putimage(0, 0, &img);
 }
-// 获取滤波器
+
+// 高斯模糊
 void GaussImage()
 {
     int filterSize = 7;

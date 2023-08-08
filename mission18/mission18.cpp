@@ -74,8 +74,8 @@ int main()
         {btRDRECT, L"绘画", LIGHTGRAY, 50, 30},
 
         {btRDRECT, L"打开图片", LIGHTGRAY, 80, 30, &LoadImage},
-        {btRDRECT, L"水平镜像", LIGHTGRAY, 80, 30, &HMirrorImage},
-        {btRDRECT, L"垂直镜像", LIGHTGRAY, 80, 30, &VMirrorImage},
+        {btRDRECT, L"水平镜像", LIGHTGRAY, 80, 30, &HorizontalMirrorImage},
+        {btRDRECT, L"垂直镜像", LIGHTGRAY, 80, 30, &VerticalMirrorImage},
         {btRDRECT, L"截图", LIGHTGRAY, 80, 30},
         {btRDRECT, L"黑白二值", LIGHTGRAY, 80, 30, &BlackWhiteImage},
         {btRDRECT, L"高斯模糊", LIGHTGRAY, 80, 30, &GaussImage},

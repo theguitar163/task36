@@ -2,9 +2,9 @@
 
 void LoadImage();
 // 水平镜像
-void HMirrorImage();
+void HorizontalMirrorImage();
 // 垂直镜像
-void VMirrorImage();
+void VerticalMirrorImage();
 // 灰度图像
 void GrayImage();
 // 黑白二值
