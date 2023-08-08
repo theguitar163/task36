@@ -15,204 +15,13 @@
 #include <cmath>
 #include <cstdlib>
 #include <commdlg.h>
+#include "controls.h"
 
 HWND hout;
 int con = 0; // 控制切换绘图板和插图
 int key = 0;
 const double PI = acos(-1.0);
 TCHAR szFile[MAX_PATH] = { 0 }; // 存储打开图片的路径
-
-#define btCIRCLE  0
-#define btRECT    1
-#define btRDRECT  2
-
-#define MAX_BUTTON 100
-
-#define alTOP    0
-#define alBOTTOM 1
-#define alLEFT   2
-#define alRIGHT  3
-
-// 函数指针类型
-typedef void (TFunction)();
-
-// 按钮结构
-typedef struct tagButton {
-    int type;                 // 按钮类型btCIRCLE\btRDRECT\btRECT
-    const TCHAR* text;          // 按钮上的文字
-    COLORREF color;           // 按钮的颜色
-    int w, h;
-    int x, y, x2, y2;         // 按钮的坐标
-    int radius;               // 圆形按钮的半径    
-    struct tagPanel* container;
-    TFunction* pfun = NULL;
-} TButton;
-
-// 简易控制面板
-// 可在上面添加按钮（因为使用纯C，不太方便实现抽象类多态添加其他控件）
-typedef struct tagPanel {
-    int x;
-    int y;
-    int w;
-    int h;
-    TButton* pbuttons[MAX_BUTTON];
-    int btnCount = 0;
-} TPanel;
-
-void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int mod)
-{
-    pbtn->x = x;
-    pbtn->y = y;
-    pbtn->x2 = x2;
-    pbtn->y2 = y2;
-    pbtn->w = x2 - x;
-    pbtn->h = y2 - y;
-    pbtn->color = color;
-    pbtn->text = text;
- //   wcscpy_s(pbtn->text, text);
-    pbtn->type = mod;
-}
-
-void initButton(TButton* pbtn, int x1, int y1, int radius, int mod)
-{
-    pbtn->x = x1;
-    pbtn->y = y1;
-    pbtn->radius = radius;
-    pbtn->type = mod;
-}
-
-void initButton(TButton* pbtn, int x, int y, int w, int h, int mod)
-{
-    pbtn->x = x;
-    pbtn->y = y;
-    pbtn->w = w;
-    pbtn->h = h;
-    pbtn->type = mod;
-    pbtn->text = NULL;
-//    wcscpy_s(pbtn->text, L"\0");
-}
-
-void initButton(TButton* pbtn, int x, int y)
-{
-    pbtn->x = x;
-    pbtn->y = y;
-}
-
-// 绘制按钮
-void drawButton(TButton* pbtn)
-{
-    int ox, oy;
-    // 获取容器原点坐标，无容器则为窗口原点
-    if (pbtn->container == NULL) {
-        ox = 0;
-        oy = 0;
-    }
-    else {
-        ox = pbtn->container->x;
-        oy = pbtn->container->y;
-    }
-
-    // 绘制按钮，包括椭圆形、圆角矩形、矩形三种
-    setfillcolor(pbtn->color);
-    setlinecolor(BLACK);
-    settextcolor(BLACK);
-    RECT r = { ox + pbtn->x, oy + pbtn->y, ox + pbtn->x + pbtn->w, oy + pbtn->y + pbtn->h };
-    if (pbtn->type==btCIRCLE) {
-        fillellipse(r.left, r.top, r.right, r.bottom);
-    }
-    else if (pbtn->type == btRDRECT) {
-        int esize = ((pbtn->w > pbtn->h) ? pbtn->h : pbtn->w) / 4;
-        fillroundrect(r.left, r.top, r.right, r.bottom, esize, esize);
-    }
-    else {
-        fillrectangle(r.left, r.top, r.right, r.bottom);
-    }
-    // 绘制按钮标题
-    if (pbtn->text != NULL)
-        drawtext(pbtn->text, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-}
-
-// 判断点pt是否在按钮中
-int ptInButton(POINT p, TButton* pbtn)
-{
-    int bx, by;
-    // 获取容器原点坐标，无容器则为窗口原点
-    if (pbtn->container == NULL) {
-        bx = pbtn->x;
-        by = pbtn->y;
-    }
-    else {
-        bx = pbtn->container->x + pbtn->x;
-        by = pbtn->container->y + pbtn->y;
-    }
-    // 椭圆按钮，计算电是否在椭圆内
-    if (pbtn->type == btCIRCLE) {
-        double a = pbtn->w / 2;
-        double b = pbtn->h / 2;
-        double dx = p.x - (bx + a);
-        double dy = p.y - (by + b);
-        if ((dx * dx) / (a * a) + (dy * dy) / (b * b) <= 1.0)
-            return 1;
-    }
-    else {
-        if (p.x >= bx && p.x <= bx + pbtn->w && p.y >= by && p.y <= by + pbtn->h)
-            return 1;
-    }
-    return 0;
-}
-
-void initPanel(TPanel* ppanel, int x, int y, int w, int h)
-{
-    ppanel->x = x;
-    ppanel->y = y;
-    ppanel->w = w;
-    ppanel->h = h;
-}
-
-void initPanel(TPanel* ppanel, int size, int align)
-{
-    switch (align) {
-    case alTOP:
-        ppanel->x = 0;
-        ppanel->y = 0;
-        ppanel->w = getwidth();
-        ppanel->h = size;
-        break;
-    case alBOTTOM:
-        ppanel->x = 0;
-        ppanel->y = getheight() - size;
-        ppanel->w = getwidth();
-        ppanel->h = size;
-        break;
-    case alLEFT:
-        ppanel->x = 0;
-        ppanel->y = 0;
-        ppanel->w = size;
-        ppanel->h = getheight();
-        break;
-    case alRIGHT:
-        ppanel->x = getwidth()-size;
-        ppanel->y = 0;
-        ppanel->w = size;
-        ppanel->h = getheight();
-    }
-}
-
-void addButton(TPanel* ppanel, TButton* pbutton)
-{
-    if (ppanel->btnCount < MAX_BUTTON - 1) {
-        ppanel->pbuttons[ppanel->btnCount] = pbutton;
-        pbutton->container = ppanel;
-        ppanel->btnCount++;
-    }
-}
-
-void drawPanel(TPanel* ppanel)
-{
-    for (int i = 0; i < ppanel->btnCount; i++) {
-        drawButton(ppanel->pbuttons[i]);
-    }
-}
 
 // 从电脑中获取图片
 int FileDialog(TCHAR* path)
@@ -264,7 +73,7 @@ public:
     void Gauss();
     void getGaussianArray();
     void message_proce(IMAGE read_img);
-    void bluebk();
+    void drawFocus();
 
     int Height; // 图片(画板)高度
     int Width; // 图片(画板)宽度
@@ -308,7 +117,7 @@ Algorithm::Algorithm(IMAGE* img, int width, int height)
     bluecolor = RGB(GetPrivateProfileInt(_T("COLOR0"), _T("R"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("G"), 0, _T("color.ini")), GetPrivateProfileInt(_T("COLOR0"), _T("B"), 0, _T("color.ini")));
 }
 // 选取状态
-void Algorithm::bluebk()
+void Algorithm::drawFocus()
 {
     if (i < 6) // 控制当前颜色的选取状态
     {
@@ -475,32 +284,32 @@ void Algorithm::message_proce(IMAGE read_img)
                 switch (i)
                 {
                 case 0:
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 0; // 防止当前选中的按钮序号丢失
                     setlinecolor(button[i].color); break;
                 case 1:
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 1;
                     setlinecolor(button[i].color); break;
                 case 2:
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 2;
                     setlinecolor(button[i].color); break;
                 case 3:
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 3;
                     setlinecolor(button[i].color); break;
                 case 4:
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 4;
                     setlinecolor(button[i].color); break;
                 case 5:
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 5;
                     setlinecolor(button[i].color); break;
@@ -513,7 +322,7 @@ void Algorithm::message_proce(IMAGE read_img)
                     solidrectangle(button[9].x + 1, button[9].y + 1, button[9].x2 - 1, button[9].y2 - 1);
                     outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
                     outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
-                    bluebk();
+                    drawFocus();
                     setlinecolor(bluecolor);
                     draw_sence();
                     break;
@@ -573,7 +382,7 @@ void Algorithm::message_proce(IMAGE read_img)
                     draw_sence(); // 更改当前喜欢的颜色，并重新绘制场景
                     break;
                 case 8: // 画矩形
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     openr = 0;
                     pen = 1;
@@ -585,7 +394,7 @@ void Algorithm::message_proce(IMAGE read_img)
                     outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
                     break;
                 case 9: // 画椭圆
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     openr = 1;
                     pen = 1;
@@ -617,7 +426,7 @@ void Algorithm::message_proce(IMAGE read_img)
                     outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
                     outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
                     outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 11;
                     setlinecolor(BLACK);
@@ -736,7 +545,7 @@ void Algorithm::message_proce(IMAGE read_img)
                     outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
                     outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
                     outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 17;
                     store = new IMAGE();
@@ -840,7 +649,7 @@ void Algorithm::message_proce(IMAGE read_img)
                     outtextxy(button[6].x + 5, button[6].y + 2, button[6].text);
                     outtextxy(button[8].x + 5, button[8].y + 2, button[8].text);
                     outtextxy(button[9].x + 5, button[9].y + 2, button[9].text);
-                    bluebk();
+                    drawFocus();
                     draw_sence();
                     i = 21;
                     while (true)
@@ -1106,7 +915,8 @@ void Algorithm::getGaussianArray()
     if (i >= 3 && i <= 15 && (i % 2 == 1))
     {
         Gaussian_Ker = (double**)calloc(i, sizeof(double*));
-        for (j = 0; j < i; j++)Gaussian_Ker[j] = (double*)calloc(i, sizeof(double));
+        for (j = 0; j < i; j++)
+            Gaussian_Ker[j] = (double*)calloc(i, sizeof(double));
         InputBox(str, 5, _T("请输入滤波窗口大小(0.5~3.5)"));
         swscanf_s(str, _T("%lf"), &sigma);
         if (sigma >= 0.5 && sigma <= 3.5)
@@ -1142,7 +952,7 @@ void Algorithm::getGaussianArray()
     }
 }
 
-int main1()
+int main()
 {
     int Height, Width;
     IMAGE image;
@@ -1150,7 +960,7 @@ int main1()
     Height = 480;
     Width = 640;
     
-    hout = initgraph(800, 800);
+    hout = initgraph(800, 600);
     setbkcolor(WHITE);
     setbkmode(TRANSPARENT);
     cleardevice();
@@ -1171,35 +981,32 @@ int main1()
         {btRDRECT, L"橡皮", LIGHTGRAY, 50, 30},
         {btRDRECT, L"保存", LIGHTGRAY, 50, 30},
         {btRDRECT, L"绘画", LIGHTGRAY, 50, 30},
+
+        {btRDRECT, L"打开图片", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"水平镜像", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"垂直镜像", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"截图", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"黑白二值", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"高斯模糊", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"灰度效果", LIGHTGRAY, 80, 30},
+        {btRDRECT, L"马赛克", LIGHTGRAY, 80, 30},
     };
 
- /*   button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; wcscpy_s(button[6].text, L"笔"); button[6].type = 1;
-    button[7].x = 220; button[7].y = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; wcscpy_s(button[7].text, L"编辑颜色"); button[7].type = 1;
-    button[8].x = 300; button[8].y = height + 5; button[8].x2 = 325; button[8].y2 = height + 25; wcscpy_s(button[8].text, L"□"); button[8].type = 1;
-    button[9].x = 335; button[9].y = height + 5; button[9].x2 = 375; button[9].y2 = height + 25; wcscpy_s(button[9].text, L"椭圆"); button[9].type = 1;
-    button[10].x = 385; button[10].y = height + 5; button[10].x2 = 455; button[10].y2 = height + 25; wcscpy_s(button[10].text, L"画笔型号"); button[10].type = 1;
-    button[11].x = 470; button[11].y = height + 5; button[11].x2 = 530; button[11].y2 = height + 25; wcscpy_s(button[11].text, L"橡皮擦"); button[11].type = 1;
-    button[12].x = 545; button[12].y = height + 5; button[12].x2 = 585; button[12].y2 = height + 25; wcscpy_s(button[12].text, L"保存"); button[12].type = 1;
-    button[13].x = 595; button[13].y = height + 5; button[13].x2 = 635; button[13].y2 = height + 25; wcscpy_s(button[13].text, L"绘画"); button[13].type = 1;
-
-    button[14].x = 20; button[14].y = height + 35; button[14].x2 = 90; button[14].y2 = height + 55; wcscpy_s(button[14].text, L"打开图片"); button[14].type = 1;
-    button[15].x = 100; button[15].y = height + 35; button[15].x2 = 170; button[15].y2 = height + 55; wcscpy_s(button[15].text, L"水平镜像"); button[15].type = 1;
-    button[16].x = 180; button[16].y = height + 35; button[16].x2 = 250; button[16].y2 = height + 55; wcscpy_s(button[16].text, L"垂直镜像"); button[16].type = 1;
-    button[17].x = 260; button[17].y = height + 35; button[17].x2 = 300; button[17].y2 = height + 55; wcscpy_s(button[17].text, L"截图"); button[17].type = 1;
-    button[18].x = 310; button[18].y = height + 35; button[18].x2 = 400; button[18].y2 = height + 55; wcscpy_s(button[18].text, L"黑白二值图"); button[18].type = 1;
-    button[19].x = 410; button[19].y = height + 35; button[19].x2 = 480; button[19].y2 = height + 55; wcscpy_s(button[19].text, L"高斯模糊"); button[19].type = 1;
-    button[20].x = 490; button[20].y = height + 35; button[20].x2 = 560; button[20].y2 = height + 55; wcscpy_s(button[20].text, L"灰度效果"); button[20].type = 1;
-    button[21].x = 570; button[21].y = height + 35; button[21].x2 = 630; button[21].y2 = height + 55; wcscpy_s(button[21].text, L"马赛克"); button[21].type = 1;
-*/
-    initPanel(&panel, 60, alBOTTOM);
+    initPanel(&panel, 90, alBOTTOM);
     for (int i = 0; i < 6; i++) {
         initButton(&buttons[i], 20 + i * 30, 15);
         addButton(&panel, &buttons[i]);
     }
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 8; i++) {
         initButton(&buttons[i+6], 220 + i * 60, 10);
         addButton(&panel, &buttons[6+i]);
     }
+
+    for (int i = 0; i < 7; i++) {
+        initButton(&buttons[14 + i], 20 + i * 80, 50);
+        addButton(&panel, &buttons[14 + i]);
+    }
+
     drawPanel(&panel);
 
 
@@ -1240,7 +1047,7 @@ int main1()
     return 0;
 }
 
-int main()
+int main1()
 {
     int Height, Width;
     IMAGE* m_img;
