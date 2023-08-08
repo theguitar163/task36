@@ -63,11 +63,11 @@ int main()
         {btCIRCLE, NULL, YELLOW, 20, 20},
         {btCIRCLE, NULL, CYAN, 20, 20},
         {btCIRCLE, NULL, BROWN, 20, 20},
-        {btRDRECT, L"画线", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"画线", LIGHTGRAY, 50, 30, &SetPenLine},
         {btRDRECT, L"颜色", LIGHTGRAY, 50, 30},
-        {btRDRECT, L"矩形", LIGHTGRAY, 50, 30},
-        {btRDRECT, L"椭圆", LIGHTGRAY, 50, 30},
-        {btRDRECT, L"画笔", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"矩形", LIGHTGRAY, 50, 30, &SetPenRect},
+        {btRDRECT, L"椭圆", LIGHTGRAY, 50, 30, &SetPenEllipse},
+        {btRDRECT, L"线宽", LIGHTGRAY, 50, 30},
         {btRDRECT, L"橡皮", LIGHTGRAY, 50, 30},
         {btRDRECT, L"保存", LIGHTGRAY, 50, 30},
         {btRDRECT, L"绘画", LIGHTGRAY, 50, 30},
@@ -107,7 +107,11 @@ int main()
         if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
             // 左键单击判断
             if (m.message == WM_LBUTTONDOWN) {
-                buttonClick(&panel, m.x, m.y);
+                if (ptInPainter({ m.x, m.y }, &painter)) {
+                    painterClick(&painter, m.x, m.y);
+                }
+                else
+                    buttonClick(&panel, m.x, m.y);
             }
         }
         FlushBatchDraw();

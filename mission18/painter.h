@@ -39,28 +39,35 @@ typedef struct tagPanel {
     int h;
     TButton* pbuttons[MAX_BUTTON];
     int btnCount = 0;
+    int btnFocused = -1;
     struct tagPainter* ppainter;
 } TPanel;
 
-#define dtFreehand 0
-#define dtLine     1
-#define dtRect     2
-#define dtCircle   3
-#define dtellipse  4
+#define ptFREEHAND 0
+#define ptLINE     1
+#define ptRECT     2
+#define ptCIRCLE   3
+#define ptELLIPSE  4
+#define ptERASER   5
+#define ptMOSAIC   6
 
+// 画板结构
 typedef struct tagPainter {
     int x;
     int y;
     int w;
     int h;
-    int drawType = 0;
-    COLORREF drawColor = BLACK;
+    int penType = ptLINE;
+    int startx, starty;
+    COLORREF penColor = BLACK;
     TPanel* ppanel;
 } TPainter;
 
 void initPainter(TPainter* ppainter, TPanel*ppanel, int panelsize, int panelalign);
 void clearPainter(TPainter* ppainter);
 void drawPainter(TPainter* ppainter);
+int ptInPainter(POINT p, TPainter* ppainter);
+void painterClick(TPainter* ppainter, int startx, int starty);
 
 void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int mod);
 void initButton(TButton* pbtn, int x1, int y1, int radius, int mod);
@@ -70,9 +77,10 @@ void initButton(TButton* pbtn, int x, int y);
 void drawButton(TButton* pbtn);
 // 判断点pt是否在按钮中
 int ptInButton(POINT p, TButton* pbtn);
-void initPanel(TPanel* ppanel, int x, int y, int w, int h);
+
 void initPanel(TPanel* ppanel, int size, int align);
 void addButton(TPanel* ppanel, TButton* pbutton);
 void drawPanel(TPanel* ppanel);
 
 void buttonClick(TPanel* ppanel, int x, int y);
+

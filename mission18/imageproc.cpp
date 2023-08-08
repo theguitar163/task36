@@ -1,8 +1,112 @@
 #include <easyx.h>
+#include <graphics.h>
 #include <math.h>
 #include "painter.h"
 
 #define PI 3.141592653589793
+
+void SetPenLine(TPainter* ppainter)
+{
+    ppainter->penType = ptLINE;
+}
+
+void SetPenRect(TPainter* ppainter)
+{
+    ppainter->penType = ptRECT;
+}
+
+void SetPenEllipse(TPainter* ppainter)
+{
+    ppainter->penType = ptELLIPSE;
+}
+
+void PaintLine(TPainter* ppainter, int startx, int starty)
+{
+    int x = startx;
+    int y = starty;
+    // 控制画线
+    if (ptInPainter({ x, y }, ppainter)) {
+        ExMessage m;
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x,m.y }, ppainter)) {
+                    line(x, y, m.x, m.y);
+                    x = m.x; 
+                    y = m.y;
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+}
+
+void PaintRect(TPainter* ppainter, int startx, int starty)
+{
+    setlinestyle(PS_SOLID, 1);
+    if (ptInPainter({ startx, starty }, ppainter)) {
+        ExMessage m;
+        int x = startx; 
+        int y = starty;
+        setlinecolor(WHITE);
+        setrop2(R2_XORPEN);
+        rectangle(startx, starty, x, y);
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({m.x, m.y}, ppainter)) {
+                    rectangle(startx, starty, x, y);
+                    x = m.x; 
+                    y = m.y;
+                    rectangle(startx, starty, x, y);
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                setlinecolor(ppainter->penColor);
+                setrop2(R2_COPYPEN);
+                rectangle(startx, starty, x, y);
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+ //   setlinestyle(PS_SOLID, m_size);
+}
+
+void PaintEllipse(TPainter* ppainter, int startx, int starty)
+{
+    setlinestyle(PS_SOLID, 1);
+    if (ptInPainter({ startx, starty }, ppainter)) {
+        ExMessage m;
+        int x = startx;
+        int y = starty;
+        setlinecolor(WHITE);
+        setrop2(R2_XORPEN);
+        rectangle(startx, starty, x, y);
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x, m.y }, ppainter)) {
+                    ellipse(startx, starty, x, y);
+                    x = m.x;
+                    y = m.y;
+                    ellipse(startx, starty, x, y);
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                setlinecolor(ppainter->penColor);
+                setrop2(R2_COPYPEN);
+                ellipse(startx, starty, x, y);
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+    //   setlinestyle(PS_SOLID, m_size);
+}
 
 // 从电脑中获取图片
 void LoadImage(TPainter* ppainter)
@@ -11,13 +115,21 @@ void LoadImage(TPainter* ppainter)
     TCHAR szFile[MAX_PATH] = { 0 };	//用于接收文件名
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn); // 结构大小
-    ofn.lpstrFile = szFile;	//接收返回的文件名，注意第一个字符需要为NULL
+    ofn.lpstrFile = szFile;	       //接收返回的文件名，注意第一个字符需要为NULL
     ofn.nMaxFile = MAX_PATH;       // 路径大小
     ofn.lpstrFilter = TEXT("图片文件(bmp; jpg; png; tiff; tif; jpeg; gif)\0*.bmp; *.jpg; *.png; *.tiff; *.jpeg; *.gif; *.tif\0\0"); // 文件类型
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // 标志
     if (GetOpenFileName(&ofn)) {
         IMAGE img;
         loadimage(&img, ofn.lpstrFile);
+        double ratio, ratiox = 1, ratioy = 1;
+        if (img.getwidth() > ppainter->w)
+            ratiox = (double)ppainter->w / img.getwidth();
+        if (img.getheight() > ppainter->h)
+            ratioy = (double)ppainter->h / img.getheight();
+        ratio = (ratiox < ratioy) ? ratiox : ratioy;
+        if (ratio < 1)
+            loadimage(&img, ofn.lpstrFile, ratio * img.getwidth(), ratio * img.getheight());
         putimage(0, 0, ppainter->w, ppainter->h, &img, 0, 0);
     }
 }
@@ -147,3 +259,4 @@ void GaussImage(TPainter* ppainter)
     free(B);
     R = G = B = NULL;
 }
+

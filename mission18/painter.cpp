@@ -1,5 +1,6 @@
 #include <easyx.h>
 #include "painter.h"
+#include "imageproc.h"
 
 void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int type)
 {
@@ -31,7 +32,6 @@ void initButton(TButton* pbtn, int x, int y, int w, int h, int type)
     pbtn->h = h;
     pbtn->type = type;
     pbtn->text = NULL;
-    //    wcscpy_s(pbtn->text, L"\0");
 }
 
 void initButton(TButton* pbtn, int x, int y)
@@ -155,6 +155,7 @@ void buttonClick(TPanel* ppanel, int x, int y)
 {
     for (int i = 0; i < ppanel->btnCount; i++) {
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
+            ppanel->btnFocused = i;
             TFunction* pfun = ppanel->pbuttons[i]->pfun;
             if (pfun!=NULL) (*pfun)(ppanel->ppainter);
             break;
@@ -204,4 +205,24 @@ void clearPainter(TPainter* ppainter)
 void drawPainter(TPainter* ppainter)
 {
     drawPanel(ppainter->ppanel);
+}
+
+int ptInPainter(POINT p, TPainter* ppainter)
+{
+    if (p.x > ppainter->x && p.x < ppainter->x+ppainter->w && p.y > ppainter->y && p.y < ppainter->y + ppainter->h)
+        return 1;
+    return 0;
+}
+
+void painterClick(TPainter* ppainter, int startx, int starty)
+{
+    if (ppainter->penType == ptLINE) {
+        PaintLine(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptRECT) {
+        PaintRect(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptELLIPSE) {
+        PaintEllipse(ppainter, startx, starty);
+    }
 }
