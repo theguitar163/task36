@@ -47,7 +47,7 @@ typedef struct tagBoard {
 // pcrown：皇冠图像指针
 void initBoard(TBoard* pboard, TCrownImage* pcrown = NULL)
 {
-    // 首次初始化时，需传入皇冠图形对象指针
+    // 首次初始化时，需传入皇冠图像对象指针
     if (pcrown != NULL)
         pboard->pcrown = pcrown;
     for (int i = 0; i < MAX_CELL; i++)
