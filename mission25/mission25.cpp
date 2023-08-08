@@ -14,7 +14,7 @@
 #define BORDER_WIDTH 32
 #define MAX_CELL 8
 
-// 皇冠图形结构 -------------------------------------------
+// 皇冠图像结构 -------------------------------------------
 typedef struct tagCrown {
     IMAGE image;
     IMAGE mask;
