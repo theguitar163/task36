@@ -131,10 +131,10 @@ int wait()
     if (_kbhit()) {
         switch (_getch()) {
         case VK_ESCAPE:
-            delay = 0;  // ESC键，不延时
+            delay = 0;      // ESC键，不延时
             break;
         case VK_SPACE:
-            _getch();      // 空格键，暂停
+            _getch();       // 空格键，暂停
             break;
         default:            // 其他键，增速一倍
             delay = 0.5 * delay;
