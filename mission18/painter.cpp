@@ -1,5 +1,5 @@
 #include <easyx.h>
-#include "controls.h"
+#include "painter.h"
 
 void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int type)
 {

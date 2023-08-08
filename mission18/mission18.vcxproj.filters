@@ -18,7 +18,7 @@
     <ClCompile Include="mission18.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="controls.cpp">
+    <ClCompile Include="painter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="algorithm.cpp">
@@ -29,14 +29,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="controls.h">
+    <ClInclude Include="painter.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="algorithm.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="imageproc.h">
-      <Filter>源文件</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <commdlg.h>
-#include "controls.h"
+#include "painter.h"
 #include "algorithm.h"
 #include "imageproc.h"
 

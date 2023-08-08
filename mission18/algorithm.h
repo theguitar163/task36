@@ -1,7 +1,7 @@
 #pragma once
 
 #include <easyx.h>
-#include "controls.h"
+#include "painter.h"
 
 // 定义一个处理图像的类
 class Algorithm
