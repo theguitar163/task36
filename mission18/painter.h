@@ -8,22 +8,36 @@ struct tagPainter;
 // 函数指针类型
 typedef void (TFunction)(struct tagPainter* ppainter);
 
+// 按钮形状
+#define bsCIRCLE  0
+#define bsRECT    1
+#define bsRDRECT  2
+
 // 按钮类型
-#define btCIRCLE  0
-#define btRECT    1
-#define btRDRECT  2
+#define btDEFAULT 0
+#define btCOLOR   1
+#define btNUM     2
+#define btBOOL    3
 
 // 按钮结构
 typedef struct tagButton {
-    int type;                 // 按钮类型btCIRCLE/btRDRECT/btRECT
+    int shape;                // 按钮形状bsCIRCLE/bsRDRECT/bsRECT
+    int type;                 // 按钮类型btDEFAULT/btCOLOR/btNUM/btBOOL
     const TCHAR* text;        // 按钮上的文字
     COLORREF color;           // 按钮的颜色
-    int w, h;
-    TFunction* pfun = NULL;
+    int w, h;                 // 按钮宽高
+    TFunction* pfun = NULL;   // 关联函数指针
     int x, y, x2, y2;         // 按钮的坐标
-    int radius;               // 圆形按钮的半径    
-    struct tagPanel* container;
+    LONG value = 0;           // 特殊类型值可兼容颜色、整数、布尔数
+    struct tagPanel* container; // 控制板容器
 } TButton;
+
+// 设置按钮位置
+void setButtonPos(TButton* pbtn, int x, int y);
+// 绘制按钮
+void drawButton(TButton* pbtn);
+// 判断点pt是否在按钮中
+int ptInButton(POINT p, TButton* pbtn);
 
 // 最大按钮数量
 #define MAX_BUTTON 100
@@ -47,6 +61,15 @@ typedef struct tagPanel {
     struct tagPainter* ppainter;
 } TPanel;
 
+#define adRIGHT   0
+#define adBOTTOM  1
+#define adNEWLINE 2
+
+void initPanel(TPanel* ppanel, int size, int align);
+void addButton(TPanel* ppanel, TButton* pbutton);
+void addButton(TPanel* ppanel, TButton* pbutton, int spacing, int dir = adRIGHT);
+void drawPanel(TPanel* ppanel);
+
 // 画笔类型
 #define ptFREEHAND 0
 #define ptLINE     1
@@ -58,7 +81,8 @@ typedef struct tagPanel {
 
 // 画板结构
 typedef struct tagPainter {
-    int x;  // 画布范围
+    HWND hwnd;  // 窗口句柄
+    int x;      // 画布范围
     int y;
     int w;
     int h;
@@ -66,30 +90,19 @@ typedef struct tagPainter {
     int penType = ptLINE;       // 画笔类型
     int penThickness = 1;       // 画笔线宽
     COLORREF penColor = BLACK;  // 画笔颜色
+    int isFill = 0;             // 是否填充
     COLORREF fillColor = WHITE; // 填充颜色
     IMAGE imgBackup;    // 画布图像备份
     TPanel* ppanel;     // 按钮控制板
 } TPainter;
 
-void initPainter(TPainter* ppainter, TPanel*ppanel, int panelsize, int panelalign);
+void initPainter(TPainter* ppainter, HWND hwnd, TPanel*ppanel, int panelsize, int panelalign);
 void clearPainter(TPainter* ppainter);
+void backupPainter(TPainter* ppainter);
 void drawPainter(TPainter* ppainter);
 int ptInPainter(POINT p, TPainter* ppainter, int shrinksize=0);
+
 void painterClick(TPainter* ppainter, int startx, int starty);
-
-void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int mod);
-void initButton(TButton* pbtn, int x1, int y1, int radius, int mod);
-void initButton(TButton* pbtn, int x, int y, int w, int h, int mod);
-void initButton(TButton* pbtn, int x, int y);
-// 绘制按钮
-void drawButton(TButton* pbtn);
-// 判断点pt是否在按钮中
-int ptInButton(POINT p, TButton* pbtn);
-
-void initPanel(TPanel* ppanel, int size, int align);
-void addButton(TPanel* ppanel, TButton* pbutton);
-void drawPanel(TPanel* ppanel);
-
 void buttonClick(TPanel* ppanel, int x, int y);
 
 void PaintLine(TPainter* ppainter, int startx, int starty);

@@ -27,33 +27,6 @@ int FileDialog(TCHAR* path)
 // 初始化绘图场景
 Algorithm::Algorithm(IMAGE* img, int width, int height)
 {
-    m_pimg = img;
-    m_width = width;
-    m_height = height;
-    m_size = 1;
-    for (int i = 0; i < 6; i++)
-        initButton(&button[i], 20 + i * 30, height + 15, 10, 0);
-
-    button[6].x = 190; button[6].y = height + 5; button[6].x2 = 215; button[6].y2 = height + 25; button[6].text = L"笔"; button[6].type = 1;
-    button[7].x = 220; button[7].y = height + 5; button[7].x2 = 290; button[7].y2 = height + 25; button[7].text = L"编辑颜色"; button[7].type = 1;
-    button[8].x = 300; button[8].y = height + 5; button[8].x2 = 325; button[8].y2 = height + 25; button[8].text = L"□"; button[8].type = 1;
-    button[9].x = 335; button[9].y = height + 5; button[9].x2 = 375; button[9].y2 = height + 25; button[9].text = L"椭圆"; button[9].type = 1;
-    button[10].x = 385; button[10].y = height + 5; button[10].x2 = 455; button[10].y2 = height + 25; button[10].text = L"画笔型号"; button[10].type = 1;
-    button[11].x = 470; button[11].y = height + 5; button[11].x2 = 530; button[11].y2 = height + 25; button[11].text = L"橡皮擦"; button[11].type = 1;
-    button[12].x = 545; button[12].y = height + 5; button[12].x2 = 585; button[12].y2 = height + 25; button[12].text = L"保存"; button[12].type = 1;
-    button[13].x = 595; button[13].y = height + 5; button[13].x2 = 635; button[13].y2 = height + 25; button[13].text = L"绘画"; button[13].type = 1;
-
-    button[14].x = 20; button[14].y = height + 35; button[14].x2 = 90; button[14].y2 = height + 55; button[14].text = L"打开图片"; button[14].type = 1;
-    button[15].x = 100; button[15].y = height + 35; button[15].x2 = 170; button[15].y2 = height + 55; button[15].text = L"水平镜像"; button[15].type = 1;
-    button[16].x = 180; button[16].y = height + 35; button[16].x2 = 250; button[16].y2 = height + 55; button[16].text = L"垂直镜像"; button[16].type = 1;
-    button[17].x = 260; button[17].y = height + 35; button[17].x2 = 300; button[17].y2 = height + 55; button[17].text = L"截图"; button[17].type = 1;
-    button[18].x = 310; button[18].y = height + 35; button[18].x2 = 400; button[18].y2 = height + 55; button[18].text = L"黑白二值图"; button[18].type = 1;
-    button[19].x = 410; button[19].y = height + 35; button[19].x2 = 480; button[19].y2 = height + 55; button[19].text = L"高斯模糊"; button[19].type = 1;
-    button[20].x = 490; button[20].y = height + 35; button[20].x2 = 560; button[20].y2 = height + 55; button[20].text = L"灰度效果"; button[20].type = 1;
-    button[21].x = 570; button[21].y = height + 35; button[21].x2 = 630; button[21].y2 = height + 55; button[21].text = L"马赛克"; button[21].type = 1;
-    m_focusx = button[0].x; 
-    m_focusy = button[0].y;
-    m_focuscolor = BLUE;
 }
 // 选取状态
 void Algorithm::drawFocus()
@@ -131,101 +104,15 @@ void Algorithm::message_proce(IMAGE read_img)
                 // 控制画矩形
                 if (penType == ptRECT)
                 {
-                    setlinestyle(PS_SOLID, 1);
-                    if (m.x < m_width && m.y < m_height)
-                    {
-                        x = m.x; y = m.y;
-                        xc = m.x; xd = m.y;
-                        setlinecolor(WHITE);
-                        setrop2(R2_XORPEN);
-                        rectangle(x, y, xc, xd);
-                        while (true) {
-                            m = getmessage(EM_MOUSE);
-                            if (m.message == WM_MOUSEMOVE) {
-                                if (m.x < m_width && m.y < m_height) {
-                                    rectangle(x, y, xc, xd);
-                                    xc = m.x; xd = m.y;
-                                    rectangle(x, y, xc, xd);
-                                }
-                            }
-                            else if (m.message == WM_LBUTTONUP) {
-                                setlinecolor(m_focuscolor);
-                                setrop2(R2_COPYPEN);
-                                rectangle(x, y, xc, xd);
-                                break;
-                            }
-                        }
-                    }
-                    setlinestyle(PS_SOLID, m_size);
                 }
                 // 控制画椭圆
                 if (penType == ptELLIPSE)
                 {
-                    setlinestyle(PS_SOLID, 1);
-                    if (m.x < m_width && m.y < m_height)
-                    {
-                        x = m.x; y = m.y;
-                        xc = m.x; xd = m.y;
-                        setlinecolor(WHITE);
-                        setrop2(R2_XORPEN);
-                        rectangle(x, y, xc, xd);
-                        while (true)
-                        {
-                            m = getmessage(EM_MOUSE);
-                            if (m.message == WM_MOUSEMOVE)
-                            {
-                                if (m.x < m_width && m.y < m_height)
-                                {
-                                    ellipse(x, y, xc, xd);
-                                    xc = m.x; xd = m.y;
-                                    ellipse(x, y, xc, xd);
-                                }
-                            }
-                            else if (m.message == WM_LBUTTONUP)
-                            {
-                                setlinecolor(m_focuscolor);
-                                setrop2(R2_COPYPEN);
-                                ellipse(x, y, xc, xd);
-                                break;
-                            }
-                        }
-                    }
-                    setlinestyle(PS_SOLID, m_size);
                 }
                 // 判断是否点击了按钮
-                for (m_btnIdx = 0; m_btnIdx < 22; m_btnIdx++)
-                {
-                    if (button[m_btnIdx].type == 0)
-                    {
-                        if ((m.x - button[m_btnIdx].x) * (m.x - button[m_btnIdx].x) + (m.y - button[m_btnIdx].y) * (m.y - button[m_btnIdx].y) < button[m_btnIdx].radius * button[m_btnIdx].radius)
-                        {
-                            break;
-                        }
-                    }
-                    else if (button[m_btnIdx].type == 1)
-                    {
-                        if ((m.x > button[m_btnIdx].x && m.x < button[m_btnIdx].x2) && (m.y > button[m_btnIdx].y && m.y < button[m_btnIdx].y2))
-                        {
-                            break;
-                        }
-                    }
-                }
                 switch (m_btnIdx)
                 {
                 case 7: // 编辑颜色
-                    if (ChooseColor(&stChooseColor)) {
-                        rgbLineColor = stChooseColor.rgbResult;
-                        setlinecolor(rgbLineColor);
-                    }
-                    for (m_btnIdx = 0; m_btnIdx < 6; m_btnIdx++) {
-                        if (m_focusx == button[m_btnIdx].x) {
-                            button[m_btnIdx].color = RGB(GetRValue(rgbLineColor), GetGValue(rgbLineColor), GetBValue(rgbLineColor));
-                        }
-                        R[m_btnIdx] = GetRValue(button[m_btnIdx].color);
-                        G[m_btnIdx] = GetGValue(button[m_btnIdx].color);
-                        B[m_btnIdx] = GetBValue(button[m_btnIdx].color);
-                    }
-                    draw_sence(); // 更改当前喜欢的颜色，并重新绘制场景
                     break;
                 case 10: // 画笔型号
                     InputBox(str, 5, _T("请输入画笔型号(1~5)"));
@@ -361,30 +248,6 @@ void Algorithm::message_proce(IMAGE read_img)
 }
 void Algorithm::draw_sence()
 {
-    COLORREF color = NULL;
-    // 设置文字的背景模式
-    setbkmode(TRANSPARENT);
-    settextcolor(BLACK);
-    setlinecolor(BLACK);
-    setlinestyle(PS_SOLID, 1);
-    if (m_width <= 640) line(0, m_height, 640, m_height);
-    else line(0, m_height, m_width, m_height);
-    // 绘制按钮
-    for (m_btnIdx = 0; m_btnIdx < 6; m_btnIdx++) {
-        setfillcolor(button[m_btnIdx].color);
-        fillcircle(button[m_btnIdx].x, button[m_btnIdx].y, button[m_btnIdx].radius);
-    }
-    for (m_btnIdx = 6; m_btnIdx < 22; m_btnIdx++) {
-        rectangle(button[m_btnIdx].x, button[m_btnIdx].y, button[m_btnIdx].x2, button[m_btnIdx].y2);
-        outtextxy(button[m_btnIdx].x + 5, button[m_btnIdx].y + 2, button[m_btnIdx].text);
-    }
-    if (m_width <= 640)
-        line(0, m_height + 30, 640, m_height + 30);
-    else
-        line(0, m_height + 30, m_width, m_height + 30);
-    // 控制画笔型号以及当前颜色
-    setlinestyle(PS_SOLID, m_size);
-    setlinecolor(m_focuscolor);
 }
 // 水平镜像
 void Algorithm::per_img(IMAGE read_img)

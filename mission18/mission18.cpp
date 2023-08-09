@@ -45,48 +45,50 @@ COLORREF chooseColor(HWND hwnd)
 
 int main()
 {
-    initgraph(800, 600);
+    HWND hwnd;
+    hwnd = initgraph(800, 600);
     setbkcolor(WHITE);
     setbkmode(TRANSPARENT);
     cleardevice();
 
-    TButton buttons[22] = {
-        {btCIRCLE, NULL, RED, 20, 20, &SetPenColor},
-        {btCIRCLE, NULL, GREEN, 20, 20, &SetPenColor},
-        {btCIRCLE, NULL, BLUE, 20, 20, &SetPenColor},
-        {btCIRCLE, NULL, YELLOW, 20, 20, &SetPenColor},
-        {btCIRCLE, NULL, CYAN, 20, 20, &SetPenColor},
-        {btCIRCLE, NULL, BROWN, 20, 20, &SetPenColor},
-        {btRDRECT, L"颜色", LIGHTGRAY, 50, 30, &ChoosePenColor},
-        {btRDRECT, L"线宽", LIGHTGRAY, 50, 30, &ChoosePenThickness},
-        {btRDRECT, L"画线", LIGHTGRAY, 50, 30, &SetPenLine},
-        {btRDRECT, L"矩形", LIGHTGRAY, 50, 30, &SetPenRect},
-        {btRDRECT, L"椭圆", LIGHTGRAY, 50, 30, &SetPenEllipse},
-        {btRDRECT, L"马赛克", LIGHTGRAY, 80, 30, &SetPenMosaic},
-        {btRDRECT, L"橡皮", LIGHTGRAY, 50, 30, &SetPenEraser},
+    TButton buttons[] = {
+        {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &SetPenColor},
+        {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &SetPenColor},
+        {bsCIRCLE, btDEFAULT, NULL, BLUE, 20, 20, &SetPenColor},
+        {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &SetPenColor},
+        {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &SetPenColor},
+        {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &SetPenColor},
+        {bsRECT,   btCOLOR, L"颜", LIGHTGRAY, 30, 30, &ChoosePenColor},
+        {bsRDRECT, btNUM,   L"线宽", LIGHTGRAY, 80, 30, &ChoosePenThickness},
+        {bsRDRECT, btBOOL,  L"填充", LIGHTGRAY, 80, 30, &SetFill},
+        {bsRDRECT, btDEFAULT, L"画线", LIGHTGRAY, 50, 30, &SetPenLine},
+        {bsRDRECT, btDEFAULT, L"矩形", LIGHTGRAY, 50, 30, &SetPenRect},
+        {bsRDRECT, btDEFAULT, L"椭圆", LIGHTGRAY, 50, 30, &SetPenEllipse},
+        {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 80, 30, &SetPenMosaic},
+        {bsRDRECT, btDEFAULT, L"橡皮", LIGHTGRAY, 50, 30, &SetPenEraser},
 
-        {btRDRECT, L"打开", LIGHTGRAY, 80, 30, &LoadImage},
-        {btRDRECT, L"保存", LIGHTGRAY, 50, 30, &SaveImage},
-        {btRDRECT, L"截图", LIGHTGRAY, 80, 30, &SaveClip},
 
-        {btRDRECT, L"水平镜像", LIGHTGRAY, 80, 30, &HorizontalMirrorImage},
-        {btRDRECT, L"垂直镜像", LIGHTGRAY, 80, 30, &VerticalMirrorImage},
-        {btRDRECT, L"黑白二值", LIGHTGRAY, 80, 30, &BlackWhiteImage},
-        {btRDRECT, L"高斯模糊", LIGHTGRAY, 80, 30, &GaussImage},
-        {btRDRECT, L"灰度效果", LIGHTGRAY, 80, 30, &GrayImage},
+        {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 80, 30, &LoadImage},
+        {bsRDRECT, btDEFAULT, L"保存", LIGHTGRAY, 50, 30, &SaveImage},
+        {bsRDRECT, btDEFAULT, L"截图", LIGHTGRAY, 80, 30, &SaveClip},
+        {bsRDRECT, btDEFAULT, L"撤回", LIGHTGRAY, 50, 30, &UndoAction},
+
+        {bsRDRECT, btDEFAULT, L"水平镜像", LIGHTGRAY, 80, 30, &HorizontalMirrorImage},
+        {bsRDRECT, btDEFAULT, L"垂直镜像", LIGHTGRAY, 80, 30, &VerticalMirrorImage},
+        {bsRDRECT, btDEFAULT, L"黑白二值", LIGHTGRAY, 80, 30, &BlackWhiteImage},
+        {bsRDRECT, btDEFAULT, L"高斯模糊", LIGHTGRAY, 80, 30, &GaussImage},
+        {bsRDRECT, btDEFAULT, L"灰度效果", LIGHTGRAY, 80, 30, &GrayImage},
     };
 
     TPanel panel;
     TPainter painter;
-    initPainter(&painter, &panel, 90, alBOTTOM);
+    initPainter(&painter, hwnd, &panel, 90, alBOTTOM);
 
     for (int i = 0; i < 6; i++) {
-        initButton(&buttons[i], 20 + i * 30, 15);
-        addButton(&panel, &buttons[i]);
+        addButton(&panel, &buttons[i], 10, adRIGHT);
     }
     for (int i = 0; i < 8; i++) {
-        initButton(&buttons[i+6], 220 + i * 60, 10);
-        addButton(&panel, &buttons[6+i]);
+        addButton(&panel, &buttons[6+i], 10, adRIGHT);
     }
 
     for (int i = 0; i < 8; i++) {

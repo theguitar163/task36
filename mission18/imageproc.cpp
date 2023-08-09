@@ -39,9 +39,11 @@ void SetPenMosaic(TPainter* ppainter)
 // 从电脑中获取图片
 void LoadImage(TPainter* ppainter)
 {
+    backupPainter(ppainter);
     OPENFILENAME ofn;
     TCHAR szFile[MAX_PATH] = { 0 };	//用于接收文件名
     ZeroMemory(&ofn, sizeof(ofn));
+    ofn.hwndOwner = ppainter->hwnd;
     ofn.lStructSize = sizeof(ofn); // 结构大小
     ofn.lpstrFile = szFile;	       //接收返回的文件名，注意第一个字符需要为NULL
     ofn.nMaxFile = MAX_PATH;       // 路径大小
@@ -73,19 +75,60 @@ void SaveClip(TPainter* ppainter)
 }
 void ChoosePenColor(TPainter* ppainter)
 {
+    CHOOSECOLOR stChooseColor;            // 声明一个颜色选取的结构体变量
+    COLORREF rgbLineColor = NULL;         // 编辑的存储选择的颜色
+    COLORREF dwCustColors[16];            // 为结构体变量赋初值
+    stChooseColor.lStructSize = sizeof(CHOOSECOLOR);
+    stChooseColor.hwndOwner = ppainter->hwnd;
+    stChooseColor.rgbResult = rgbLineColor;
+    stChooseColor.lpCustColors = (LPDWORD)dwCustColors;
+    stChooseColor.Flags = CC_RGBINIT;
+    stChooseColor.lCustData = 0;
+    stChooseColor.lpfnHook = NULL;
+    stChooseColor.lpTemplateName = NULL;
+    if (ChooseColor(&stChooseColor)) {
+        ppainter->penColor = stChooseColor.rgbResult;
+    }
+}
 
-}void ChoosePenThickness(TPainter* ppainter)
+void SetFill(TPainter* ppainter)
+{
+    TPanel* pl = ppainter->ppanel;
+    int isfill = pl->pbuttons[pl->btnFocused]->value;
+    ppainter->isFill = (isfill) ? 0 : 1;
+    pl->pbuttons[pl->btnFocused]->value = ppainter->isFill;
+}
+
+void ChoosePenThickness(TPainter* ppainter)
 {
 
-}void ClearCanvas(TPainter* ppainter)
-{
+}
 
+void ClearCanvas(TPainter* ppainter)
+{
+    backupPainter(ppainter);
+    clearPainter(ppainter);
+}
+
+void UndoAction(TPainter* ppainter)
+{
+    IMAGE tmp;
+    // 临时存放当前图像至tmp
+    getimage(&tmp, ppainter->x, ppainter->y, ppainter->w, ppainter->h);
+    // 在画布上绘制备份的图像imgbackup
+    putimage(ppainter->x, ppainter->y, &ppainter->imgBackup);
+    // 将临时图像tmp绘制到imgBackup中
+    SetWorkingImage(&ppainter->imgBackup);
+    putimage(ppainter->x, ppainter->y, &tmp);
+    // 将当前绘制对象恢复
+    SetWorkingImage(NULL);
 }
 // 水平镜像
 void HorizontalMirrorImage(TPainter* ppainter)
 {
+    backupPainter(ppainter);
     IMAGE img;
-    getimage(&img, 0, 0, ppainter->w, ppainter->h);      // 取得当前窗口图像
+    getimage(&img, ppainter->x, ppainter->y, ppainter->w, ppainter->h);      // 取得当前窗口图像
     DWORD* psrc = GetImageBuffer(&img);  // 取得当前窗口图像显示缓存区数据
     DWORD* pdst = GetImageBuffer();      // 直接处理绘图窗口
     
@@ -98,8 +141,9 @@ void HorizontalMirrorImage(TPainter* ppainter)
 // 垂直镜像
 void VerticalMirrorImage(TPainter* ppainter)
 {
+    backupPainter(ppainter);
     IMAGE img;
-    getimage(&img, 0, 0, ppainter->w, ppainter->h);      // 取得当前窗口图像
+    getimage(&img, ppainter->x, ppainter->y, ppainter->w, ppainter->h);      // 取得当前窗口图像
     DWORD* psrc = GetImageBuffer(&img);  // 取得当前窗口图像显示缓存区数据
     DWORD* pdst = GetImageBuffer();      // 直接处理绘图窗口
 
@@ -112,8 +156,9 @@ void VerticalMirrorImage(TPainter* ppainter)
 // 灰度图像
 void GrayImage(TPainter* ppainter)
 {
+    backupPainter(ppainter);
     IMAGE img;
-    getimage(&img, 0, 0, ppainter->w, ppainter->h);
+    getimage(&img, ppainter->x, ppainter->y, ppainter->w, ppainter->h);
     DWORD* p = GetImageBuffer(&img);
     COLORREF c;
     for (int i = ppainter->w * ppainter->h - 1; i >= 0; i--) {
@@ -127,11 +172,12 @@ void GrayImage(TPainter* ppainter)
 // 黑白二值
 void BlackWhiteImage(TPainter* ppainter)
 {
+    backupPainter(ppainter);
     int threshold = 127;
     IMAGE img;
     COLORREF c;
 
-    getimage(&img, 0, 0, ppainter->w, ppainter->h);
+    getimage(&img, ppainter->x, ppainter->y, ppainter->w, ppainter->h);
     GrayImage(ppainter);
     DWORD* p = GetImageBuffer(&img);
     for (int i = ppainter->w * ppainter->h - 1; i >= 0; i--) {
@@ -146,6 +192,7 @@ void BlackWhiteImage(TPainter* ppainter)
 // 高斯模糊
 void GaussImage(TPainter* ppainter)
 {
+    backupPainter(ppainter);
     int filterSize = 7;
     double sigma = 2.0;
 
@@ -181,7 +228,7 @@ void GaussImage(TPainter* ppainter)
     B = (BYTE*)calloc(ppainter->w * ppainter->h, sizeof(BYTE));
 
     IMAGE img;
-    getimage(&img, 0, 0, ppainter->w, ppainter->h);
+    getimage(&img, ppainter->x, ppainter->y, ppainter->w, ppainter->h);
     DWORD* pMem = GetImageBuffer(&img);
     for (j = 0; j < ppainter->w * ppainter->h; j++) {
         R[j] = GetRValue(pMem[j]);

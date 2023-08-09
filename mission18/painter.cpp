@@ -3,38 +3,7 @@
 #include "painter.h"
 #include "imageproc.h"
 
-void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCHAR* text, int type)
-{
-    pbtn->x = x;
-    pbtn->y = y;
-    pbtn->x2 = x2;
-    pbtn->y2 = y2;
-    pbtn->w = x2 - x;
-    pbtn->h = y2 - y;
-    pbtn->color = color;
-    pbtn->text = text;
-    pbtn->type = type;
-}
-
-void initButton(TButton* pbtn, int x1, int y1, int radius, int type)
-{
-    pbtn->x = x1;
-    pbtn->y = y1;
-    pbtn->radius = radius;
-    pbtn->type = type;
-}
-
-void initButton(TButton* pbtn, int x, int y, int w, int h, int type)
-{
-    pbtn->x = x;
-    pbtn->y = y;
-    pbtn->w = w;
-    pbtn->h = h;
-    pbtn->type = type;
-    pbtn->text = NULL;
-}
-
-void initButton(TButton* pbtn, int x, int y)
+void setButtonPos(TButton* pbtn, int x, int y)
 {
     pbtn->x = x;
     pbtn->y = y;
@@ -59,10 +28,10 @@ void drawButton(TButton* pbtn)
     setlinecolor(BLACK);
     settextcolor(BLACK);
     RECT r = { ox + pbtn->x, oy + pbtn->y, ox + pbtn->x + pbtn->w, oy + pbtn->y + pbtn->h };
-    if (pbtn->type == btCIRCLE) {
+    if (pbtn->shape == bsCIRCLE) {
         fillellipse(r.left, r.top, r.right, r.bottom);
     }
-    else if (pbtn->type == btRDRECT) {
+    else if (pbtn->shape == bsRDRECT) {
         int esize = ((pbtn->w > pbtn->h) ? pbtn->h : pbtn->w) / 4;
         fillroundrect(r.left, r.top, r.right, r.bottom, esize, esize);
     }
@@ -70,8 +39,16 @@ void drawButton(TButton* pbtn)
         fillrectangle(r.left, r.top, r.right, r.bottom);
     }
     // 绘制按钮标题
-    if (pbtn->text != NULL)
-        drawtext(pbtn->text, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+    if (pbtn->text != NULL) {
+        TCHAR str[200];
+        if (pbtn->type == btNUM)
+            swprintf_s(str, L"%s[%d]", pbtn->text, pbtn->value);
+        else if (pbtn->type == btBOOL)
+            swprintf_s(str, L"%s[%s]", pbtn->text, (pbtn->value == 0) ? L"○" : L"●");
+        else
+            wcscpy_s(str, pbtn->text);
+        drawtext(str, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+    }
 }
 
 // 判断点pt是否在按钮中
@@ -88,7 +65,7 @@ int ptInButton(POINT p, TButton* pbtn)
         by = pbtn->container->y + pbtn->y;
     }
     // 椭圆按钮，计算电是否在椭圆内
-    if (pbtn->type == btCIRCLE) {
+    if (pbtn->shape == bsCIRCLE) {
         double a = pbtn->w / 2;
         double b = pbtn->h / 2;
         double dx = p.x - (bx + a);
@@ -141,6 +118,32 @@ void addButton(TPanel* ppanel, TButton* pbutton)
     }
 }
 
+void addButton(TPanel* ppanel, TButton* pbutton, int spacing, int dir)
+{
+    if (ppanel->btnCount < MAX_BUTTON - 1) {
+                TButton* p = ppanel->pbuttons[ppanel->btnCount - 1];
+        if (ppanel->btnCount == 0) {
+            pbutton->x = spacing;
+            pbutton->y = spacing;
+        }
+        else if (dir == adBOTTOM) {
+            pbutton->x = p->x;
+            pbutton->y = p->y + p->h + spacing;
+        }
+        else if (dir == adNEWLINE) {
+            pbutton->x = spacing;
+            pbutton->y = p->y + p->h + spacing;
+        }
+        else { // 默认为右侧添加
+            pbutton->x = p->x + p->w + spacing;
+            pbutton->y = p->y;
+        }
+        ppanel->pbuttons[ppanel->btnCount] = pbutton;
+        pbutton->container = ppanel;
+        ppanel->btnCount++;
+    }
+}
+
 void drawPanel(TPanel* ppanel)
 {
     setlinecolor(BLACK);
@@ -156,6 +159,10 @@ void buttonClick(TPanel* ppanel, int x, int y)
     for (int i = 0; i < ppanel->btnCount; i++) {
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
             ppanel->btnFocused = i;
+            if (ppanel->pbuttons[i]->type != btDEFAULT) {
+                drawPanel(ppanel);
+                FlushBatchDraw();
+            }
             TFunction* pfun = ppanel->pbuttons[i]->pfun;
             if (pfun!=NULL) (*pfun)(ppanel->ppainter);
             break;
@@ -163,7 +170,7 @@ void buttonClick(TPanel* ppanel, int x, int y)
     }
 }
 
-void initPainter(TPainter* ppainter, TPanel* ppanel, int panelsize, int panelalign)
+void initPainter(TPainter* ppainter, HWND hwnd, TPanel* ppanel, int panelsize, int panelalign)
 {
     switch (panelalign) {
     case alTOP:
@@ -192,6 +199,7 @@ void initPainter(TPainter* ppainter, TPanel* ppanel, int panelsize, int panelali
     }
     clearPainter(ppainter);
     initPanel(ppanel, panelsize, panelalign);
+    ppainter->hwnd = hwnd;
     ppainter->ppanel = ppanel;
     ppanel->ppainter = ppainter;
 }
@@ -200,6 +208,11 @@ void clearPainter(TPainter* ppainter)
 {
     setfillcolor(WHITE);
     solidrectangle(ppainter->x, ppainter->y, ppainter->x + ppainter->w, ppainter->y + ppainter->h);
+}
+
+void backupPainter(TPainter* ppainter)
+{
+    getimage(&ppainter->imgBackup, ppainter->x, ppainter->y, ppainter->w, ppainter->h);  // 备份当前图像
 }
 
 void drawPainter(TPainter* ppainter)
@@ -220,6 +233,7 @@ int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
 
 void painterClick(TPainter* ppainter, int startx, int starty)
 {
+    backupPainter(ppainter);
     if (ppainter->penType == ptLINE) {
         PaintLine(ppainter, startx, starty);
     }
@@ -285,7 +299,12 @@ void PaintRect(TPainter* ppainter, int startx, int starty)
             else if (m.message == WM_LBUTTONUP) {
                 setlinecolor(ppainter->penColor);
                 setrop2(R2_COPYPEN);
-                rectangle(startx, starty, x, y);
+                if (ppainter->isFill) {
+                    setfillcolor(ppainter->fillColor);
+                    fillrectangle(startx, starty, x, y);
+                }
+                else
+                    rectangle(startx, starty, x, y);
                 break;
             }
             FlushBatchDraw();
@@ -317,7 +336,12 @@ void PaintEllipse(TPainter* ppainter, int startx, int starty)
             else if (m.message == WM_LBUTTONUP) {
                 setlinecolor(ppainter->penColor);
                 setrop2(R2_COPYPEN);
-                ellipse(startx, starty, x, y);
+                if (ppainter->isFill) {
+                    setfillcolor(ppainter->fillColor);
+                    fillellipse(startx, starty, x, y);
+                }
+                else
+                    ellipse(startx, starty, x, y);
                 break;
             }
             FlushBatchDraw();

@@ -6,6 +6,8 @@ void SaveClip(TPainter* ppainter);
 void ClearCanvas(TPainter* ppainter);
 void ChoosePenColor(TPainter* ppainter);
 void ChoosePenThickness(TPainter* ppainter);
+void SetFill(TPainter* ppainter);
+void UndoAction(TPainter* ppainter);
 // Ë®Æ½¾µÏñ
 void HorizontalMirrorImage(TPainter* ppainter);
 // ´¹Ö±¾µÏñ
