@@ -51,7 +51,7 @@ int main()
     setbkmode(TRANSPARENT);
     cleardevice();
 
-    TButton buttons[] = {
+    TButton buttons1[] = {
         {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &SetPenColor},
         {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &SetPenColor},
         {bsCIRCLE, btDEFAULT, NULL, BLUE, 20, 20, &SetPenColor},
@@ -64,13 +64,13 @@ int main()
         {bsRDRECT, btDEFAULT, L"画线", LIGHTGRAY, 50, 30, &SetPenLine},
         {bsRDRECT, btDEFAULT, L"矩形", LIGHTGRAY, 50, 30, &SetPenRect},
         {bsRDRECT, btDEFAULT, L"椭圆", LIGHTGRAY, 50, 30, &SetPenEllipse},
-        {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 80, 30, &SetPenMosaic},
+        {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 60, 30, &SetPenMosaic},
         {bsRDRECT, btDEFAULT, L"橡皮", LIGHTGRAY, 50, 30, &SetPenEraser},
-
-
-        {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 80, 30, &LoadImage},
+    };
+    TButton buttons2[] = {
+        {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 50, 30, &LoadImage},
         {bsRDRECT, btDEFAULT, L"保存", LIGHTGRAY, 50, 30, &SaveImage},
-        {bsRDRECT, btDEFAULT, L"截图", LIGHTGRAY, 80, 30, &SaveClip},
+        {bsRDRECT, btDEFAULT, L"截图", LIGHTGRAY, 50, 30, &SaveClip},
         {bsRDRECT, btDEFAULT, L"撤回", LIGHTGRAY, 50, 30, &UndoAction},
 
         {bsRDRECT, btDEFAULT, L"水平镜像", LIGHTGRAY, 80, 30, &HorizontalMirrorImage},
@@ -84,16 +84,13 @@ int main()
     TPainter painter;
     initPainter(&painter, hwnd, &panel, 90, alBOTTOM);
 
-    for (int i = 0; i < 6; i++) {
-        addButton(&panel, &buttons[i], 10, adRIGHT);
-    }
-    for (int i = 0; i < 8; i++) {
-        addButton(&panel, &buttons[6+i], 10, adRIGHT);
+    for (int i = 0; i < sizeof(buttons1)/sizeof(buttons1[0]); i++) {
+        addButton(&panel, &buttons1[i], 10, adRIGHT);
     }
 
-    for (int i = 0; i < 8; i++) {
-        initButton(&buttons[14 + i], 20 + i * 90, 50);
-        addButton(&panel, &buttons[14 + i]);
+    addButton(&panel, &buttons2[0], 10, adNEWLINE);
+    for (int i = 1; i < sizeof(buttons2)/sizeof(buttons2[0]); i++) {
+        addButton(&panel, &buttons2[i], 10, adRIGHT);
     }
 
     BeginBatchDraw();

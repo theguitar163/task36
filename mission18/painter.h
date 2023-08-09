@@ -2,7 +2,6 @@
 
 #include <easyx.h>
 
-
 struct tagPainter;
 
 // 函数指针类型
