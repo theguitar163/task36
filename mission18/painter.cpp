@@ -24,18 +24,35 @@ void drawButton(TButton* pbtn)
     }
 
     // 绘制按钮，包括椭圆形、圆角矩形、矩形三种
-    setfillcolor(pbtn->color);
     setlinecolor(BLACK);
     settextcolor(BLACK);
     RECT r = { ox + pbtn->x, oy + pbtn->y, ox + pbtn->x + pbtn->w, oy + pbtn->y + pbtn->h };
     if (pbtn->shape == bsCIRCLE) {
+        if (pbtn->focused) {
+            setfillcolor(LIGHTBLUE);
+            solidellipse(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
+        }
+        setlinecolor(BLACK);
+        setfillcolor(pbtn->color);
         fillellipse(r.left, r.top, r.right, r.bottom);
     }
     else if (pbtn->shape == bsRDRECT) {
         int esize = ((pbtn->w > pbtn->h) ? pbtn->h : pbtn->w) / 4;
+        if (pbtn->focused) {
+            setfillcolor(LIGHTBLUE);
+            solidroundrect(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2, esize+2, esize+2);
+        }
+        setlinecolor(BLACK);
+        setfillcolor(pbtn->color);
         fillroundrect(r.left, r.top, r.right, r.bottom, esize, esize);
     }
     else {
+        if (pbtn->focused) {
+            setfillcolor(LIGHTBLUE);
+            solidrectangle(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
+        }
+        setlinecolor(BLACK);
+        setfillcolor(pbtn->color);
         fillrectangle(r.left, r.top, r.right, r.bottom);
     }
     // 绘制按钮标题
@@ -149,6 +166,7 @@ void drawPanel(TPanel* ppanel)
 {
     setlinecolor(BLACK);
     setfillcolor(WHITE);
+    setlinestyle(PS_SOLID, 1);
     fillrectangle(ppanel->x, ppanel->y, ppanel->x + ppanel->w, ppanel->y + ppanel->h);
     for (int i = 0; i < ppanel->btnCount; i++) {
         drawButton(ppanel->pbuttons[i]);
@@ -161,12 +179,11 @@ void buttonClick(TPanel* ppanel, int x, int y)
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
             ppanel->btnFocused = i;
             TFunction* pfun = ppanel->pbuttons[i]->pfun;
-            if (pfun!=NULL) (*pfun)(ppanel->ppainter);
+            if (pfun!=NULL) 
+                (*pfun)(ppanel->ppainter);
 
-            if (ppanel->pbuttons[i]->type != btDEFAULT) {
-                drawPanel(ppanel);
-                FlushBatchDraw();
-            }
+            drawPanel(ppanel);
+            FlushBatchDraw();
 
             break;
         }
@@ -200,17 +217,18 @@ void initPainter(TPainter* ppainter, HWND hwnd, TPanel* ppanel, int panelsize, i
         ppainter->w = getwidth() - panelsize;
         ppainter->h = getheight();
     }
-    clearPainter(ppainter);
     initPanel(ppanel, panelsize, panelalign);
     ppainter->hwnd = hwnd;
     ppainter->ppanel = ppanel;
     ppanel->ppainter = ppainter;
+    clearPainter(ppainter);
 }
 
 void clearPainter(TPainter* ppainter)
 {
     setfillcolor(WHITE);
     solidrectangle(ppainter->x, ppainter->y, ppainter->x + ppainter->w, ppainter->y + ppainter->h);
+    drawPanel(ppainter->ppanel);
 }
 
 void backupPainter(TPainter* ppainter)
@@ -266,6 +284,7 @@ void PaintLine(TPainter* ppainter, int startx, int starty)
             m = getmessage(EM_MOUSE);
             if (m.message == WM_MOUSEMOVE) {
                 if (ptInPainter({ m.x,m.y }, ppainter)) {
+                    setlinestyle(PS_SOLID, ppainter->penThickness);
                     line(x, y, m.x, m.y);
                     x = m.x;
                     y = m.y;
@@ -302,6 +321,7 @@ void PaintRect(TPainter* ppainter, int startx, int starty)
             else if (m.message == WM_LBUTTONUP) {
                 setlinecolor(ppainter->penColor);
                 setrop2(R2_COPYPEN);
+                setlinestyle(PS_SOLID, ppainter->penThickness);
                 if (ppainter->isFill) {
                     setfillcolor(ppainter->fillColor);
                     fillrectangle(startx, starty, x, y);
@@ -313,7 +333,6 @@ void PaintRect(TPainter* ppainter, int startx, int starty)
             FlushBatchDraw();
         }
     }
-    //   setlinestyle(PS_SOLID, m_size);
 }
 
 void PaintEllipse(TPainter* ppainter, int startx, int starty)
@@ -339,6 +358,7 @@ void PaintEllipse(TPainter* ppainter, int startx, int starty)
             else if (m.message == WM_LBUTTONUP) {
                 setlinecolor(ppainter->penColor);
                 setrop2(R2_COPYPEN);
+                setlinestyle(PS_SOLID, ppainter->penThickness);
                 if (ppainter->isFill) {
                     setfillcolor(ppainter->fillColor);
                     fillellipse(startx, starty, x, y);

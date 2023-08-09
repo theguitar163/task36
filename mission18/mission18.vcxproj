@@ -127,13 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="algorithm.cpp" />
     <ClCompile Include="painter.cpp" />
     <ClCompile Include="imageproc.cpp" />
     <ClCompile Include="mission18.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="algorithm.h" />
     <ClInclude Include="painter.h" />
     <ClInclude Include="imageproc.h" />
   </ItemGroup>
