@@ -62,6 +62,10 @@ void drawButton(TButton* pbtn)
             swprintf_s(str, L"%s[%d]", pbtn->text, pbtn->value);
         else if (pbtn->type == btBOOL)
             swprintf_s(str, L"%s[%s]", pbtn->text, (pbtn->value == 0) ? L"¡נ" : L"¡ס");
+        else if (pbtn->type == btCOLOR) {
+            pbtn->color
+            settextcolor()
+        }
         else
             wcscpy_s(str, pbtn->text);
         settextstyle(12, 0, L"ËÎÌו");
