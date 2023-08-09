@@ -11,6 +11,12 @@ void SetPenColor(TPainter* ppainter)
     ppainter->penColor = ppainter->ppanel->pbuttons[btnIdx]->color;
 }
 
+void SetFillColor(TPainter* ppainter)
+{
+    int btnIdx = ppainter->ppanel->btnFocused;
+    ppainter->fillColor = ppainter->ppanel->pbuttons[btnIdx]->color;
+}
+
 void SetPenLine(TPainter* ppainter)
 {
     ppainter->penType = ptLINE;
@@ -87,7 +93,29 @@ void ChoosePenColor(TPainter* ppainter)
     stChooseColor.lpfnHook = NULL;
     stChooseColor.lpTemplateName = NULL;
     if (ChooseColor(&stChooseColor)) {
+        int btnIdx = ppainter->ppanel->btnFocused;
+        ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
         ppainter->penColor = stChooseColor.rgbResult;
+    }
+}
+
+void ChooseFillColor(TPainter* ppainter)
+{
+    CHOOSECOLOR stChooseColor;            // 声明一个颜色选取的结构体变量
+    COLORREF rgbLineColor = NULL;         // 编辑的存储选择的颜色
+    COLORREF dwCustColors[16];            // 为结构体变量赋初值
+    stChooseColor.lStructSize = sizeof(CHOOSECOLOR);
+    stChooseColor.hwndOwner = ppainter->hwnd;
+    stChooseColor.rgbResult = rgbLineColor;
+    stChooseColor.lpCustColors = (LPDWORD)dwCustColors;
+    stChooseColor.Flags = CC_RGBINIT;
+    stChooseColor.lCustData = 0;
+    stChooseColor.lpfnHook = NULL;
+    stChooseColor.lpTemplateName = NULL;
+    if (ChooseColor(&stChooseColor)) {
+        int btnIdx = ppainter->ppanel->btnFocused;
+        ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
+        ppainter->fillColor = stChooseColor.rgbResult;
     }
 }
 

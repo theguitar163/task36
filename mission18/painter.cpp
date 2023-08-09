@@ -47,6 +47,7 @@ void drawButton(TButton* pbtn)
             swprintf_s(str, L"%s[%s]", pbtn->text, (pbtn->value == 0) ? L"¡נ" : L"¡ס");
         else
             wcscpy_s(str, pbtn->text);
+        settextstyle(12, 0, L"ËÎÌו");
         drawtext(str, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
     }
 }
@@ -159,12 +160,14 @@ void buttonClick(TPanel* ppanel, int x, int y)
     for (int i = 0; i < ppanel->btnCount; i++) {
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
             ppanel->btnFocused = i;
+            TFunction* pfun = ppanel->pbuttons[i]->pfun;
+            if (pfun!=NULL) (*pfun)(ppanel->ppainter);
+
             if (ppanel->pbuttons[i]->type != btDEFAULT) {
                 drawPanel(ppanel);
                 FlushBatchDraw();
             }
-            TFunction* pfun = ppanel->pbuttons[i]->pfun;
-            if (pfun!=NULL) (*pfun)(ppanel->ppainter);
+
             break;
         }
     }
