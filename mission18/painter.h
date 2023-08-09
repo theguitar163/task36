@@ -70,6 +70,7 @@ void initPanel(TPanel* ppanel, int size, int align);
 void addButton(TPanel* ppanel, TButton* pbutton);
 void addButton(TPanel* ppanel, TButton* pbutton, int spacing, int dir = adRIGHT);
 void drawPanel(TPanel* ppanel);
+void updateButtonGroup(TPanel* ppanel, int btnIdx);
 
 // ª≠± ¿‡–Õ
 #define ptFREEHAND 0

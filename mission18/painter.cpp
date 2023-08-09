@@ -190,6 +190,19 @@ void buttonClick(TPanel* ppanel, int x, int y)
     }
 }
 
+void updateButtonGroup(TPanel* ppanel, int btnIdx)
+{
+    int gid = ppanel->pbuttons[btnIdx]->groupid;
+    for (int i = 0; i < ppanel->btnCount; i++) {
+        if (ppanel->pbuttons[i]->groupid == gid) {
+            if (btnIdx == i)
+                ppanel->pbuttons[i]->focused = 1;
+            else
+                ppanel->pbuttons[i]->focused = 0;
+        }
+    }
+}
+
 void initPainter(TPainter* ppainter, HWND hwnd, TPanel* ppanel, int panelsize, int panelalign)
 {
     switch (panelalign) {

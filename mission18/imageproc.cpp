@@ -5,79 +5,52 @@
 
 #define PI 3.141592653589793
 
-void _updateButtonGroup(TPanel* ppanel, int btnIdx)
-{
-    int gid = ppanel->pbuttons[btnIdx]->groupid;
-    for (int i = 0; i < ppanel->btnCount; i++) {
-        if (ppanel->pbuttons[i]->groupid == gid) {
-            if (btnIdx == i)
-                ppanel->pbuttons[i]->focused = 1;
-            else
-                ppanel->pbuttons[i]->focused = 0;
-        }
-    }
-}
-
 void SetPenColor(TPainter* ppainter)
 {
-    TPanel* pl = ppainter->ppanel;
     int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penColor = ppainter->ppanel->pbuttons[btnIdx]->color;
 }
 
 void SetFillColor(TPainter* ppainter)
 {
-    TPanel* pl = ppainter->ppanel;
     int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->fillColor = ppainter->ppanel->pbuttons[btnIdx]->color;
 }
 
 void SetPenLine(TPainter* ppainter)
 {
-    TPanel* pl = ppainter->ppanel;
     int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptLINE;
 }
 
 void SetPenRect(TPainter* ppainter)
 {
-    TPanel* pl = ppainter->ppanel;
     int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptRECT;
 }
 
 void SetPenEllipse(TPainter* ppainter)
 {
-    TPanel* pl = ppainter->ppanel;
     int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptELLIPSE;
 }
 
 void SetPenEraser(TPainter* ppainter)
 {
-    TPanel* pl = ppainter->ppanel;
     int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptERASER;
 }
 
 void SetPenMosaic(TPainter* ppainter)
 {
-    TPanel* pl = ppainter->ppanel;
     int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptMOSAIC;
 }
 
@@ -189,15 +162,13 @@ void ChoosePenColor(TPainter* ppainter)
     stChooseColor.lCustData = 0;
     stChooseColor.lpfnHook = NULL;
     stChooseColor.lpTemplateName = NULL;
+
+    int btnIdx = ppainter->ppanel->btnFocused;
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     if (ChooseColor(&stChooseColor)) {
-        int btnIdx = ppainter->ppanel->btnFocused;
         ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
         ppainter->penColor = stChooseColor.rgbResult;
     }
-    TPanel* pl = ppainter->ppanel;
-    int btnIdx = ppainter->ppanel->btnFocused;
-
-    _updateButtonGroup(pl, btnIdx);
 }
 
 void ChooseFillColor(TPainter* ppainter)
@@ -213,8 +184,10 @@ void ChooseFillColor(TPainter* ppainter)
     stChooseColor.lCustData = 0;
     stChooseColor.lpfnHook = NULL;
     stChooseColor.lpTemplateName = NULL;
+
+    int btnIdx = ppainter->ppanel->btnFocused;
+    updateButtonGroup(ppainter->ppanel, btnIdx);
     if (ChooseColor(&stChooseColor)) {
-        int btnIdx = ppainter->ppanel->btnFocused;
         ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
         ppainter->fillColor = stChooseColor.rgbResult;
     }
@@ -264,6 +237,7 @@ void UndoAction(TPainter* ppainter)
     // 将当前绘制对象恢复
     SetWorkingImage(NULL);
 }
+
 // 水平镜像
 void HorizontalMirrorImage(TPainter* ppainter)
 {
