@@ -2,21 +2,16 @@
 
 #include <easyx.h>
 
-#define btCIRCLE  0
-#define btRECT    1
-#define btRDRECT  2
-
-#define MAX_BUTTON 100
-
-#define alTOP    0
-#define alBOTTOM 1
-#define alLEFT   2
-#define alRIGHT  3
 
 struct tagPainter;
 
 // 函数指针类型
 typedef void (TFunction)(struct tagPainter* ppainter);
+
+// 按钮类型
+#define btCIRCLE  0
+#define btRECT    1
+#define btRDRECT  2
 
 // 按钮结构
 typedef struct tagButton {
@@ -29,6 +24,15 @@ typedef struct tagButton {
     int radius;               // 圆形按钮的半径    
     struct tagPanel* container;
 } TButton;
+
+// 最大按钮数量
+#define MAX_BUTTON 100
+
+// 控制面板对齐方式
+#define alTOP    0
+#define alBOTTOM 1
+#define alLEFT   2
+#define alRIGHT  3
 
 // 简易控制面板
 // 可在上面添加按钮（因为使用纯C，不太方便实现抽象类多态添加其他控件）
@@ -43,6 +47,7 @@ typedef struct tagPanel {
     struct tagPainter* ppainter;
 } TPanel;
 
+// 画笔类型
 #define ptFREEHAND 0
 #define ptLINE     1
 #define ptRECT     2
@@ -53,14 +58,17 @@ typedef struct tagPanel {
 
 // 画板结构
 typedef struct tagPainter {
-    int x;
+    int x;  // 画布范围
     int y;
     int w;
     int h;
-    int penType = ptLINE;
-    int startx, starty;
-    COLORREF penColor = BLACK;
-    TPanel* ppanel;
+    int startx, starty;         // 画笔起始位置
+    int penType = ptLINE;       // 画笔类型
+    int penThickness = 1;       // 画笔线宽
+    COLORREF penColor = BLACK;  // 画笔颜色
+    COLORREF fillColor = WHITE; // 填充颜色
+    IMAGE imgBackup;    // 画布图像备份
+    TPanel* ppanel;     // 按钮控制板
 } TPainter;
 
 void initPainter(TPainter* ppainter, TPanel*ppanel, int panelsize, int panelalign);
@@ -88,4 +96,6 @@ void PaintLine(TPainter* ppainter, int startx, int starty);
 void PaintRect(TPainter* ppainter, int startx, int starty);
 void PaintEllipse(TPainter* ppainter, int startx, int starty);
 void PaintEraser(TPainter* ppainter, int startx, int starty);
+void PaintMosaic(TPainter* ppainter, int startx, int starty);
+
 

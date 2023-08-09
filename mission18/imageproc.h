@@ -1,6 +1,11 @@
 #pragma once
 
 void LoadImage(TPainter* ppainter);
+void SaveImage(TPainter* ppainter);
+void SaveClip(TPainter* ppainter);
+void ClearCanvas(TPainter* ppainter);
+void ChoosePenColor(TPainter* ppainter);
+void ChoosePenThickness(TPainter* ppainter);
 // Ë®Æ½¾µÏñ
 void HorizontalMirrorImage(TPainter* ppainter);
 // ´¹Ö±¾µÏñ

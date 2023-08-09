@@ -45,13 +45,7 @@ COLORREF chooseColor(HWND hwnd)
 
 int main()
 {
-    int Height, Width;
-    IMAGE image;
-    IMAGE read_img;
-    Height = 480;
-    Width = 640;
-    
-    HWND hout = initgraph(800, 600);
+    initgraph(800, 600);
     setbkcolor(WHITE);
     setbkmode(TRANSPARENT);
     cleardevice();
@@ -63,23 +57,23 @@ int main()
         {btCIRCLE, NULL, YELLOW, 20, 20, &SetPenColor},
         {btCIRCLE, NULL, CYAN, 20, 20, &SetPenColor},
         {btCIRCLE, NULL, BROWN, 20, 20, &SetPenColor},
+        {btRDRECT, L"颜色", LIGHTGRAY, 50, 30, &ChoosePenColor},
+        {btRDRECT, L"线宽", LIGHTGRAY, 50, 30, &ChoosePenThickness},
         {btRDRECT, L"画线", LIGHTGRAY, 50, 30, &SetPenLine},
-        {btRDRECT, L"颜色", LIGHTGRAY, 50, 30},
         {btRDRECT, L"矩形", LIGHTGRAY, 50, 30, &SetPenRect},
         {btRDRECT, L"椭圆", LIGHTGRAY, 50, 30, &SetPenEllipse},
-        {btRDRECT, L"线宽", LIGHTGRAY, 50, 30},
+        {btRDRECT, L"马赛克", LIGHTGRAY, 80, 30, &SetPenMosaic},
         {btRDRECT, L"橡皮", LIGHTGRAY, 50, 30, &SetPenEraser},
-        {btRDRECT, L"保存", LIGHTGRAY, 50, 30},
-        {btRDRECT, L"绘画", LIGHTGRAY, 50, 30},
 
-        {btRDRECT, L"打开图片", LIGHTGRAY, 80, 30, &LoadImage},
+        {btRDRECT, L"打开", LIGHTGRAY, 80, 30, &LoadImage},
+        {btRDRECT, L"保存", LIGHTGRAY, 50, 30, &SaveImage},
+        {btRDRECT, L"截图", LIGHTGRAY, 80, 30, &SaveClip},
+
         {btRDRECT, L"水平镜像", LIGHTGRAY, 80, 30, &HorizontalMirrorImage},
         {btRDRECT, L"垂直镜像", LIGHTGRAY, 80, 30, &VerticalMirrorImage},
-        {btRDRECT, L"截图", LIGHTGRAY, 80, 30},
         {btRDRECT, L"黑白二值", LIGHTGRAY, 80, 30, &BlackWhiteImage},
         {btRDRECT, L"高斯模糊", LIGHTGRAY, 80, 30, &GaussImage},
         {btRDRECT, L"灰度效果", LIGHTGRAY, 80, 30, &GrayImage},
-        {btRDRECT, L"马赛克", LIGHTGRAY, 80, 30},
     };
 
     TPanel panel;
@@ -95,7 +89,7 @@ int main()
         addButton(&panel, &buttons[6+i]);
     }
 
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 8; i++) {
         initButton(&buttons[14 + i], 20 + i * 90, 50);
         addButton(&panel, &buttons[14 + i]);
     }
@@ -106,7 +100,7 @@ int main()
     while (true) {
         if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
             // 左键单击判断
-            if (m.message == WM_LBUTTONDOWN) {
+            if(m.message == WM_LBUTTONDOWN) {
                 if (ptInPainter({ m.x, m.y }, &painter)) {
                     painterClick(&painter, m.x, m.y);
                 }
@@ -122,72 +116,3 @@ int main()
     return 0;
 }
 
-extern int con;
-extern int key;
-
-int main1()
-{
-    int Height, Width;
-    IMAGE* m_img;
-    IMAGE* read_img;
-    TCHAR szFile[MAX_PATH] = { 0 }; // 存储打开图片的路径
-    HWND hout;
-    while (true)
-    {
-        Height = 480;
-        Width = 640;
-        if (con == 0)// 空白绘图板
-        {
-            m_img = new IMAGE();
-            read_img = new IMAGE();
-            hout = initgraph(Width, Height + 60);
-
-            setbkcolor(WHITE);
-            cleardevice();
-            getimage(m_img, 0, 0, 640, 480);
-            getimage(read_img, 0, 0, 640, 480);
-            Algorithm myimg(m_img, Width, Height);
-            key = 0;
-            while (key == 0)
-            {
-                myimg.message_proce(*m_img);
-            }
-            delete m_img;
-            delete read_img;
-            m_img = read_img = NULL;
-        }
-        if (con == 1)// 插图绘图板
-        {
-            m_img = new IMAGE();
-            read_img = new IMAGE();
-            loadimage(read_img, szFile);
-            loadimage(m_img, szFile);
-            Height = (*m_img).getheight();
-            Width = (*m_img).getwidth();
-            Algorithm mying(m_img, Width, Height);
-            if (Width < 640)
-            {
-                hout = initgraph(640, Height + 60);
-                setbkcolor(WHITE);
-                cleardevice();
-            }
-            if (Height >= 480 && Width >= 640)
-            {
-                hout = initgraph(Width, Height + 60);
-                setbkcolor(WHITE);
-                cleardevice();
-            }
-            putimage(0, 0, m_img);
-            key = 0;
-            while (key == 0)
-            {
-                mying.message_proce(*read_img);
-            }
-            delete m_img;
-            delete read_img;
-            m_img = read_img = NULL;
-        }
-    }
-    _getch();
-    return 0;
-}

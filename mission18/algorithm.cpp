@@ -343,11 +343,6 @@ void Algorithm::message_proce(IMAGE read_img)
                                 saveimage(_T("D:\\½ØÍ¼.jpg"), store);
                                 putimage(0, 0, m_pimg);
                                 setrop2(R2_COPYPEN);
-                                setfillcolor(WHITE);
-                                solidrectangle(button[m_btnIdx].x + 1, button[m_btnIdx].y + 1, button[m_btnIdx].x2 - 1, button[m_btnIdx].y2 - 1);
-                                outtextxy(button[m_btnIdx].x + 5, button[m_btnIdx].y + 2, button[m_btnIdx].text);
-                                setlinecolor(m_focuscolor);
-                                setlinestyle(PS_SOLID, m_size);
                                 break;
                             }
                         }
@@ -357,40 +352,6 @@ void Algorithm::message_proce(IMAGE read_img)
                     pen = 1;
                     penType = 1;
                     opene = 1;
-                    break;
-                case 21: // ÂíÈü¿Ë
-                    draw_sence();
-                    m_btnIdx = 21;
-                    while (true)
-                    {
-                        if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
-                            if (m.message == WM_LBUTTONDOWN) {
-                                while (true) {
-                                    m = getmessage(EM_MOUSE);
-                                    if (m.message == WM_MOUSEMOVE) {
-                                        if (m.y < m_height - 12) {
-                                            for (int w = -12; w < 12; w = w + 4) {
-                                                for (int n = -12; n < 12; n = n + 4) {
-                                                    setfillcolor(getpixel(m.x + w + rand() % 4, m.y + n + rand() % 4));
-                                                    solidrectangle(m.x + w, m.y + n, m.x + w + 4, m.y + n + 4);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else if (m.message == WM_LBUTTONUP) {
-                                        break;
-                                    }
-                                }
-                            }
-                            if ((m.message == WM_LBUTTONUP) && (m.y < m_height)) {
-                                setfillcolor(WHITE);
-                                solidrectangle(button[m_btnIdx].x + 1, button[m_btnIdx].y + 1, button[m_btnIdx].x2 - 1, button[m_btnIdx].y2 - 1);
-                                outtextxy(button[m_btnIdx].x + 5, button[m_btnIdx].y + 2, button[m_btnIdx].text);
-                                break;
-                            }
-                        }
-                    }
-                    penType = ptMOSAIC;
                     break;
                 default: break;
                 }

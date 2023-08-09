@@ -13,7 +13,6 @@ void initButton(TButton* pbtn, int x, int y, int x2, int y2, COLORREF color, TCH
     pbtn->h = y2 - y;
     pbtn->color = color;
     pbtn->text = text;
-    //   wcscpy_s(pbtn->text, text);
     pbtn->type = type;
 }
 
@@ -233,6 +232,9 @@ void painterClick(TPainter* ppainter, int startx, int starty)
     else if (ppainter->penType == ptERASER) {
         PaintEraser(ppainter, startx, starty);
     }
+    else if (ppainter->penType == ptMOSAIC) {
+        PaintMosaic(ppainter, startx, starty);
+    }
 }
 
 void PaintLine(TPainter* ppainter, int startx, int starty)
@@ -349,8 +351,8 @@ void PaintEraser(TPainter* ppainter, int startx, int starty)
 
 void PaintMosaic(TPainter* ppainter, int startx, int starty)
 {
-    int r = 20;
-    if (ptInPainter({ startx, starty }, ppainter, r)) {
+    int size = 12;
+    if (ptInPainter({ startx, starty }, ppainter, size)) {
         ExMessage m;
         int x = startx;
         int y = starty;
@@ -358,8 +360,13 @@ void PaintMosaic(TPainter* ppainter, int startx, int starty)
         while (true) {
             m = getmessage(EM_MOUSE);
             if (m.message == WM_MOUSEMOVE) {
-                if (ptInPainter({ m.x, m.y }, ppainter, r)) {
-                    solidcircle(m.x, m.y, r);
+                if (ptInPainter({ m.x, m.y }, ppainter, size)) {
+                    for (int i = -size; i < size; i = i + size / 3) {
+                        for (int j = -size; j < size; j = j + size / 3) {
+                            setfillcolor(getpixel(m.x + i + rand() % (size/3), m.y + j + rand() % (size/3)));
+                            solidrectangle(m.x + i, m.y + j, m.x + i + (size/3), m.y + j + (size/3));
+                        }
+                    }
                 }
             }
             else if (m.message == WM_LBUTTONUP) {
@@ -368,34 +375,4 @@ void PaintMosaic(TPainter* ppainter, int startx, int starty)
             FlushBatchDraw();
         }
     }
-    while (true)
-    {
-        if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
-            if (m.message == WM_LBUTTONDOWN) {
-                while (true) {
-                    m = getmessage(EM_MOUSE);
-                    if (m.message == WM_MOUSEMOVE) {
-                        if (m.y < m_height - 12) {
-                            for (int w = -12; w < 12; w = w + 4) {
-                                for (int n = -12; n < 12; n = n + 4) {
-                                    setfillcolor(getpixel(m.x + w + rand() % 4, m.y + n + rand() % 4));
-                                    solidrectangle(m.x + w, m.y + n, m.x + w + 4, m.y + n + 4);
-                                }
-                            }
-                        }
-                    }
-                    else if (m.message == WM_LBUTTONUP) {
-                        break;
-                    }
-                }
-            }
-            if ((m.message == WM_LBUTTONUP) && (m.y < m_height)) {
-                setfillcolor(WHITE);
-                solidrectangle(button[m_btnIdx].x + 1, button[m_btnIdx].y + 1, button[m_btnIdx].x2 - 1, button[m_btnIdx].y2 - 1);
-                outtextxy(button[m_btnIdx].x + 5, button[m_btnIdx].y + 2, button[m_btnIdx].text);
-                break;
-            }
-        }
-    }
-    penType = ptMOSAIC;
 }

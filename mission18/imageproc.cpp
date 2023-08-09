@@ -61,6 +61,26 @@ void LoadImage(TPainter* ppainter)
         putimage(0, 0, ppainter->w, ppainter->h, &img, 0, 0);
     }
 }
+
+void SaveImage(TPainter* ppainter)
+{
+
+}
+
+void SaveClip(TPainter* ppainter)
+{
+
+}
+void ChoosePenColor(TPainter* ppainter)
+{
+
+}void ChoosePenThickness(TPainter* ppainter)
+{
+
+}void ClearCanvas(TPainter* ppainter)
+{
+
+}
 // Ë®Æ½¾µÏñ
 void HorizontalMirrorImage(TPainter* ppainter)
 {
