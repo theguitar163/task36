@@ -51,7 +51,7 @@ int main()
         {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &SetFillColor},
         {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &SetFillColor},
         {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &SetFillColor},
-        {bsRECT,   btCOLOR, L"填", WHITE, 20, 20, &ChooseFillColor},
+        {bsRECT,   btCOLOR,   L"填", WHITE, 20, 20, &ChooseFillColor},
         {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 40, 20, &LoadImage},
         {bsRDRECT, btDEFAULT, L"保存", LIGHTGRAY, 40, 20, &SaveImage},
         {bsRDRECT, btDEFAULT, L"截图", LIGHTGRAY, 40, 20, &SaveClip},
