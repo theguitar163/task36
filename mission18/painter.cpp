@@ -187,10 +187,19 @@ void drawPanel(TPanel* ppanel)
 // 按钮点击事件分派处理
 void buttonClick(TPanel* ppanel, int x, int y)
 {
+    // 遍历所有按钮
     for (int i = 0; i < ppanel->btnCount; i++) {
+        // 判断点击的坐标是否在按钮上
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
+            TFunction* pfun;
+            if (ppanel->btnClicked > 0 && ppanel->btnClicked < ppanel->btnCount) {
+                pfun = ppanel->pbuttons[ppanel->btnClicked]->pOnBlur;
+                if (pfun != NULL)
+                    (*pfun)(ppanel->ppainter);
+            }
+
             ppanel->btnClicked = i;
-            TFunction* pfun = ppanel->pbuttons[i]->pfun;
+            pfun = ppanel->pbuttons[i]->pOnClick;
             if (pfun!=NULL) 
                 (*pfun)(ppanel->ppainter);
 
@@ -302,6 +311,9 @@ void painterClick(TPainter* ppainter, int startx, int starty)
     }
     else if (ppainter->penType == ptMOSAIC) {
         PaintMosaic(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptSELECT) {
+        PaintSelectRect(ppainter, startx, starty);
     }
 }
 
@@ -455,6 +467,40 @@ void PaintMosaic(TPainter* ppainter, int startx, int starty)
                 }
             }
             else if (m.message == WM_LBUTTONUP) {
+                break;
+            }
+            FlushBatchDraw();
+        }
+    }
+}
+
+void PaintSelectRect(TPainter* ppainter, int startx, int starty)
+{
+    setlinestyle(PS_DASH, 1);
+    if (ptInPainter({ startx, starty }, ppainter)) {
+        ExMessage m;
+        int x = startx;
+        int y = starty;
+        setlinecolor(WHITE);
+        setrop2(R2_XORPEN);
+        rectangle(startx, starty, x, y);
+        while (true) {
+            m = getmessage(EM_MOUSE);
+            if (m.message == WM_MOUSEMOVE) {
+                if (ptInPainter({ m.x, m.y }, ppainter)) {
+                    rectangle(startx, starty, x, y);
+                    x = m.x;
+                    y = m.y;
+                    rectangle(startx, starty, x, y);
+                }
+            }
+            else if (m.message == WM_LBUTTONUP) {
+                rectangle(startx, starty, x, y);
+                rectangle(startx, starty, x, y);
+                ppainter->select = { startx, starty, x, y };
+                setlinecolor(ppainter->penColor);
+                setrop2(R2_COPYPEN);
+                setlinestyle(PS_SOLID, ppainter->penThickness);
                 break;
             }
             FlushBatchDraw();

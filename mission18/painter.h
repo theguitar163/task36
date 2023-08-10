@@ -25,10 +25,11 @@ typedef struct tagButton {
     const TCHAR* text;        // 按钮上的文字
     COLORREF color;           // 按钮的颜色
     int w, h;                 // 按钮宽高
-    TFunction* pfun = NULL;   // 关联函数指针
+    TFunction* pOnClick = NULL;   // 点击按钮事件关联函数指针
+    TFunction* pOnBlur = NULL;    // 失去焦点事件关联函数指针
     int groupid = 0;          // 群组id
     int x, y;                 // 按钮的坐标
-    LONG tag = 0;             // 特殊类型值可兼容颜色、整数、布尔数
+    LONG tag = 0;             // 特殊类型值可兼容颜色、整数、布尔数，由type决定其含义
     int focused = 0;          // 选中状态
     struct tagPanel* container; // 控制板容器
 } TButton;
@@ -80,6 +81,7 @@ void updateButtonGroup(TPanel* ppanel, int btnIdx);
 #define ptELLIPSE  4
 #define ptERASER   5
 #define ptMOSAIC   6
+#define ptSELECT   7
 
 // 画板结构
 typedef struct tagPainter {
@@ -113,5 +115,6 @@ void PaintRect(TPainter* ppainter, int startx, int starty);
 void PaintEllipse(TPainter* ppainter, int startx, int starty);
 void PaintEraser(TPainter* ppainter, int startx, int starty);
 void PaintMosaic(TPainter* ppainter, int startx, int starty);
+void PaintSelectRect(TPainter* ppainter, int startx, int starty);
 
 

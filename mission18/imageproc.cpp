@@ -5,57 +5,63 @@
 
 #define PI 3.141592653589793
 
-void SetPenColor(TPainter* ppainter)
+void onSetPenColor(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penColor = ppainter->ppanel->pbuttons[btnIdx]->color;
 }
 
-void SetFillColor(TPainter* ppainter)
+void onSetFillColor(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->fillColor = ppainter->ppanel->pbuttons[btnIdx]->color;
 }
 
-void SetPenLine(TPainter* ppainter)
+void onSetPenLine(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptLINE;
 }
 
-void SetPenRect(TPainter* ppainter)
+void onSetPenRect(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptRECT;
 }
 
-void SetPenEllipse(TPainter* ppainter)
+void onSetPenEllipse(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptELLIPSE;
 }
 
-void SetPenEraser(TPainter* ppainter)
+void onSetPenEraser(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptERASER;
 }
 
-void SetPenMosaic(TPainter* ppainter)
+void onSetPenMosaic(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptMOSAIC;
 }
 
+void onSetPenSelect(TPainter* ppainter)
+{
+    int btnIdx = ppainter->ppanel->btnClicked;
+    updateButtonGroup(ppainter->ppanel, btnIdx);
+    ppainter->penType = ptSELECT;
+}
 // 从电脑中获取图片
-void LoadImage(TPainter* ppainter)
+void onLoadImage(TPainter* ppainter)
 {
     backupPainter(ppainter);
     OPENFILENAME ofn;
@@ -82,7 +88,7 @@ void LoadImage(TPainter* ppainter)
     }
 }
 
-void SaveImage(TPainter* ppainter)
+void onSaveImage(TPainter* ppainter)
 {
     OPENFILENAME ofn;
     TCHAR szFile[MAX_PATH] = { 0 };	//用于接收文件名
@@ -102,7 +108,7 @@ void SaveImage(TPainter* ppainter)
     }
 }
 
-void SaveClip(TPainter* ppainter)
+void onSaveClip(TPainter* ppainter)
 {
  /*   IMAGE store;
     while (true)
@@ -149,7 +155,7 @@ void SaveClip(TPainter* ppainter)
     }*/
 }
 
-void ChoosePenColor(TPainter* ppainter)
+void onChoosePenColor(TPainter* ppainter)
 {
     CHOOSECOLOR stChooseColor;            // 声明一个颜色选取的结构体变量
     COLORREF rgbLineColor = NULL;         // 编辑的存储选择的颜色
@@ -171,7 +177,7 @@ void ChoosePenColor(TPainter* ppainter)
     }
 }
 
-void ChooseFillColor(TPainter* ppainter)
+void onChooseFillColor(TPainter* ppainter)
 {
     CHOOSECOLOR stChooseColor;            // 声明一个颜色选取的结构体变量
     COLORREF rgbLineColor = NULL;         // 编辑的存储选择的颜色
@@ -193,7 +199,7 @@ void ChooseFillColor(TPainter* ppainter)
     }
 }
 
-void SetFill(TPainter* ppainter)
+void onSetFill(TPainter* ppainter)
 {
     TPanel* pl = ppainter->ppanel;
     int isfill = pl->pbuttons[pl->btnClicked]->tag;
@@ -201,7 +207,7 @@ void SetFill(TPainter* ppainter)
     pl->pbuttons[pl->btnClicked]->tag = ppainter->isFill;
 }
 
-void ChoosePenThickness(TPainter* ppainter)
+void onChoosePenThickness(TPainter* ppainter)
 {
     TCHAR str[20];
     int num;
@@ -218,13 +224,13 @@ void ChoosePenThickness(TPainter* ppainter)
     }
 }
 
-void ClearCanvas(TPainter* ppainter)
+void onClearCanvas(TPainter* ppainter)
 {
     backupPainter(ppainter);
     clearPainter(ppainter);
 }
 
-void UndoAction(TPainter* ppainter)
+void onUndoAction(TPainter* ppainter)
 {
     IMAGE tmp;
     // 临时存放当前图像至tmp
@@ -238,8 +244,23 @@ void UndoAction(TPainter* ppainter)
     SetWorkingImage(NULL);
 }
 
+void onUnselect(TPainter* ppainter)
+{
+    // 擦除选择线
+    setlinestyle(PS_DASH, 1);
+    setlinecolor(WHITE);
+    setrop2(R2_XORPEN);
+    rectangle(ppainter->select.left, ppainter->select.top, ppainter->select.right, ppainter->select.bottom);
+    FlushBatchDraw();
+
+    // 恢复原先的线形
+    setlinecolor(ppainter->penColor);
+    setlinestyle(PS_SOLID, ppainter->penThickness);
+    setrop2(R2_COPYPEN);
+}
+
 // 水平镜像
-void HorizontalMirrorImage(TPainter* ppainter)
+void onHorizontalMirrorImage(TPainter* ppainter)
 {
     backupPainter(ppainter);
     IMAGE img;
@@ -254,7 +275,7 @@ void HorizontalMirrorImage(TPainter* ppainter)
     }
 }
 // 垂直镜像
-void VerticalMirrorImage(TPainter* ppainter)
+void onVerticalMirrorImage(TPainter* ppainter)
 {
     backupPainter(ppainter);
     IMAGE img;
@@ -269,7 +290,7 @@ void VerticalMirrorImage(TPainter* ppainter)
     }
 }
 // 灰度图像
-void GrayImage(TPainter* ppainter)
+void onGrayImage(TPainter* ppainter)
 {
     backupPainter(ppainter);
     IMAGE img;
@@ -285,7 +306,7 @@ void GrayImage(TPainter* ppainter)
 }
 
 // 黑白二值
-void BlackWhiteImage(TPainter* ppainter)
+void onBlackWhiteImage(TPainter* ppainter)
 {
     backupPainter(ppainter);
     int threshold = 127;
@@ -293,7 +314,7 @@ void BlackWhiteImage(TPainter* ppainter)
     COLORREF c;
 
     getimage(&img, ppainter->x, ppainter->y, ppainter->w, ppainter->h);
-    GrayImage(ppainter);
+    onGrayImage(ppainter);
     DWORD* p = GetImageBuffer(&img);
     for (int i = ppainter->w * ppainter->h - 1; i >= 0; i--) {
         c = BGR(p[i]);
@@ -305,7 +326,7 @@ void BlackWhiteImage(TPainter* ppainter)
 }
 
 // 高斯模糊
-void GaussImage(TPainter* ppainter)
+void onGaussImage(TPainter* ppainter)
 {
     backupPainter(ppainter);
     int filterSize = 7;

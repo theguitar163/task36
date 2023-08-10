@@ -1,29 +1,32 @@
 #pragma once
 
-void LoadImage(TPainter* ppainter);
-void SaveImage(TPainter* ppainter);
-void SaveClip(TPainter* ppainter);
-void ClearCanvas(TPainter* ppainter);
-void ChoosePenColor(TPainter* ppainter);
-void ChooseFillColor(TPainter* ppainter);
-void ChoosePenThickness(TPainter* ppainter);
-void SetFill(TPainter* ppainter);
-void UndoAction(TPainter* ppainter);
+void onLoadImage(TPainter* ppainter);
+void onSaveImage(TPainter* ppainter);
+void onSaveClip(TPainter* ppainter);
+void onClearCanvas(TPainter* ppainter);
+void onChoosePenColor(TPainter* ppainter);
+void onChooseFillColor(TPainter* ppainter);
+void onChoosePenThickness(TPainter* ppainter);
+void onSetFill(TPainter* ppainter);
+void onUndoAction(TPainter* ppainter);
+void onUnselect(TPainter* ppainter);
 // 水平镜像
-void HorizontalMirrorImage(TPainter* ppainter);
+void onHorizontalMirrorImage(TPainter* ppainter);
 // 垂直镜像
-void VerticalMirrorImage(TPainter* ppainter);
+void onVerticalMirrorImage(TPainter* ppainter);
 // 灰度图像
-void GrayImage(TPainter* ppainter);
+void onGrayImage(TPainter* ppainter);
 // 黑白二值
-void BlackWhiteImage(TPainter* ppainter);
+void onBlackWhiteImage(TPainter* ppainter);
 // 高斯模糊
-void GaussImage(TPainter* ppainter);
+void onGaussImage(TPainter* ppainter);
 
-void SetFillColor(TPainter* ppainter);
-void SetPenColor(TPainter* ppainter);
-void SetPenLine(TPainter* ppainter);
-void SetPenRect(TPainter* ppainter);
-void SetPenEllipse(TPainter* ppainter);
-void SetPenEraser(TPainter* ppainter);
-void SetPenMosaic(TPainter* ppainter);
+void onSetFillColor(TPainter* ppainter);
+void onSetPenColor(TPainter* ppainter);
+void onSetPenLine(TPainter* ppainter);
+void onSetPenRect(TPainter* ppainter);
+void onSetPenEllipse(TPainter* ppainter);
+void onSetPenEraser(TPainter* ppainter);
+void onSetPenMosaic(TPainter* ppainter);
+void onSetPenSelect(TPainter* ppainter);
+
