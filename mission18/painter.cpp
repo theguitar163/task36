@@ -191,15 +191,8 @@ void buttonClick(TPanel* ppanel, int x, int y)
     for (int i = 0; i < ppanel->btnCount; i++) {
         // 判断点击的坐标是否在按钮上
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
-            TFunction* pfun;
-            if (ppanel->btnClicked > 0 && ppanel->btnClicked < ppanel->btnCount) {
-                pfun = ppanel->pbuttons[ppanel->btnClicked]->pOnBlur;
-                if (pfun != NULL)
-                    (*pfun)(ppanel->ppainter);
-            }
-
             ppanel->btnClicked = i;
-            pfun = ppanel->pbuttons[i]->pOnClick;
+            TFunction* pfun = ppanel->pbuttons[i]->pOnClick;
             if (pfun!=NULL) 
                 (*pfun)(ppanel->ppainter);
 
@@ -296,9 +289,6 @@ int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
 // 画布事件分派
 void painterClick(TPainter* ppainter, int startx, int starty)
 {
-    // 进入选择状态之后才需要Unselect
-    onUnselect(ppainter);
-
     backupPainter(ppainter);
     if (ppainter->penType == ptLINE) {
         PaintLine(ppainter, startx, starty);
@@ -500,7 +490,8 @@ void PaintSelectRect(TPainter* ppainter, int startx, int starty)
             else if (m.message == WM_LBUTTONUP) {
                 rectangle(startx, starty, x, y);
                 rectangle(startx, starty, x, y);
-                ppainter->select = { startx, starty, x, y };
+                ppainter->selectRect = { startx, starty, x, y };
+                ppainter->selectState = 1;
                 setlinecolor(ppainter->penColor);
                 setrop2(R2_COPYPEN);
                 setlinestyle(PS_SOLID, ppainter->penThickness);

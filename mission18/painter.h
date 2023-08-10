@@ -26,7 +26,6 @@ typedef struct tagButton {
     COLORREF color;           // 按钮的颜色
     int w, h;                 // 按钮宽高
     TFunction* pOnClick = NULL;   // 点击按钮事件关联函数指针
-    TFunction* pOnBlur = NULL;    // 失去焦点事件关联函数指针
     int groupid = 0;          // 群组id
     int x, y;                 // 按钮的坐标
     LONG tag = 0;             // 特殊类型值可兼容颜色、整数、布尔数，由type决定其含义
@@ -98,7 +97,8 @@ typedef struct tagPainter {
     COLORREF fillColor = WHITE; // 填充颜色
     IMAGE imgBackup;    // 画布图像备份
     TPanel* ppanel;     // 按钮控制板
-    RECT select = {0};  // 选择矩形
+    RECT selectRect = {0};  // 选择矩形
+    int selectState = 0;
 } TPainter;
 
 void initPainter(TPainter* ppainter, HWND hwnd, TPanel*ppanel, int panelsize, int panelalign);
