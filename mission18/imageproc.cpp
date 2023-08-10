@@ -246,12 +246,8 @@ void onUndoAction(TPainter* ppainter)
 
 void onUnselect(TPainter* ppainter)
 {
-    // 擦除选择线
-    setlinestyle(PS_DASH, 1);
-    setlinecolor(WHITE);
-    setrop2(R2_XORPEN);
-    rectangle(ppainter->select.left, ppainter->select.top, ppainter->select.right, ppainter->select.bottom);
-    FlushBatchDraw();
+    // 通过恢复备份图形擦除选择线
+    putimage(ppainter->x, ppainter->y, &ppainter->imgBackup);
 
     // 恢复原先的线形
     setlinecolor(ppainter->penColor);

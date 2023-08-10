@@ -296,6 +296,9 @@ int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
 // 画布事件分派
 void painterClick(TPainter* ppainter, int startx, int starty)
 {
+    // 进入选择状态之后才需要Unselect
+    onUnselect(ppainter);
+
     backupPainter(ppainter);
     if (ppainter->penType == ptLINE) {
         PaintLine(ppainter, startx, starty);
