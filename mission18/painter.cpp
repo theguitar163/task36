@@ -29,8 +29,8 @@ void drawButton(TButton* pbtn)
     RECT r = { ox + pbtn->x, oy + pbtn->y, ox + pbtn->x + pbtn->w, oy + pbtn->y + pbtn->h };
     if (pbtn->shape == bsCIRCLE) {
         if (pbtn->focused) {
-            setfillcolor(LIGHTBLUE);
-            solidellipse(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
+            setlinecolor(LIGHTBLUE);
+            ellipse(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
         }
         setlinecolor(BLACK);
         setfillcolor(pbtn->color);
@@ -39,8 +39,8 @@ void drawButton(TButton* pbtn)
     else if (pbtn->shape == bsRDRECT) {
         int esize = ((pbtn->w > pbtn->h) ? pbtn->h : pbtn->w) / 4;
         if (pbtn->focused) {
-            setfillcolor(LIGHTBLUE);
-            solidroundrect(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2, esize+2, esize+2);
+            setlinecolor(LIGHTBLUE);
+            roundrect(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2, esize+2, esize+2);
         }
         setlinecolor(BLACK);
         setfillcolor(pbtn->color);
@@ -48,8 +48,8 @@ void drawButton(TButton* pbtn)
     }
     else {
         if (pbtn->focused) {
-            setfillcolor(LIGHTBLUE);
-            solidrectangle(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
+            setlinecolor(LIGHTBLUE);
+            rectangle(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
         }
         setlinecolor(BLACK);
         setfillcolor(pbtn->color);
@@ -62,13 +62,14 @@ void drawButton(TButton* pbtn)
             swprintf_s(str, L"%s[%d]", pbtn->text, pbtn->value);
         else if (pbtn->type == btBOOL)
             swprintf_s(str, L"%s[%s]", pbtn->text, (pbtn->value == 0) ? L"○" : L"●");
-        else if (pbtn->type == btCOLOR) {
-            pbtn->color
-            settextcolor()
-        }
         else
             wcscpy_s(str, pbtn->text);
         settextstyle(12, 0, L"宋体");
+        // 自动设置字体颜色，主要调整明度
+        COLORREF c = pbtn->color;
+        float h, s, l;
+        RGBtoHSL(c, &h, &s, &l);
+        settextcolor(HSLtoRGB(h, s, (l > 0.5) ? 0 : 1));
         drawtext(str, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
     }
 }
@@ -102,6 +103,8 @@ int ptInButton(POINT p, TButton* pbtn)
     return 0;
 }
 
+// 初始化控制板
+// 根据对齐方式，自动设置控制板位置
 void initPanel(TPanel* ppanel, int size, int align)
 {
     switch (align) {
@@ -131,6 +134,7 @@ void initPanel(TPanel* ppanel, int size, int align)
     }
 }
 
+// 添加按钮，不考虑按钮位置
 void addButton(TPanel* ppanel, TButton* pbutton)
 {
     if (ppanel->btnCount < MAX_BUTTON - 1) {
@@ -140,10 +144,12 @@ void addButton(TPanel* ppanel, TButton* pbutton)
     }
 }
 
+// 添加按钮到控制板中
+// 根据指定的添加方式和间隔自动设置按钮的位置
 void addButton(TPanel* ppanel, TButton* pbutton, int spacing, int dir)
 {
     if (ppanel->btnCount < MAX_BUTTON - 1) {
-                TButton* p = ppanel->pbuttons[ppanel->btnCount - 1];
+        TButton* p = ppanel->pbuttons[ppanel->btnCount - 1];
         if (ppanel->btnCount == 0) {
             pbutton->x = spacing;
             pbutton->y = spacing;
@@ -166,6 +172,7 @@ void addButton(TPanel* ppanel, TButton* pbutton, int spacing, int dir)
     }
 }
 
+// 绘制控制板及所包含的按钮
 void drawPanel(TPanel* ppanel)
 {
     setlinecolor(BLACK);
@@ -177,6 +184,7 @@ void drawPanel(TPanel* ppanel)
     }
 }
 
+// 按钮点击事件分派处理
 void buttonClick(TPanel* ppanel, int x, int y)
 {
     for (int i = 0; i < ppanel->btnCount; i++) {
@@ -194,6 +202,7 @@ void buttonClick(TPanel* ppanel, int x, int y)
     }
 }
 
+// 群组按钮点击后，自动更新按钮群组其他按钮状态
 void updateButtonGroup(TPanel* ppanel, int btnIdx)
 {
     int gid = ppanel->pbuttons[btnIdx]->groupid;
@@ -207,6 +216,7 @@ void updateButtonGroup(TPanel* ppanel, int btnIdx)
     }
 }
 
+// 初始化绘图板
 void initPainter(TPainter* ppainter, HWND hwnd, TPanel* ppanel, int panelsize, int panelalign)
 {
     switch (panelalign) {
@@ -241,6 +251,7 @@ void initPainter(TPainter* ppainter, HWND hwnd, TPanel* ppanel, int panelsize, i
     clearPainter(ppainter);
 }
 
+// 清除绘图板
 void clearPainter(TPainter* ppainter)
 {
     setfillcolor(WHITE);
@@ -248,16 +259,20 @@ void clearPainter(TPainter* ppainter)
     drawPanel(ppainter->ppanel);
 }
 
+// 备份当前图像
 void backupPainter(TPainter* ppainter)
 {
-    getimage(&ppainter->imgBackup, ppainter->x, ppainter->y, ppainter->w, ppainter->h);  // 备份当前图像
+    getimage(&ppainter->imgBackup, ppainter->x, ppainter->y, ppainter->w, ppainter->h); 
 }
 
+// 绘制绘图板
 void drawPainter(TPainter* ppainter)
 {
     drawPanel(ppainter->ppanel);
 }
 
+// 判定点p是否位于绘图板画布中
+// shrinksize主要用于PEN的直径大于1可能超出画布范围
 int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
 {
     int left = ppainter->x + shrinksize;
@@ -269,6 +284,7 @@ int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
     return 0;
 }
 
+// 画布事件分派
 void painterClick(TPainter* ppainter, int startx, int starty)
 {
     backupPainter(ppainter);
@@ -289,6 +305,7 @@ void painterClick(TPainter* ppainter, int startx, int starty)
     }
 }
 
+// 绘制线
 void PaintLine(TPainter* ppainter, int startx, int starty)
 {
     int x = startx;
@@ -315,6 +332,7 @@ void PaintLine(TPainter* ppainter, int startx, int starty)
     }
 }
 
+// 绘制矩形
 void PaintRect(TPainter* ppainter, int startx, int starty)
 {
     setlinestyle(PS_SOLID, 1);
@@ -352,6 +370,7 @@ void PaintRect(TPainter* ppainter, int startx, int starty)
     }
 }
 
+// 绘制椭圆
 void PaintEllipse(TPainter* ppainter, int startx, int starty)
 {
     setlinestyle(PS_SOLID, 1);
@@ -390,6 +409,7 @@ void PaintEllipse(TPainter* ppainter, int startx, int starty)
     //   setlinestyle(PS_SOLID, m_size);
 }
 
+// 绘制橡皮擦
 void PaintEraser(TPainter* ppainter, int startx, int starty)
 {
     int r = 20;
@@ -413,6 +433,7 @@ void PaintEraser(TPainter* ppainter, int startx, int starty)
     }
 }
 
+// 绘制马赛克
 void PaintMosaic(TPainter* ppainter, int startx, int starty)
 {
     int size = 12;

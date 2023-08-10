@@ -333,14 +333,10 @@ void GaussImage(TPainter* ppainter)
         }
     }
 
-    BYTE* R;
-    BYTE* G;
-    BYTE* B;
+    BYTE* R = (BYTE*)calloc(ppainter->w * ppainter->h, sizeof(BYTE));
+    BYTE* G = (BYTE*)calloc(ppainter->w * ppainter->h, sizeof(BYTE));
+    BYTE* B = (BYTE*)calloc(ppainter->w * ppainter->h, sizeof(BYTE));
     double SR = 0, SG = 0, SB = 0;
-
-    R = (BYTE*)calloc(ppainter->w * ppainter->h, sizeof(BYTE));
-    G = (BYTE*)calloc(ppainter->w * ppainter->h, sizeof(BYTE));
-    B = (BYTE*)calloc(ppainter->w * ppainter->h, sizeof(BYTE));
 
     IMAGE img;
     getimage(&img, ppainter->x, ppainter->y, ppainter->w, ppainter->h);
