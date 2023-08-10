@@ -7,49 +7,49 @@
 
 void SetPenColor(TPainter* ppainter)
 {
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penColor = ppainter->ppanel->pbuttons[btnIdx]->color;
 }
 
 void SetFillColor(TPainter* ppainter)
 {
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->fillColor = ppainter->ppanel->pbuttons[btnIdx]->color;
 }
 
 void SetPenLine(TPainter* ppainter)
 {
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptLINE;
 }
 
 void SetPenRect(TPainter* ppainter)
 {
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptRECT;
 }
 
 void SetPenEllipse(TPainter* ppainter)
 {
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptELLIPSE;
 }
 
 void SetPenEraser(TPainter* ppainter)
 {
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptERASER;
 }
 
 void SetPenMosaic(TPainter* ppainter)
 {
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptMOSAIC;
 }
@@ -163,7 +163,7 @@ void ChoosePenColor(TPainter* ppainter)
     stChooseColor.lpfnHook = NULL;
     stChooseColor.lpTemplateName = NULL;
 
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     if (ChooseColor(&stChooseColor)) {
         ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
@@ -185,7 +185,7 @@ void ChooseFillColor(TPainter* ppainter)
     stChooseColor.lpfnHook = NULL;
     stChooseColor.lpTemplateName = NULL;
 
-    int btnIdx = ppainter->ppanel->btnFocused;
+    int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     if (ChooseColor(&stChooseColor)) {
         ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
@@ -196,9 +196,9 @@ void ChooseFillColor(TPainter* ppainter)
 void SetFill(TPainter* ppainter)
 {
     TPanel* pl = ppainter->ppanel;
-    int isfill = pl->pbuttons[pl->btnFocused]->value;
+    int isfill = pl->pbuttons[pl->btnClicked]->tag;
     ppainter->isFill = (isfill) ? 0 : 1;
-    pl->pbuttons[pl->btnFocused]->value = ppainter->isFill;
+    pl->pbuttons[pl->btnClicked]->tag = ppainter->isFill;
 }
 
 void ChoosePenThickness(TPainter* ppainter)
@@ -209,7 +209,7 @@ void ChoosePenThickness(TPainter* ppainter)
     swscanf_s(str, L"%d", &num);
     if (num >= 1 && num <= 5) {
         TPanel* pl = ppainter->ppanel;
-        pl->pbuttons[pl->btnFocused]->value = num;
+        pl->pbuttons[pl->btnClicked]->tag = num;
         ppainter->penThickness = num;
         setlinestyle(PS_SOLID, num);
     }

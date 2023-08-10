@@ -27,8 +27,8 @@ typedef struct tagButton {
     int w, h;                 // 按钮宽高
     TFunction* pfun = NULL;   // 关联函数指针
     int groupid = 0;          // 群组id
-    int x, y, x2, y2;         // 按钮的坐标
-    LONG value = 0;           // 特殊类型值可兼容颜色、整数、布尔数
+    int x, y;                 // 按钮的坐标
+    LONG tag = 0;             // 特殊类型值可兼容颜色、整数、布尔数
     int focused = 0;          // 选中状态
     struct tagPanel* container; // 控制板容器
 } TButton;
@@ -57,14 +57,15 @@ typedef struct tagPanel {
     int w;
     int h;
     TButton* pbuttons[MAX_BUTTON];
-    int btnCount = 0;
-    int btnFocused = -1;
+    int btnCount = 0;       // 按钮数量
+    int btnClicked = -1;    // 最近被点击按钮的下标
     struct tagPainter* ppainter;
 } TPanel;
 
-#define adRIGHT   0
-#define adBOTTOM  1
-#define adNEWLINE 2
+// 再控制板上添加按钮的方向
+#define adRIGHT   0    // 右侧添加
+#define adBOTTOM  1    // 下方添加
+#define adNEWLINE 2    // 新行添加
 
 void initPanel(TPanel* ppanel, int size, int align);
 void addButton(TPanel* ppanel, TButton* pbutton);
@@ -73,7 +74,6 @@ void drawPanel(TPanel* ppanel);
 void updateButtonGroup(TPanel* ppanel, int btnIdx);
 
 // 画笔类型
-#define ptFREEHAND 0
 #define ptLINE     1
 #define ptRECT     2
 #define ptCIRCLE   3

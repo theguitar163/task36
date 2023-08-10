@@ -59,9 +59,9 @@ void drawButton(TButton* pbtn)
     if (pbtn->text != NULL) {
         TCHAR str[200];
         if (pbtn->type == btNUM)
-            swprintf_s(str, L"%s[%d]", pbtn->text, pbtn->value);
+            swprintf_s(str, L"%s[%d]", pbtn->text, pbtn->tag);
         else if (pbtn->type == btBOOL)
-            swprintf_s(str, L"%s[%s]", pbtn->text, (pbtn->value == 0) ? L"¡ğ" : L"¡ñ");
+            swprintf_s(str, L"%s[%s]", pbtn->text, (pbtn->tag == 0) ? L"¡ğ" : L"¡ñ");
         else
             wcscpy_s(str, pbtn->text);
         settextstyle(12, 0, L"ËÎÌå");
@@ -189,7 +189,7 @@ void buttonClick(TPanel* ppanel, int x, int y)
 {
     for (int i = 0; i < ppanel->btnCount; i++) {
         if (ptInButton({ x, y }, ppanel->pbuttons[i])) {
-            ppanel->btnFocused = i;
+            ppanel->btnClicked = i;
             TFunction* pfun = ppanel->pbuttons[i]->pfun;
             if (pfun!=NULL) 
                 (*pfun)(ppanel->ppainter);

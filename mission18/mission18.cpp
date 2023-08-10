@@ -25,7 +25,7 @@ TButton buttons1[] = {
     {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &SetPenColor, 1},
     {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &SetPenColor, 1},
     {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &SetPenColor, 1},
-    {bsRECT,   btCOLOR, L"线",  DARKGRAY, 20, 20, &ChoosePenColor, 1},
+    {bsRECT,   btCOLOR, L"线",  BLACK, 20, 20, &ChoosePenColor, 1},
     {bsRDRECT, btNUM,   L"线宽", LIGHTGRAY, 60, 20, &ChoosePenThickness},
     {bsRDRECT, btBOOL,  L"填充", LIGHTGRAY, 60, 20, &SetFill},
     {bsRDRECT, btDEFAULT, L"画线", LIGHTGRAY, 40, 20, &SetPenLine, 2},
