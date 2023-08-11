@@ -24,12 +24,27 @@
     <ClCompile Include="imageproc.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="event.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="panel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="painter.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="imageproc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="event.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="panel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

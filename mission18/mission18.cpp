@@ -9,14 +9,12 @@
 //   鼠标在图像上选取一个矩形区域，然后可以对该区域应用图像滤镜，包括：
 //   马赛克效果、高斯模糊效果、灰度效果、黑白二值图效果等。
 
-#include <graphics.h>
 #include <stdio.h>
 #include <conio.h>
-#include <cmath>
-#include <cstdlib>
-#include <commdlg.h>
+#include <easyx.h>
+#include <graphics.h>
 #include "painter.h"
-#include "imageproc.h"
+#include "event.h"
 
 #define PENCOLOR_GROUP  1
 #define FILLCOLOR_GROUP 2
