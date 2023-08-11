@@ -3,6 +3,7 @@
 #include "painter.h"
 
 // 初始化绘图板
+// 根据panelalign自动安置控制板，计算其坐标
 void initPainter(TPainter* ppainter, HWND hwnd, TPanel* ppanel, int panelsize, int panelalign)
 {
     switch (panelalign) {
