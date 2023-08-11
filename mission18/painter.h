@@ -33,7 +33,6 @@ typedef struct tagPainter {
 void initPainter(TPainter* ppainter, HWND hwnd, TPanel*ppanel, int panelsize, int panelalign);
 void clearPainter(TPainter* ppainter);
 void backupPainter(TPainter* ppainter);
-void drawPainter(TPainter* ppainter);
 int ptInPainter(POINT p, TPainter* ppainter, int shrinksize=0);
 
 void PaintLine(TPainter* ppainter, int startx, int starty);

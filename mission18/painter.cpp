@@ -1,7 +1,6 @@
 #include <easyx.h>
 #include <graphics.h>
 #include "painter.h"
-#include "imageproc.h"
 
 // 初始化绘图板
 void initPainter(TPainter* ppainter, HWND hwnd, TPanel* ppanel, int panelsize, int panelalign)
@@ -59,12 +58,6 @@ void restorePainter(TPainter* ppainter)
     putimage(ppainter->x, ppainter->y, &ppainter->imgBackup);
 }
 
-// 绘制绘图板
-void drawPainter(TPainter* ppainter)
-{
-    drawPanel(ppainter->ppanel);
-}
-
 // 判定点p是否位于绘图板画布中
 // shrinksize主要用于PEN的直径大于1可能超出画布范围
 int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
@@ -78,6 +71,7 @@ int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
     return 0;
 }
 
+// 设定区域选则状态
 void setSelectState(TPainter* ppainter, int state)
 {
     ppainter->selectState = state;
@@ -240,6 +234,7 @@ void PaintMosaic(TPainter* ppainter, int startx, int starty)
     }
 }
 
+// 绘制区域选择虚线
 void PaintSelectRect(TPainter* ppainter, int startx, int starty)
 {
     setlinestyle(PS_DASH, 1);
@@ -299,26 +294,34 @@ void painterClick(TPainter* ppainter, int startx, int starty)
     }
 }
 
+// 绘图程序主循环
 void Run(TPainter* ppainter)
 {
     BeginBatchDraw();
 
-    drawPainter(ppainter);
+    clearPainter(ppainter);
     ExMessage m;
     while (true) {
         if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
             // 左键单击判断
             if (m.message == WM_LBUTTONDOWN) {
+                // 位于绘图区
                 if (ptInPainter({ m.x, m.y }, ppainter)) {
+                    // 当前为选区状态，先清除选区虚线
                     if (ppainter->selectState)
                         restorePainter(ppainter);
+                    // 设置为非选区状态，避免干扰其他绘图操作
                     setSelectState(ppainter, 0);
+                    // 进行正常绘图操作
                     painterClick(ppainter, m.x, m.y);
                 }
                 else {
+                    // 当前为选区状态，先清除选区虚线
                     if (ppainter->selectState)
                         restorePainter(ppainter);
+                    // 延迟取消选区状态，使得按钮事件函数能够获取正确选区状态和区域
                     buttonClick(ppainter->ppanel, m.x, m.y);
+                    // 设置为非选区状态
                     setSelectState(ppainter, 0);
                 }
             }
