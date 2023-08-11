@@ -20,11 +20,18 @@ typedef struct tagCrown {
     IMAGE mask;
 } TCrownImage;
 
-// 加载皇冠图像和掩码
-void initCrown(TCrownImage* pcrown, const TCHAR* fimage, const TCHAR* fmask)
+// 加载皇冠图像和掩码(文件)
+void initCrownFile(TCrownImage* pcrown, const TCHAR* fimage, const TCHAR* fmask)
 {
     loadimage(&pcrown->image, fimage); // 源图像
     loadimage(&pcrown->mask, fmask);   // 掩码图像
+}
+
+// 加载皇冠图像和掩码(资源文件)
+void initCrownRes(TCrownImage* pcrown, const TCHAR* rimage, const TCHAR* rmask)
+{
+    loadimage(&pcrown->image, L"PNG", rimage); // 源图像
+    loadimage(&pcrown->mask, L"PNG", rmask);   // 掩码图像
 }
 
 // 绘制皇冠透明图像
@@ -194,9 +201,8 @@ int main()
     srand(GetTickCount());
 
     // 加载皇冠图形
-    initCrown(&crown,
-        L"\\C语言编程\\mission\\mission25\\crown.png",
-        L"\\C语言编程\\mission\\mission25\\crownmask.png");
+//    initCrownFile(&crown, L"\\C语言编程\\mission\\mission25\\crown.png", L"\\C语言编程\\mission\\mission25\\crownmask.png");
+    initCrownRes(&crown, L"crown", L"crownmask");
     // 初始化棋盘
     initBoard(&board, &crown);
 
