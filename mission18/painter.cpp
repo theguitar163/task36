@@ -46,6 +46,16 @@ void clearPainter(TPainter* ppainter)
     drawPanel(ppainter->ppanel);
 }
 
+// 清除选定区域
+void clearSelectRect(TPainter* ppainter)
+{
+    if (ppainter->selectState) {
+        RECT r = ppainter->selectRect;
+        setfillcolor(WHITE);
+        solidrectangle(r.left, r.top, r.right, r.bottom);
+    }
+}
+
 // 备份当前图像
 void backupPainter(TPainter* ppainter)
 {

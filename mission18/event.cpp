@@ -4,22 +4,25 @@
 #include "painter.h"
 #include "imageproc.h"
 
-#define PI 3.141592653589793
+// 按钮事件处理函数
 
+// 设置画笔颜色为按钮预设颜色
 void onSetPenColor(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
-    ppainter->penColor = ppainter->ppanel->pbuttons[btnIdx]->color;
+    ppainter->penColor = getButtonColor(ppainter->ppanel->pbuttons[btnIdx]);
 }
 
+// 设置填充色为按钮预设颜色
 void onSetFillColor(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
-    ppainter->fillColor = ppainter->ppanel->pbuttons[btnIdx]->color;
+    ppainter->fillColor = getButtonColor(ppainter->ppanel->pbuttons[btnIdx]);
 }
 
+// 设置为画线画笔
 void onSetPenLine(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
@@ -27,6 +30,7 @@ void onSetPenLine(TPainter* ppainter)
     ppainter->penType = ptLINE;
 }
 
+// 设置为矩形画笔
 void onSetPenRect(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
@@ -34,6 +38,7 @@ void onSetPenRect(TPainter* ppainter)
     ppainter->penType = ptRECT;
 }
 
+// 设置为椭圆画笔
 void onSetPenEllipse(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
@@ -41,6 +46,7 @@ void onSetPenEllipse(TPainter* ppainter)
     ppainter->penType = ptELLIPSE;
 }
 
+// 设置为橡皮擦画笔
 void onSetPenEraser(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
@@ -48,6 +54,7 @@ void onSetPenEraser(TPainter* ppainter)
     ppainter->penType = ptERASER;
 }
 
+// 设置为马赛克画笔
 void onSetPenMosaic(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
@@ -55,13 +62,15 @@ void onSetPenMosaic(TPainter* ppainter)
     ppainter->penType = ptMOSAIC;
 }
 
+// 设定为选区画笔
 void onSetPenSelect(TPainter* ppainter)
 {
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     ppainter->penType = ptSELECT;
 }
-// 从电脑中获取图片
+
+// 从文件加载图片
 void onLoadImage(TPainter* ppainter)
 {
     backupPainter(ppainter);
@@ -89,6 +98,7 @@ void onLoadImage(TPainter* ppainter)
     }
 }
 
+// 保存整幅图像
 void onSaveImage(TPainter* ppainter)
 {
     OPENFILENAME ofn;
@@ -109,6 +119,7 @@ void onSaveImage(TPainter* ppainter)
     }
 }
 
+// 保存选区图像
 void onSaveClip(TPainter* ppainter)
 {
     OPENFILENAME ofn;
@@ -133,9 +144,9 @@ void onSaveClip(TPainter* ppainter)
         getimage(&img, r.left, r.top, r.right - r.left, r.bottom - r.top);
         saveimage(ofn.lpstrFile, &img);
     }
-
 }
 
+// 自定义画笔颜色
 void onChoosePenColor(TPainter* ppainter)
 {
     CHOOSECOLOR stChooseColor;            // 声明一个颜色选取的结构体变量
@@ -153,11 +164,12 @@ void onChoosePenColor(TPainter* ppainter)
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     if (ChooseColor(&stChooseColor)) {
-        ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
+        setButtonColor(ppainter->ppanel->pbuttons[btnIdx], stChooseColor.rgbResult);
         ppainter->penColor = stChooseColor.rgbResult;
     }
 }
 
+// 自定义填充颜色
 void onChooseFillColor(TPainter* ppainter)
 {
     CHOOSECOLOR stChooseColor;            // 声明一个颜色选取的结构体变量
@@ -175,17 +187,18 @@ void onChooseFillColor(TPainter* ppainter)
     int btnIdx = ppainter->ppanel->btnClicked;
     updateButtonGroup(ppainter->ppanel, btnIdx);
     if (ChooseColor(&stChooseColor)) {
-        ppainter->ppanel->pbuttons[btnIdx]->color = stChooseColor.rgbResult;
+        setButtonColor(ppainter->ppanel->pbuttons[btnIdx], stChooseColor.rgbResult);
         ppainter->fillColor = stChooseColor.rgbResult;
     }
 }
 
+// 设置为填充模式
 void onSetFill(TPainter* ppainter)
 {
     TPanel* pl = ppainter->ppanel;
-    int isfill = pl->pbuttons[pl->btnClicked]->tag;
+    int isfill = getButtonTag(pl->pbuttons[pl->btnClicked]);
     ppainter->isFill = (isfill) ? 0 : 1;
-    pl->pbuttons[pl->btnClicked]->tag = ppainter->isFill;
+    setButtonTag(pl->pbuttons[pl->btnClicked], ppainter->isFill);
 }
 
 void onChoosePenThickness(TPainter* ppainter)
@@ -196,7 +209,7 @@ void onChoosePenThickness(TPainter* ppainter)
     swscanf_s(str, L"%d", &num);
     if (num >= 1 && num <= 5) {
         TPanel* pl = ppainter->ppanel;
-        pl->pbuttons[pl->btnClicked]->tag = num;
+        setButtonTag(pl->pbuttons[pl->btnClicked], num);
         ppainter->penThickness = num;
         setlinestyle(PS_SOLID, num);
     }
@@ -205,12 +218,17 @@ void onChoosePenThickness(TPainter* ppainter)
     }
 }
 
+// 清除画布或选定区域
 void onClearCanvas(TPainter* ppainter)
 {
     backupPainter(ppainter);
-    clearPainter(ppainter);
+    if (ppainter->selectState)
+        clearSelectRect(ppainter);
+    else
+        clearPainter(ppainter);
 }
 
+// 撤回操作
 void onUndoAction(TPainter* ppainter)
 {
     IMAGE tmp;

@@ -1,6 +1,17 @@
 #include <easyx.h>
 #include "panel.h"
 
+void setButtonColor(TButton* pbtn, COLORREF c)
+{
+    pbtn->color = c;
+}
+
+COLORREF getButtonColor(TButton* pbtn)
+{
+    return pbtn->color;
+}
+
+// 设置按钮位置
 void setButtonPos(TButton* pbtn, int x, int y)
 {
     pbtn->x = x;
@@ -11,6 +22,11 @@ void setButtonPos(TButton* pbtn, int x, int y)
 void setButtonTag(TButton* pbtn, LONG tag)
 {
     pbtn->tag = tag;
+}
+
+LONG getButtonTag(TButton* pbtn)
+{
+    return pbtn->tag;
 }
 
 // 绘制按钮

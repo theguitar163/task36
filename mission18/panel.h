@@ -39,8 +39,12 @@ typedef struct tagButton {
 
 // 设置按钮位置
 void setButtonPos(TButton* pbtn, int x, int y);
+// 读取按钮颜色
+COLORREF getButtonColor(TButton* pbtn);
+void setButtonColor(TButton* pbtn, COLORREF c);
 // 设置按钮Tag的值
 void setButtonTag(TButton* pbtn, LONG tag);
+LONG getButtonTag(TButton* pbtn);
 // 绘制按钮
 void drawButton(TButton* pbtn);
 // 判断点pt是否在按钮中

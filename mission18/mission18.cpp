@@ -18,17 +18,17 @@
 
 TButton buttons1[] = {
     {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 40, 20, &onLoadImage},
-    {bsRECT,   btCOLOR, L"线",  BLACK, 20, 20, &onChoosePenColor, bgPENCOLOR},
+    {bsRECT,   btCOLOR,   L"线",  BLACK, 20, 20, &onChoosePenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, BLUE, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetPenColor, bgPENCOLOR},
-    {bsRDRECT, btNUM,   L"线宽", LIGHTGRAY, 60, 20, &onChoosePenThickness, bgNONE, 1},
+    {bsRDRECT, btNUM,     L"线宽", LIGHTGRAY, 60, 20, &onChoosePenThickness, bgNONE, 1},
 
     {bsRDRECT, btDEFAULT, L"画线", LIGHTGRAY, 40, 20, &onSetPenLine, bgPENTYPE},
-    {bsRECT, btDEFAULT, L"矩形", LIGHTGRAY, 40, 20, &onSetPenRect, bgPENTYPE},
+    {bsRECT, btDEFAULT,   L"矩形", LIGHTGRAY, 40, 20, &onSetPenRect, bgPENTYPE},
     {bsCIRCLE, btDEFAULT, L"椭圆", LIGHTGRAY, 60, 20, &onSetPenEllipse, bgPENTYPE},
     {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 60, 20, &onSetPenMosaic, bgPENTYPE},
     {bsRDRECT, btDEFAULT, L"橡皮", LIGHTGRAY, 40, 20, &onSetPenEraser, bgPENTYPE},
@@ -44,14 +44,14 @@ TButton buttons2[] = {
     {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetFillColor, bgFILLCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetFillColor, bgFILLCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetFillColor, bgFILLCOLOR},
-    {bsRDRECT, btBOOL,  L"填充", LIGHTGRAY, 60, 20, &onSetFill, bgNONE, 0},
+    {bsRDRECT, btBOOL,    L"填充", LIGHTGRAY, 60, 20, &onSetFill, bgNONE, 0},
     {bsRDRECT, btDEFAULT, L"截图", LIGHTGRAY, 40, 20, &onSaveClip},
     {bsRDRECT, btDEFAULT, L"水平镜像", LIGHTGRAY, 60, 20, &onHorizontalMirrorImage},
     {bsRDRECT, btDEFAULT, L"垂直镜像", LIGHTGRAY, 60, 20, &onVerticalMirrorImage},
     {bsRDRECT, btDEFAULT, L"模糊", LIGHTGRAY, 40, 20, &onGaussImage},
     {bsRDRECT, btDEFAULT, L"黑白", LIGHTGRAY, 40, 20, &onBlackWhiteImage},
     {bsRDRECT, btDEFAULT, L"灰度", LIGHTGRAY, 40, 20, &onGrayImage},
-    {bsRDRECT, btDEFAULT, L"清屏", LIGHTGRAY, 40, 20, &onClearCanvas},
+    {bsRDRECT, btDEFAULT, L"清除", LIGHTGRAY, 40, 20, &onClearCanvas},
 };
 
 int main()

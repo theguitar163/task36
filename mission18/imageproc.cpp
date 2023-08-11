@@ -4,6 +4,8 @@
 
 #define PI 3.141592653589793
 
+// 图像滤镜函数，对指定区域矩形进行处理
+
 // 水平镜像
 void HorizontalMirrorImage(RECT r)
 {
