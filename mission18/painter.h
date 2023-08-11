@@ -37,7 +37,6 @@ void drawPainter(TPainter* ppainter);
 int ptInPainter(POINT p, TPainter* ppainter, int shrinksize=0);
 
 void painterClick(TPainter* ppainter, int startx, int starty);
-void buttonClick(TPanel* ppanel, int x, int y);
 
 void PaintLine(TPainter* ppainter, int startx, int starty);
 void PaintRect(TPainter* ppainter, int startx, int starty);

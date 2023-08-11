@@ -3,7 +3,7 @@
 
 struct tagPainter;
 
-// 函数指针类型
+// 点击按钮事件响应函数指针类型
 typedef void (TFunction)(struct tagPainter* ppainter);
 
 // 按钮形状
@@ -17,6 +17,11 @@ typedef void (TFunction)(struct tagPainter* ppainter);
 #define btNUM     2
 #define btBOOL    3
 
+#define bgNONE      0
+#define bgPENCOLOR  1
+#define bgFILLCOLOR 2
+#define bgPENTYPE   3
+
 // 按钮结构
 typedef struct tagButton {
     int shape;                // 按钮形状bsCIRCLE/bsRDRECT/bsRECT
@@ -25,15 +30,17 @@ typedef struct tagButton {
     COLORREF color;           // 按钮的颜色
     int w, h;                 // 按钮宽高
     TFunction* pOnClick = NULL;   // 点击按钮事件关联函数指针
-    int groupid = 0;          // 群组id
+    int groupid = bgNONE;          // 群组id
     int x, y;                 // 按钮的坐标
     LONG tag = 0;             // 特殊类型值可兼容颜色、整数、布尔数，由type决定其含义
-    int focused = 0;          // 选中状态
+    int selected = 0;          // 选中状态
     struct tagPanel* container; // 控制板容器
 } TButton;
 
 // 设置按钮位置
 void setButtonPos(TButton* pbtn, int x, int y);
+// 设置按钮Tag的值
+void setButtonTag(TButton* pbtn, LONG tag);
 // 绘制按钮
 void drawButton(TButton* pbtn);
 // 判断点pt是否在按钮中
@@ -71,3 +78,5 @@ void addButton(TPanel* ppanel, TButton* pbutton);
 void addButton(TPanel* ppanel, TButton* pbutton, int spacing, int dir = adRIGHT);
 void drawPanel(TPanel* ppanel);
 void updateButtonGroup(TPanel* ppanel, int btnIdx);
+void initButtonGroup(TPanel* ppanel);
+void buttonClick(TPanel* ppanel, int x, int y);

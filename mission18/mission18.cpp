@@ -16,36 +16,32 @@
 #include "painter.h"
 #include "event.h"
 
-#define PENCOLOR_GROUP  1
-#define FILLCOLOR_GROUP 2
-#define PENTYPE_GROUP   3
-
 TButton buttons1[] = {
-    {bsRECT,   btCOLOR, L"线",  BLACK, 20, 20, &onChoosePenColor, PENCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &onSetPenColor, PENCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &onSetPenColor, PENCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, BLUE, 20, 20, &onSetPenColor, PENCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetPenColor, PENCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetPenColor, PENCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetPenColor, PENCOLOR_GROUP},
+    {bsRECT,   btCOLOR, L"线",  BLACK, 20, 20, &onChoosePenColor, bgPENCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &onSetPenColor, bgPENCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &onSetPenColor, bgPENCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, BLUE, 20, 20, &onSetPenColor, bgPENCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetPenColor, bgPENCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetPenColor, bgPENCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsRDRECT, btNUM,   L"线宽", LIGHTGRAY, 60, 20, &onChoosePenThickness},
     {bsRDRECT, btBOOL,  L"填充", LIGHTGRAY, 60, 20, &onSetFill},
-    {bsRDRECT, btDEFAULT, L"画线", LIGHTGRAY, 40, 20, &onSetPenLine, PENTYPE_GROUP},
-    {bsRECT, btDEFAULT, L"矩形", LIGHTGRAY, 40, 20, &onSetPenRect, PENTYPE_GROUP},
-    {bsCIRCLE, btDEFAULT, L"椭圆", LIGHTGRAY, 50, 20, &onSetPenEllipse, PENTYPE_GROUP},
-    {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 50, 20, &onSetPenMosaic, PENTYPE_GROUP},
-    {bsRDRECT, btDEFAULT, L"橡皮", LIGHTGRAY, 40, 20, &onSetPenEraser, PENTYPE_GROUP},
-    {bsRDRECT, btDEFAULT, L"选择", LIGHTGRAY, 40, 20, &onSetPenSelect, PENTYPE_GROUP},
+    {bsRDRECT, btDEFAULT, L"画线", LIGHTGRAY, 40, 20, &onSetPenLine, bgPENTYPE},
+    {bsRECT, btDEFAULT, L"矩形", LIGHTGRAY, 40, 20, &onSetPenRect, bgPENTYPE},
+    {bsCIRCLE, btDEFAULT, L"椭圆", LIGHTGRAY, 50, 20, &onSetPenEllipse, bgPENTYPE},
+    {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 50, 20, &onSetPenMosaic, bgPENTYPE},
+    {bsRDRECT, btDEFAULT, L"橡皮", LIGHTGRAY, 40, 20, &onSetPenEraser, bgPENTYPE},
+    {bsRDRECT, btDEFAULT, L"选择", LIGHTGRAY, 40, 20, &onSetPenSelect, bgPENTYPE},
     {bsRDRECT, btDEFAULT, L"撤回", LIGHTGRAY, 40, 20, &onUndoAction},
 };
 TButton buttons2[] = {
-    {bsRECT,   btCOLOR,   L"填", WHITE, 20, 20, &onChooseFillColor, FILLCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &onSetFillColor, FILLCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &onSetFillColor, FILLCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, BLUE, 20, 20, &onSetFillColor, FILLCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetFillColor, FILLCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetFillColor, FILLCOLOR_GROUP},
-    {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetFillColor, FILLCOLOR_GROUP},
+    {bsRECT,   btCOLOR,   L"填", WHITE, 20, 20, &onChooseFillColor, bgFILLCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &onSetFillColor, bgFILLCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &onSetFillColor, bgFILLCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, BLUE, 20, 20, &onSetFillColor, bgFILLCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetFillColor, bgFILLCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetFillColor, bgFILLCOLOR},
+    {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetFillColor, bgFILLCOLOR},
     {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 40, 20, &onLoadImage},
     {bsRDRECT, btDEFAULT, L"保存", LIGHTGRAY, 40, 20, &onSaveImage},
     {bsRDRECT, btDEFAULT, L"截图", LIGHTGRAY, 40, 20, &onSaveClip},
@@ -80,6 +76,7 @@ int main()
     for (int i = 1; i < sizeof(buttons2)/sizeof(buttons2[0]); i++) {
         addButton(&panel, &buttons2[i], 10, adRIGHT);
     }
+    initButtonGroup(&panel);
 
     BeginBatchDraw();
     drawPainter(&painter);

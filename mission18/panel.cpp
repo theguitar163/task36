@@ -7,6 +7,12 @@ void setButtonPos(TButton* pbtn, int x, int y)
     pbtn->y = y;
 }
 
+// 设置按钮Tag的值
+void setButtonTag(TButton* pbtn, LONG tag)
+{
+    pbtn->tag = tag;
+}
+
 // 绘制按钮
 void drawButton(TButton* pbtn)
 {
@@ -26,7 +32,7 @@ void drawButton(TButton* pbtn)
     settextcolor(BLACK);
     RECT r = { ox + pbtn->x, oy + pbtn->y, ox + pbtn->x + pbtn->w, oy + pbtn->y + pbtn->h };
     if (pbtn->shape == bsCIRCLE) {
-        if (pbtn->focused) {
+        if (pbtn->selected) {
             setlinecolor(LIGHTBLUE);
             ellipse(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
         }
@@ -36,7 +42,7 @@ void drawButton(TButton* pbtn)
     }
     else if (pbtn->shape == bsRDRECT) {
         int esize = ((pbtn->w > pbtn->h) ? pbtn->h : pbtn->w) / 4;
-        if (pbtn->focused) {
+        if (pbtn->selected) {
             setlinecolor(LIGHTBLUE);
             roundrect(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2, esize + 2, esize + 2);
         }
@@ -45,7 +51,7 @@ void drawButton(TButton* pbtn)
         fillroundrect(r.left, r.top, r.right, r.bottom, esize, esize);
     }
     else {
-        if (pbtn->focused) {
+        if (pbtn->selected) {
             setlinecolor(LIGHTBLUE);
             rectangle(r.left - 2, r.top - 2, r.right + 2, r.bottom + 2);
         }
@@ -209,9 +215,22 @@ void updateButtonGroup(TPanel* ppanel, int btnIdx)
     for (int i = 0; i < ppanel->btnCount; i++) {
         if (ppanel->pbuttons[i]->groupid == gid) {
             if (btnIdx == i)
-                ppanel->pbuttons[i]->focused = 1;
+                ppanel->pbuttons[i]->selected = 1;
             else
-                ppanel->pbuttons[i]->focused = 0;
+                ppanel->pbuttons[i]->selected = 0;
+        }
+    }
+}
+
+// 为群组按钮设置默认选中按钮
+// 按照按钮添加的顺序，每个群组第一个出现的按钮为默认选中状态
+void initButtonGroup(TPanel* ppanel)
+{
+    int gid = bgNONE;
+    for (int i = 0; i < ppanel->btnCount; i++) {
+        if (ppanel->pbuttons[i]->groupid != bgNONE && ppanel->pbuttons[i]->groupid != gid ) {
+            updateButtonGroup(ppanel, i);
+            gid = ppanel->pbuttons[i]->groupid;
         }
     }
 }
