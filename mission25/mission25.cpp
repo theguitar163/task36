@@ -28,10 +28,10 @@ void initCrownFile(TCrownImage* pcrown, const TCHAR* fimage, const TCHAR* fmask)
 }
 
 // 加载皇冠图像和掩码(资源文件)
-void initCrownRes(TCrownImage* pcrown, const TCHAR* rimage, const TCHAR* rmask)
+void initCrownRes(TCrownImage* pcrown, const TCHAR* rtype, const TCHAR* rimage, const TCHAR* rmask)
 {
-    loadimage(&pcrown->image, L"PNG", rimage); // 源图像
-    loadimage(&pcrown->mask, L"PNG", rmask);   // 掩码图像
+    loadimage(&pcrown->image, rtype, rimage); // 源图像
+    loadimage(&pcrown->mask, rtype, rmask);   // 掩码图像
 }
 
 // 绘制皇冠透明图像
@@ -202,7 +202,7 @@ int main()
 
     // 加载皇冠图形
 //    initCrownFile(&crown, L"\\C语言编程\\mission\\mission25\\crown.png", L"\\C语言编程\\mission\\mission25\\crownmask.png");
-    initCrownRes(&crown, L"crown", L"crownmask");
+    initCrownRes(&crown, L"PNG", L"crown", L"crownmask");
     // 初始化棋盘
     initBoard(&board, &crown);
 
