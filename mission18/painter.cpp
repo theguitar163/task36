@@ -113,7 +113,7 @@ void PaintRect(TPainter* ppainter, int startx, int starty)
         int x = startx;
         int y = starty;
         setlinecolor(WHITE);
-        setrop2(R2_XORPEN);
+        setrop2(R2_XORPEN);    // 设置为XORPEN 模式，重复绘制两次将擦除绘制内容
         rectangle(startx, starty, x, y);
         while (true) {
             m = getmessage(EM_MOUSE);
@@ -127,7 +127,7 @@ void PaintRect(TPainter* ppainter, int startx, int starty)
             }
             else if (m.message == WM_LBUTTONUP) {
                 setlinecolor(ppainter->penColor);
-                setrop2(R2_COPYPEN);
+                setrop2(R2_COPYPEN);   // 将绘制模式恢复为COPY_PEN
                 setlinestyle(PS_SOLID, ppainter->penThickness);
                 if (ppainter->isFill) {
                     setfillcolor(ppainter->fillColor);
@@ -256,10 +256,15 @@ void PaintSelectRect(TPainter* ppainter, int startx, int starty)
                 }
             }
             else if (m.message == WM_LBUTTONUP) {
+                // XORPEN模式下多绘制一次，以保留选区虚线
                 rectangle(startx, starty, x, y);
-                rectangle(startx, starty, x, y);
+                rectangle(startx, starty, x, y);  
+
+                // 记录选区矩形及选区状态
                 ppainter->selectRect = { startx, starty, x, y };
                 ppainter->selectState = 1;
+
+                // 将绘图模式、画笔颜色、线宽全部恢复
                 setlinecolor(ppainter->penColor);
                 setrop2(R2_COPYPEN);
                 setlinestyle(PS_SOLID, ppainter->penThickness);
@@ -270,10 +275,14 @@ void PaintSelectRect(TPainter* ppainter, int startx, int starty)
     }
 }
 
-// 画布事件分派
+// 画布事件分派，触发条件为用户在画布上按下鼠标左键
 void painterClick(TPainter* ppainter, int startx, int starty)
 {
+    // 备份画板图像
     backupPainter(ppainter);
+    // 根据画笔类型进行不同的操作
+    // 所有PaintXXX函数内部都有不同类型、基于鼠标操作的子循环处理
+    // 退出子循环的条件为释放鼠标左键
     if (ppainter->penType == ptLINE) {
         PaintLine(ppainter, startx, starty);
     }
