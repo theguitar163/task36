@@ -36,11 +36,12 @@ void backupPainter(TPainter* ppainter);
 void drawPainter(TPainter* ppainter);
 int ptInPainter(POINT p, TPainter* ppainter, int shrinksize=0);
 
-void painterClick(TPainter* ppainter, int startx, int starty);
-
 void PaintLine(TPainter* ppainter, int startx, int starty);
 void PaintRect(TPainter* ppainter, int startx, int starty);
 void PaintEllipse(TPainter* ppainter, int startx, int starty);
 void PaintEraser(TPainter* ppainter, int startx, int starty);
 void PaintMosaic(TPainter* ppainter, int startx, int starty);
 void PaintSelectRect(TPainter* ppainter, int startx, int starty);
+
+void painterClick(TPainter* ppainter, int startx, int starty);
+void Run(TPainter* ppainter);

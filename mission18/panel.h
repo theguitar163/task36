@@ -24,16 +24,16 @@ typedef void (TFunction)(struct tagPainter* ppainter);
 
 // 按钮结构
 typedef struct tagButton {
-    int shape;                // 按钮形状bsCIRCLE/bsRDRECT/bsRECT
-    int type;                 // 按钮类型btDEFAULT/btCOLOR/btNUM/btBOOL
-    const TCHAR* text;        // 按钮上的文字
-    COLORREF color;           // 按钮的颜色
-    int w, h;                 // 按钮宽高
-    TFunction* pOnClick = NULL;   // 点击按钮事件关联函数指针
-    int groupid = bgNONE;          // 群组id
-    int x, y;                 // 按钮的坐标
-    LONG tag = 0;             // 特殊类型值可兼容颜色、整数、布尔数，由type决定其含义
-    int selected = 0;          // 选中状态
+    int shape;                  // 按钮形状bsCIRCLE/bsRDRECT/bsRECT
+    int type;                   // 按钮类型btDEFAULT/btCOLOR/btNUM/btBOOL
+    const TCHAR* text;          // 按钮上的文字
+    COLORREF color;             // 按钮的颜色
+    int w, h;                   // 按钮宽高
+    TFunction* pOnClick = NULL; // 点击按钮事件关联函数指针
+    int groupid = bgNONE;       // 群组id
+    LONG tag = 0;               // 特殊类型值可兼容颜色、整数、布尔数，由type决定其含义
+    int x, y;                   // 按钮的坐标
+    int selected = 0;           // 选中状态
     struct tagPanel* container; // 控制板容器
 } TButton;
 

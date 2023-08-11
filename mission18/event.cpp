@@ -245,21 +245,6 @@ void onUndoAction(TPainter* ppainter)
     SetWorkingImage(NULL);
 }
 
-void onUnselect(TPainter* ppainter)
-{
-    if (ppainter->selectState) {
-        // 通过恢复备份图形擦除选择线
-        putimage(ppainter->x, ppainter->y, &ppainter->imgBackup);
-
-        // 恢复原先的线形
-        setlinecolor(ppainter->penColor);
-        setlinestyle(PS_SOLID, ppainter->penThickness);
-        setrop2(R2_COPYPEN);
-
-        ppainter->selectState = 0;
-    }
-}
-
 // 水平镜像
 void onHorizontalMirrorImage(TPainter* ppainter)
 {

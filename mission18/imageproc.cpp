@@ -7,35 +7,39 @@
 // 水平镜像
 void HorizontalMirrorImage(RECT r)
 {
-    IMAGE img;
+    IMAGE imgsrc, imgdst;
     int w = r.right - r.left;
     int h = r.bottom - r.top;
-    getimage(&img, r.left, r.top, w, h);      // 取得当前窗口图像
-    DWORD* psrc = GetImageBuffer(&img);  // 取得当前窗口图像显示缓存区数据
-    DWORD* pdst = GetImageBuffer();      // 直接处理绘图窗口
+    getimage(&imgsrc, r.left, r.top, w, h);    // 取得当前窗口图像
+    getimage(&imgdst, r.left, r.top, w, h);    // 取得当前窗口图像
+    DWORD* psrc = GetImageBuffer(&imgsrc);  // 取得当前窗口图像显示缓存区数据
+    DWORD* pdst = GetImageBuffer(&imgdst);  // 直接处理绘图窗口
     
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
             pdst[i * w + j] = psrc[i * w + w - 1 - j];
         }
     }
+    putimage(r.left, r.top, &imgdst);
 }
 
 // 垂直镜像
 void VerticalMirrorImage(RECT r)
 {
-    IMAGE img;
+    IMAGE imgsrc, imgdst;
     int w = r.right - r.left;
     int h = r.bottom - r.top;
-    getimage(&img, r.left, r.top, w, h);      // 取得当前窗口图像
-    DWORD* psrc = GetImageBuffer(&img);  // 取得当前窗口图像显示缓存区数据
-    DWORD* pdst = GetImageBuffer();      // 直接处理绘图窗口
+    getimage(&imgsrc, r.left, r.top, w, h);    // 取得当前窗口图像
+    getimage(&imgdst, r.left, r.top, w, h);    // 取得当前窗口图像
+    DWORD* psrc = GetImageBuffer(&imgsrc);     // 取得当前窗口图像显示缓存区数据
+    DWORD* pdst = GetImageBuffer(&imgdst);     // 直接处理绘图窗口
 
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
             pdst[(h - 1 - i) * w + j] = psrc[i * w + j];
         }
     }
+    putimage(r.left, r.top, &imgdst);
 }
 
 // 灰度图像
@@ -52,7 +56,6 @@ void GrayImage(RECT r)
         c = (GetRValue(c) * 299 + GetGValue(c) * 587 + GetBValue(c) * 114 + 500) / 1000;
         p[i] = RGB(c, c, c);        // 由于是灰度值，无需再执行 BGR 转换
     }
-    putimage(0, 0, &img);
     putimage(r.left, r.top, &img);
 }
 
@@ -76,7 +79,7 @@ void BlackWhiteImage(RECT r)
             c = 255;
         p[i] = RGB(c, c, c);
     }
-    putimage(0, 0, &img);
+    putimage(r.left, r.top, &img);
 }
 
 // 高斯模糊
@@ -135,7 +138,7 @@ void GaussImage(RECT r)
             SR = SB = SG = 0;
         }
     }
-    putimage(0, 0, &img);
+    putimage(r.left, r.top, &img);
     free(R);
     free(G);
     free(B);

@@ -52,6 +52,13 @@ void backupPainter(TPainter* ppainter)
     getimage(&ppainter->imgBackup, ppainter->x, ppainter->y, ppainter->w, ppainter->h); 
 }
 
+// 恢复备份图像
+void restorePainter(TPainter* ppainter)
+{
+    // 通过恢复备份图形擦除选择线
+    putimage(ppainter->x, ppainter->y, &ppainter->imgBackup);
+}
+
 // 绘制绘图板
 void drawPainter(TPainter* ppainter)
 {
@@ -71,28 +78,9 @@ int ptInPainter(POINT p, TPainter* ppainter, int shrinksize)
     return 0;
 }
 
-// 画布事件分派
-void painterClick(TPainter* ppainter, int startx, int starty)
+void setSelectState(TPainter* ppainter, int state)
 {
-    backupPainter(ppainter);
-    if (ppainter->penType == ptLINE) {
-        PaintLine(ppainter, startx, starty);
-    }
-    else if (ppainter->penType == ptRECT) {
-        PaintRect(ppainter, startx, starty);
-    }
-    else if (ppainter->penType == ptELLIPSE) {
-        PaintEllipse(ppainter, startx, starty);
-    }
-    else if (ppainter->penType == ptERASER) {
-        PaintEraser(ppainter, startx, starty);
-    }
-    else if (ppainter->penType == ptMOSAIC) {
-        PaintMosaic(ppainter, startx, starty);
-    }
-    else if (ppainter->penType == ptSELECT) {
-        PaintSelectRect(ppainter, startx, starty);
-    }
+    ppainter->selectState = state;
 }
 
 // 绘制线
@@ -285,4 +273,58 @@ void PaintSelectRect(TPainter* ppainter, int startx, int starty)
             FlushBatchDraw();
         }
     }
+}
+
+// 画布事件分派
+void painterClick(TPainter* ppainter, int startx, int starty)
+{
+    backupPainter(ppainter);
+    if (ppainter->penType == ptLINE) {
+        PaintLine(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptRECT) {
+        PaintRect(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptELLIPSE) {
+        PaintEllipse(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptERASER) {
+        PaintEraser(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptMOSAIC) {
+        PaintMosaic(ppainter, startx, starty);
+    }
+    else if (ppainter->penType == ptSELECT) {
+        PaintSelectRect(ppainter, startx, starty);
+    }
+}
+
+void Run(TPainter* ppainter)
+{
+    BeginBatchDraw();
+
+    drawPainter(ppainter);
+    ExMessage m;
+    while (true) {
+        if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
+            // 左键单击判断
+            if (m.message == WM_LBUTTONDOWN) {
+                if (ptInPainter({ m.x, m.y }, ppainter)) {
+                    if (ppainter->selectState)
+                        restorePainter(ppainter);
+                    setSelectState(ppainter, 0);
+                    painterClick(ppainter, m.x, m.y);
+                }
+                else {
+                    if (ppainter->selectState)
+                        restorePainter(ppainter);
+                    buttonClick(ppainter->ppanel, m.x, m.y);
+                    setSelectState(ppainter, 0);
+                }
+            }
+        }
+        FlushBatchDraw();
+        Sleep(10);
+    }
+    EndBatchDraw();
 }

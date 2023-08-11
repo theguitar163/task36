@@ -17,6 +17,7 @@
 #include "event.h"
 
 TButton buttons1[] = {
+    {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 40, 20, &onLoadImage},
     {bsRECT,   btCOLOR, L"线",  BLACK, 20, 20, &onChoosePenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &onSetPenColor, bgPENCOLOR},
@@ -24,17 +25,18 @@ TButton buttons1[] = {
     {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetPenColor, bgPENCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetPenColor, bgPENCOLOR},
-    {bsRDRECT, btNUM,   L"线宽", LIGHTGRAY, 60, 20, &onChoosePenThickness},
-    {bsRDRECT, btBOOL,  L"填充", LIGHTGRAY, 60, 20, &onSetFill},
+    {bsRDRECT, btNUM,   L"线宽", LIGHTGRAY, 60, 20, &onChoosePenThickness, bgNONE, 1},
+
     {bsRDRECT, btDEFAULT, L"画线", LIGHTGRAY, 40, 20, &onSetPenLine, bgPENTYPE},
     {bsRECT, btDEFAULT, L"矩形", LIGHTGRAY, 40, 20, &onSetPenRect, bgPENTYPE},
-    {bsCIRCLE, btDEFAULT, L"椭圆", LIGHTGRAY, 50, 20, &onSetPenEllipse, bgPENTYPE},
-    {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 50, 20, &onSetPenMosaic, bgPENTYPE},
+    {bsCIRCLE, btDEFAULT, L"椭圆", LIGHTGRAY, 60, 20, &onSetPenEllipse, bgPENTYPE},
+    {bsRDRECT, btDEFAULT, L"马赛克", LIGHTGRAY, 60, 20, &onSetPenMosaic, bgPENTYPE},
     {bsRDRECT, btDEFAULT, L"橡皮", LIGHTGRAY, 40, 20, &onSetPenEraser, bgPENTYPE},
     {bsRDRECT, btDEFAULT, L"选择", LIGHTGRAY, 40, 20, &onSetPenSelect, bgPENTYPE},
     {bsRDRECT, btDEFAULT, L"撤回", LIGHTGRAY, 40, 20, &onUndoAction},
 };
 TButton buttons2[] = {
+    {bsRDRECT, btDEFAULT, L"保存", LIGHTGRAY, 40, 20, &onSaveImage},
     {bsRECT,   btCOLOR,   L"填", WHITE, 20, 20, &onChooseFillColor, bgFILLCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, RED, 20, 20, &onSetFillColor, bgFILLCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, GREEN, 20, 20, &onSetFillColor, bgFILLCOLOR},
@@ -42,12 +44,11 @@ TButton buttons2[] = {
     {bsCIRCLE, btDEFAULT, NULL, YELLOW, 20, 20, &onSetFillColor, bgFILLCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, CYAN, 20, 20, &onSetFillColor, bgFILLCOLOR},
     {bsCIRCLE, btDEFAULT, NULL, BROWN, 20, 20, &onSetFillColor, bgFILLCOLOR},
-    {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 40, 20, &onLoadImage},
-    {bsRDRECT, btDEFAULT, L"保存", LIGHTGRAY, 40, 20, &onSaveImage},
+    {bsRDRECT, btBOOL,  L"填充", LIGHTGRAY, 60, 20, &onSetFill, bgNONE, 0},
     {bsRDRECT, btDEFAULT, L"截图", LIGHTGRAY, 40, 20, &onSaveClip},
     {bsRDRECT, btDEFAULT, L"水平镜像", LIGHTGRAY, 60, 20, &onHorizontalMirrorImage},
     {bsRDRECT, btDEFAULT, L"垂直镜像", LIGHTGRAY, 60, 20, &onVerticalMirrorImage},
-    {bsRDRECT, btDEFAULT, L"高斯模糊", LIGHTGRAY, 60, 20, &onGaussImage},
+    {bsRDRECT, btDEFAULT, L"模糊", LIGHTGRAY, 40, 20, &onGaussImage},
     {bsRDRECT, btDEFAULT, L"黑白", LIGHTGRAY, 40, 20, &onBlackWhiteImage},
     {bsRDRECT, btDEFAULT, L"灰度", LIGHTGRAY, 40, 20, &onGrayImage},
     {bsRDRECT, btDEFAULT, L"清屏", LIGHTGRAY, 40, 20, &onClearCanvas},
@@ -78,25 +79,8 @@ int main()
     }
     initButtonGroup(&panel);
 
-    BeginBatchDraw();
-    drawPainter(&painter);
-    ExMessage m;
-    while (true) {
-        if (peekmessage(&m, EM_MOUSE | EM_KEY)) {
-            // 左键单击判断
-            if(m.message == WM_LBUTTONDOWN) {
-                onUnselect(&painter);
-                if (ptInPainter({ m.x, m.y }, &painter)) {
-                    painterClick(&painter, m.x, m.y);
-                }
-                else
-                    buttonClick(&panel, m.x, m.y);
-            }
-        }
-        FlushBatchDraw();
-        Sleep(10);
-    }
-    EndBatchDraw();
+    Run(&painter);
+
     _getch();
     return 0;
 }
