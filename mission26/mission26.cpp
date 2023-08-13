@@ -49,14 +49,14 @@
 #include <conio.h>
 #include <easyx.h>
 
-#define MAX_COL 5
-#define MAX_ROW 5
+#define MAX_COL 3
+#define MAX_ROW 3
 
 typedef POINT ITEM;
 
 BYTE maze[MAX_COL * 2 + 1][MAX_ROW * 2 + 1];
 // 用于存放未访问的格子（仍然是墙）
-ITEM array[MAX_COL * MAX_ROW];
+ITEM array[(MAX_COL+1) * (MAX_ROW+1)];
 int arraysize = 0;
 
 void append(ITEM item)
@@ -79,14 +79,14 @@ void remove(int idx)
 void addWall(int sx, int sy)
 {
     if (sx > 0 && sy < MAX_COL * 2 && sy > 0 && sy < MAX_ROW * 2) {
-        if (sx > 2 && maze[sx - 2][sy] == 0)
-            append({ sx - 2, sy });
-        if (sy > 2 && maze[sx][sy - 2] == 0)
-            append({ sx, sy - 2 });
-        if (sx < MAX_COL * 2 - 2 && maze[sx + 2][sy] == 0)
-            append({ sx + 2, sy });
-        if (sy < MAX_ROW * 2 -2 && maze[sx][sy + 2] == 0)
-            append({ sx, sy + 2 });
+        if (sx - 1> 0 && maze[sx - 1][sy] == 0)
+            append({ sx - 1, sy });
+        if (sx + 1 < MAX_COL * 2 - 1 && maze[sx + 1][sy] == 0)
+            append({ sx + 1, sy });
+        if (sy - 1 > 0 && maze[sx][sy - 1] == 0)
+            append({ sx, sy - 1 });
+        if (sy + 1 < MAX_ROW * 2 - 1 && maze[sx][sy + 1] == 0)
+            append({ sx, sy + 1 });
     }
 }
 
@@ -98,6 +98,16 @@ int main()
     // 直到没有可能为通路的位置。整个实现过程还是相当于随意为路线附权值的Prim算法。
 
     // 1.让迷宫全都是墙；
+// 2.选一个格，作为迷宫的通路，然后把它的邻墙放入列表；
+// 3.当列表里还有墙时；
+// ——1.从列表里随机选一个墙，如果它对面的格子不是迷宫的通路；
+// ————1.把墙打通，让对面的格子成为迷宫的通路；
+// ————2.把那个格子的邻墙加入列表；
+// ——2.如果对面的格子已经是通路了，那就从列表里移除这面墙。
+// Prim算法就是不断地从所有可以是通路的位置中随意选一个挖洞，
+// 直到没有可能为通路的位置。整个实现过程还是相当于随意为路线附权值的Prim算法。
+
+    // 1.让迷宫全都是墙；
     for (int i = 0; i < MAX_ROW; i++) {
         for (int j = 0; j < MAX_COL; j++) {
             maze[i][j] = 0;
@@ -107,29 +117,34 @@ int main()
     // 2.选一个格，作为迷宫的通路，
     int sx = 1, sy = 1;
     maze[sx][sy] = 1;
-    // 然后把它的隔墙(非边界墙)的未访问的格子放入列表
+    // 然后把它的邻墙(非边界墙)放入列表
     addWall(sx, sy);
     // 3.当列表里还有墙时；
     while (arraysize>0) {
-        // 3.1.从未访问格子列表里随机选一个格子，
+        // 3.1.从列表里随机选一个墙，
         int idx = rand() % arraysize;
-        ITEM cell = array[idx];
+        ITEM wall = array[idx];
 
-        // 3.1.1.把这面墙打通，
-        if (sx == cell.x)
-            maze[sx][sy + (cell.y - sy) / 2] = 1;
+        // 取得对面格子的坐标
+        if (wall.x % 2 == 0)
+            sy = sy + (wall.y - sy) * 2;
         else
-            maze[sx + (cell.x - sx) / 2][sy] = 1;
+            sx = sx + (wall.x - sx) * 2;
 
-        // 让对面的格子成为迷宫的通路；
-        maze[cell.x][cell.y] = 1;
-        sx = cell.x;
-        sy = cell.y;
-
-        remove(idx);
-        // 3.1.2.把那个格子的邻墙加入列表；
-        addWall(sx, sy);
-
+        // 判断对面格子是否是通路
+        // 如果它对面的格子不是迷宫的通路
+        if (maze[sx][sy] == 0) {
+            // 3.1.1.把这面墙打通，
+            maze[wall.x][wall.y] = 1;
+            // 让对面的格子成为迷宫的通路；
+            maze[sx][sy] = 1;
+            // 3.1.2.把那个格子的邻墙加入列表；
+            addWall(sx, sy);
+        }
+        else {
+            // ——2.如果对面的格子已经是通路了，那就从列表里移除这面墙。
+            remove(idx);
+        }
     }
 
     for (int i = 0; i < MAX_ROW * 2 + 1; i++) {
