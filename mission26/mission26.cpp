@@ -56,38 +56,114 @@ typedef POINT ITEM;
 
 BYTE maze[MAX_COL * 2 + 1][MAX_ROW * 2 + 1];
 // 用于存放未访问的格子（仍然是墙）
-ITEM array[(MAX_COL+1) * (MAX_ROW+1)];
-int arraysize = 0;
+typedef struct tagList {
+    ITEM* array;
+    int size;
+} TList;
 
-void append(ITEM item)
+void initList(TList* plist, int maxsize)
 {
-    if (arraysize < MAX_COL * MAX_ROW) {
-        array[arraysize] = item;
-        arraysize++;
+    plist->array = (ITEM*)malloc(sizeof(ITEM) * maxsize);
+    plist->size = 0;
+}
+
+void freeList(TList* plist)
+{
+    free(plist->array);
+    plist->array = NULL;
+    plist->size = 0;
+}
+
+ITEM get(TList* plist, int idx)
+{
+    return plist->array[idx];
+}
+
+void append(TList* plist, ITEM item)
+{
+    if (plist->size < MAX_COL * MAX_ROW) {
+        plist->array[plist->size] = item;
+        plist->size++;
     }
 }
-void remove(int idx)
+void remove(TList* plist, int idx)
 {
-    if (arraysize > 0) {
-        for (int i = idx; i < arraysize; i++)
-            array[i] = array[i + 1];
-        arraysize--;
+    if (plist->size > 0) {
+        for (int i = idx; i < plist->size; i++)
+            plist->array[i] = plist->array[i + 1];
+        plist->size--;
     }
 }
+
+void clear(TList* plist)
+{
+    plist->size = 0;
+}
+
+TList openlist;
 
 // 添加当前格子(sx, sy)的隔墙相邻的未访问的格子（仍然是墙） 
 void addWall(int sx, int sy)
 {
-    if (sx > 0 && sy < MAX_COL * 2 && sy > 0 && sy < MAX_ROW * 2) {
-        if (sx - 1> 0 && maze[sx - 1][sy] == 0)
-            append({ sx - 1, sy });
-        if (sx + 1 < MAX_COL * 2 - 1 && maze[sx + 1][sy] == 0)
-            append({ sx + 1, sy });
-        if (sy - 1 > 0 && maze[sx][sy - 1] == 0)
-            append({ sx, sy - 1 });
-        if (sy + 1 < MAX_ROW * 2 - 1 && maze[sx][sy + 1] == 0)
-            append({ sx, sy + 1 });
+    // 左
+    if (sx - 2 >= 0 && maze[sx - 2][sy] == 1) {
+        append(&openlist, { sx - 2, sy });
+        maze[sx - 2][sy] = 2;
     }
+    // 右
+    if (sx + 2 <= MAX_COL && maze[sx + 2][sy] == 1) {
+        append(&openlist, { sx + 2, sy });
+        maze[sx + 2][sy] = 2;
+    }
+    // 上
+    if (sy - 2 >= 0 && maze[sx][sy - 2] == 1) {
+        append(&openlist, { sx, sy - 2 });
+        maze[sx][sy - 2] = 2;
+
+    }
+    // 下
+    if (sy + 2 <= MAX_ROW && maze[sx][sy + 1] == 1) {
+        append(&openlist, { sx, sy + 1 });
+        maze[sx][sy + 2] = 2;
+    }
+}
+
+void breakWall(int wx, int wy)
+{
+    TList list;
+    initList(&list, 4);
+    //左
+    if (wx - 2 >= 0 && maze[wx - 2][wy] == 0) {
+        append(&list, { wx - 1, wy });
+    }
+    //右
+    if (wx + 2 <= MAX_COL && maze[wx + 2][wy] == 0) {
+        append(&list, { wx + 1, wy });
+    }
+    //上
+    if (wy - 2 >= 0 && maze[wx][wy - 2] == 0) {
+        append(&list, { wx, wy - 1 });
+    }
+    //下
+    if (wy + 2 <= MAX_ROW && maze[wx][wy + 2] == 0) {
+        append(&list, { wx, wy + 1 });
+    }
+
+    int idx = rand() % list.size;
+    ITEM it = get(&list, idx);
+    /*将x，y与B打通*/
+    maze[it.x][it.y] = 0;
+    freeList(&list);
+}
+
+void displayMaze()
+{
+    for (int i = 0; i < MAX_ROW * 2 + 1; i++) {
+        for (int j = 0; j < MAX_COL * 2 + 1; j++)
+            printf("%d ", maze[j][i]);
+        printf("\n");
+    }
+    _getch();
 }
 
 int main()
@@ -106,51 +182,39 @@ int main()
 // ——2.如果对面的格子已经是通路了，那就从列表里移除这面墙。
 // Prim算法就是不断地从所有可以是通路的位置中随意选一个挖洞，
 // 直到没有可能为通路的位置。整个实现过程还是相当于随意为路线附权值的Prim算法。
+    initList(&openlist, MAX_COL * MAX_ROW);
 
-    // 1.让迷宫全都是墙；
-    for (int i = 0; i < MAX_ROW; i++) {
-        for (int j = 0; j < MAX_COL; j++) {
-            maze[i][j] = 0;
+    // 1.让迷宫全都是墙
+    for (int y = 0; y < MAX_ROW; y++) {
+        for (int x = 0; x < MAX_COL; x++) {
+            maze[x][y] = 1;
         }
     }
 
-    // 2.选一个格，作为迷宫的通路，
+    // 2.选一个路点，作为迷宫的通路，
     int sx = 1, sy = 1;
     maze[sx][sy] = 1;
-    // 然后把它的邻墙(非边界墙)放入列表
+    // 然后把此路点的相邻的墙点(非边界墙)放入列表
     addWall(sx, sy);
+
     // 3.当列表里还有墙时；
-    while (arraysize>0) {
+    while (openlist.size > 0) {
         // 3.1.从列表里随机选一个墙，
-        int idx = rand() % arraysize;
-        ITEM wall = array[idx];
+        /*从待选路点随机选一个路点A*/
+        int idx = rand() % openlist.size;
+        ITEM wall = get(&openlist, idx);
 
-        // 取得对面格子的坐标
-        if (wall.x % 2 == 0)
-            sy = sy + (wall.y - sy) * 2;
-        else
-            sx = sx + (wall.x - sx) * 2;
+        /*将A与它四周一个随机已经变成路的路点打通*/
+        breakWall(wall.x, wall.y);
 
-        // 判断对面格子是否是通路
-        // 如果它对面的格子不是迷宫的通路
-        if (maze[sx][sy] == 0) {
-            // 3.1.1.把这面墙打通，
-            maze[wall.x][wall.y] = 1;
-            // 让对面的格子成为迷宫的通路；
-            maze[sx][sy] = 1;
-            // 3.1.2.把那个格子的邻墙加入列表；
-            addWall(sx, sy);
-        }
-        else {
-            // ——2.如果对面的格子已经是通路了，那就从列表里移除这面墙。
-            remove(idx);
-        }
-    }
-
-    for (int i = 0; i < MAX_ROW * 2 + 1; i++) {
-        for (int j = 0; j < MAX_COL * 2 + 1; j++)
-            printf("%d ", maze[j][i]);
+        maze[wall.x][wall.y] = 0;
+        /*将A四周不是路的路点加入待选列表*///(注意，不要重复添加路点！)
+        addWall(wall.x, wall.y);
+        /*从待选路点中移除A*/
+        remove(&openlist, idx);
+        displayMaze();
         printf("\n");
     }
-    _getch();
+
+    displayMaze();
 }
