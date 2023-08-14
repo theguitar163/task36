@@ -127,7 +127,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="draw_maze.cpp" />
+    <ClCompile Include="mazer_deepsearch.cpp" />
+    <ClCompile Include="list.cpp" />
     <ClCompile Include="mission26.cpp" />
+    <ClCompile Include="mazer_prim.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="draw_maze.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="maze.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
