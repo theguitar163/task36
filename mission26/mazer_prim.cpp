@@ -17,6 +17,7 @@
 
 #include "list.h"
 #include "maze.h"
+#include "draw_maze.h"
 
 BYTE Maze[MAX_COL][MAX_ROW];
 

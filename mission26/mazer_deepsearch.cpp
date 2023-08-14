@@ -21,61 +21,42 @@
 #include "draw_maze.h"
 #include "maze.h"
 
-int Maze[MAX_COL][MAX_ROW];//0代表空气，1代表墙壁，3代表选中路点（但是并没有用到）
+extern BYTE Maze[MAX_COL][MAX_ROW];
 
-TList list;//临时的列表
-TList list2;//临时的列表
-
-
-bool prim_main()
+void through(int x, int y, TList* pRoadList)
 {
-
-}
-void through(int x, int y)
-{
-	list.clear();
-	list2.clear();
+	TList list;
+	initList(&list, 4);
 	//上
 	if (y - 2 >= 0 && Maze[x][y - 2] == itWALL) {
-		block* a = new block(x, y - 1);
-		block* aa = new block(x, y - 2);
-		list.push_back(a);
-		list2.push_back(aa);
+		append(&list, { x, y - 2 });
 	}
 	//下
 	if (y + 2 <= MAX_ROW - 1 && Maze[x][y + 2] == itWALL) {
-		block* b = new block(x, y + 1);
-		block* bb = new block(x, y + 2);
-		list.push_back(b);
-		list2.push_back(bb);
+		append(&list, { x, y + 2 });
 	}
 	//左
 	if (x - 2 >= 0 && Maze[x - 2][y] == itWALL) {
-		block* c = new block(x - 1, y);
-		block* cc = new block(x - 2, y);
-		list.push_back(c);
-		list2.push_back(cc);
+		append(&list, { x - 2, y });
 	}
 	//右
 	if (x + 2 <= MAX_COL - 1 && Maze[x + 2][y] == itWALL) {
-		block* d = new block(x + 1, y);
-		block* dd = new block(x + 2, y);
-		list.push_back(d);
-		list2.push_back(dd);
+		append(&list, { x + 2, y });
 	}
-	if (list.size() != 0) {
-		int BIndexea = rand() % list.size();
-		block* B = list[BIndexea];
-		block* BB = list2[BIndexea];
-		/*将x，y与B打通*/
-		Maze[B->x][B->y] = itROAD;
-		/*将选中路点变为路，并加入待选列表*/
-		Maze[BB->x][BB->y] = itROAD;
-		wallList.push_back(BB);
-
+	if (list.size > 0) {
+		int idx = rand() % list.size;
+		ITEM it = get(&list, idx);
+		// 将x，y与B打通
+		Maze[it.x][it.y] = itROAD;
+		// 将选中路点变为路，并加入待选列表
+		Maze[it.x + (it.x - x) / 2][it.y + (it.y - y) / 2] = itROAD;
+		append(pRoadList, it);
 	}
+	freeList(&list);
 }
-bool check(int x, int y) {
+
+bool check(int x, int y)
+{
 	bool temp = 0;
 	//上
 	if (y - 2 >= 0 && Maze[x][y - 2] == itWALL) {
@@ -96,10 +77,11 @@ bool check(int x, int y) {
 	return temp;
 }
 
-int main1() {
+void createMaze_deepsearch()
+{
 
-	TList wallList;
-	initList(&wallList, MAX_COL * MAX_ROW);
+	TList roadList;
+	initList(&roadList, MAX_COL * MAX_ROW);
 
 	for (int y = 0; y < MAX_ROW; y++) {
 		for (int x = 0; x < MAX_COL; x++) {
@@ -108,28 +90,31 @@ int main1() {
 	}
 	/*随机选一个路点，将它变成路*/
 	Maze[1][1] = itROAD;
-	/*将该点加入待选列表*/
-	append(&wallList, { 1, 1 });
+	// 将该点加入待选列表
+	append(&roadList, { 1, 1 });
 
-	/*开始主循环*/
-
-	while (wallList.size() > 0) {
-		/*从待选列表选最后一个路点A*/
-		int AIndexea = wallList.size() - 1;
-		block* A = wallList[AIndexea];
-		/*检查是否进入了死胡同,如果进入了死胡同,则回溯*/
-		while (!check(A->x, A->y)) {
-			A = wallList[AIndexea];
-			if (AIndexea == 0) return 1;//如果迷宫走完返回1
-			--AIndexea;
+	int done = 0;
+	while (roadList.size > 0) {
+		// 从待选列表选最后一个路点A
+		int idx = roadList.size - 1;
+		ITEM road = get(&roadList, idx);
+		// 检查是否进入了死胡同,如果进入了死胡同,则回溯
+		while (!check(road.x, road.y)) {
+			idx--;
+			// 如果迷宫走完返回1
+			if (idx == 0) {
+				done = 1;
+				break;
+			}
+			road = get(&roadList, idx);
 		}
-		/*将A与它四周一个随机的为墙壁的路点打通,并将选中路点变为路,并加入待选列表*/
-		through(A->x, A->y);
+		if (done) break;
+		// 将A与它四周一个随机的为墙壁的路点打通,
+		// 并将选中路点变为路,并加入待选列表
+		through(road.x, road.y, &roadList);
 	}
 
-	display();
+	displayMaze();
 
-	free(&wallList);
-	list.clear();
-	list2.clear();
+	free(&roadList);
 }

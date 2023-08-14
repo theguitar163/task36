@@ -12,3 +12,4 @@
 extern BYTE Maze[MAX_COL][MAX_ROW];
 
 void createMaze_prim();
+void createMaze_deepsearch();
