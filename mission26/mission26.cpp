@@ -49,8 +49,8 @@
 #include <conio.h>
 #include <easyx.h>
 
-#define MAX_COL 3
-#define MAX_ROW 3
+#define MAX_COL 5
+#define MAX_ROW 5
 
 typedef POINT ITEM;
 
