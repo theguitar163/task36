@@ -47,8 +47,8 @@ int getOdd(int min, int max)
 // 生成迷宫的函数
 void generate(RECT r) 
 {
-    // 如果没位置了，直接return
-    if (r.right - r.left <= 2 || r.bottom - r.top <= 2) { 
+    // 如果没位置了，直接返回
+    if (r.right - r.left < 2 || r.bottom - r.top < 2) { 
         return;
     }
     // 生成十字围墙，要求为偶数
