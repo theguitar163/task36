@@ -27,6 +27,9 @@ void drawMaze()
 			else if (Maze[x][y] == itROAD) {
 				drawCell(x, y, COLOR_ROAD);
 			}
+			else if (Maze[x][y] == itWAIT) {
+				drawCell(x, y, COLOR_WAIT);
+			}
 		}
 	}
 	FlushBatchDraw();
