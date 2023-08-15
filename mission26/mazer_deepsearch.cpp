@@ -83,7 +83,7 @@ void createMaze_deepsearch()
 		}
 	}
 
-	/*随机选一个路点，将它变成路*/
+	// 随机选一个路点，将它变成路
 	Maze[1][1] = itROAD;
 	// 将该点加入待选列表
 	append(&roadList, { 1, 1 });
@@ -107,6 +107,7 @@ void createMaze_deepsearch()
 		// 将A与它四周一个随机的为墙壁的路点打通,
 		// 并将选中路点变为路,并加入待选列表
 		through(road.x, road.y, &roadList);
+		drawMaze();
 	}
 	drawMaze();
 	freeList(&roadList);
