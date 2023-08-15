@@ -30,11 +30,15 @@
 int main()
 {
     srand(GetTickCount());	//随机数种子
-//    initgraph(MAX_COL * CELL_SIZE, MAX_ROW * CELL_SIZE);
-//    BeginBatchDraw();
- //   cleardevice();
+    initgraph(MAX_COL * CELL_SIZE, MAX_ROW * CELL_SIZE);
 
-//    createMaze_prim();
+    BeginBatchDraw();
+
+    createMaze_prim();
+    _getch();
+
     createMaze_deepsearch();
+    
+    EndBatchDraw();
     _getch();
 }

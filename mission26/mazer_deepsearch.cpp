@@ -12,14 +12,9 @@
 // ——3.反之，随机选择一个格子为当前格并标记
 // 通俗的说，就是从起点开始随机走，走不通了就原路返回，从下一个能走的地方再开始随机走。
 
-#include <graphics.h>
-#include <Windows.h>
-#include <math.h>
-#include <vector>
-#include <iostream>
 #include "list.h"
-#include "draw_maze.h"
 #include "maze.h"
+#include "draw_maze.h"
 
 extern BYTE Maze[MAX_COL][MAX_ROW];
 
@@ -49,7 +44,7 @@ void through(int x, int y, TList* pRoadList)
 		// 将x，y与B打通
 		Maze[it.x][it.y] = itROAD;
 		// 将选中路点变为路，并加入待选列表
-		Maze[it.x + (it.x - x) / 2][it.y + (it.y - y) / 2] = itROAD;
+		Maze[x + (it.x - x) / 2][y + (it.y - y) / 2] = itROAD;
 		append(pRoadList, it);
 	}
 	freeList(&list);
@@ -79,7 +74,6 @@ bool check(int x, int y)
 
 void createMaze_deepsearch()
 {
-
 	TList roadList;
 	initList(&roadList, MAX_COL * MAX_ROW);
 
@@ -88,6 +82,7 @@ void createMaze_deepsearch()
 			Maze[x][y] = itWALL;
 		}
 	}
+
 	/*随机选一个路点，将它变成路*/
 	Maze[1][1] = itROAD;
 	// 将该点加入待选列表
@@ -113,8 +108,6 @@ void createMaze_deepsearch()
 		// 并将选中路点变为路,并加入待选列表
 		through(road.x, road.y, &roadList);
 	}
-
-	displayMaze();
-
-	free(&roadList);
+	drawMaze();
+	freeList(&roadList);
 }

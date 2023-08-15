@@ -107,8 +107,12 @@ void createMaze_prim()
         addWall(wall.x, wall.y, &wallList);
         // 从列表中删除移除此墙状路点
         remove(&wallList, idx);
+
+//        drawMaze();
     }
 
-    displayMaze();
+    drawMaze();
+//    displayMaze();
+    freeList(&wallList);
 }
 

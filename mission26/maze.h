@@ -2,8 +2,8 @@
 
 #include <easyx.h>
 
-#define MAX_COL 15
-#define MAX_ROW 15
+#define MAX_COL 55
+#define MAX_ROW 55
 
 #define itROAD 0
 #define itWALL 1
