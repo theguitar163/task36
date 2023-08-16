@@ -37,11 +37,12 @@ void divide(RECT r)
 int getEven(int min, int max) 
 {
 	// 确保min和max为偶数
-	if ((min % 2 == 1) || (max % 2 == 1))
+	if ((min % 2 != 0) || (max % 2 != 0))
 		return -1;
-	max = (max % 2 == 1) ? max - 1 : max;
+	if (max - min < 4)
+		return -1;
 	// Divide both by 2 to ensure the range
-	int randomNum = ((rand() % ((max - min)) + min) + 1) / 2; 
+	int randomNum = ((rand() % (max - min) + min) + 1) / 2; 
 
 	return randomNum * 2; // multiply by 2 to make the number even
 }
