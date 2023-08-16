@@ -15,9 +15,29 @@
 #include "maze.h"
 #include "draw_maze.h"
 
+// 随机获取区间中的偶数
+int getEven1(int min, int max)
+{
+    // 确保为偶数
+    min = (min % 2 == 1) ? min + 1 : min;
+    max = (max % 2 == 1) ? max - 1 : max;
+    if (max - min < 4) return -1;
+    // Divide both by 2 to ensure the range
+    int randomNum = ((rand() % ((max - min)) + min) + 1) / 2;
+
+    return randomNum * 2; // multiply by 2 to make the number even
+}
+
 int main()
 {
     srand(GetTickCount());	//随机数种子
+
+    printf("%d\n", getEven1(0,4));
+    printf("%d\n", getEven1(1,3));
+    printf("%d\n", getEven1(1,3));
+    printf("%d\n", getEven1(1,3));
+    _getch();
+
     initgraph(MAX_COL * CELL_SIZE, MAX_ROW * CELL_SIZE);
 
     BeginBatchDraw();

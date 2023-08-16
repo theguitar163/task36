@@ -33,14 +33,23 @@ void divide(RECT r)
 }
 
 // 随机获取区间中的偶数
+// 要求参数min和max均为偶数
 int getEven(int min, int max) 
 {
-    return ((rand() % (max - min) + min + 1) | 1) - 1;
+	// 确保min和max为偶数
+	if ((min % 2 == 1) || (max % 2 == 1))
+		return -1;
+	max = (max % 2 == 1) ? max - 1 : max;
+	// Divide both by 2 to ensure the range
+	int randomNum = ((rand() % ((max - min)) + min) + 1) / 2; 
+
+	return randomNum * 2; // multiply by 2 to make the number even
 }
 
 // 随机获取区间中的奇数
 int getOdd(int min, int max) 
 {
+
 	return (rand() % (max - min) + min) | 1;
 }
 
@@ -48,38 +57,42 @@ int getOdd(int min, int max)
 void generate(RECT r) 
 {
     // 如果没位置了，直接返回
-    if (r.right - r.left < 2 || r.bottom - r.top < 2) { 
+    if (r.right - r.left <= 2 || r.bottom - r.top <= 2) { 
         return;
     }
     // 生成十字围墙，要求为偶数
     int wallY = getEven(r.top, r.bottom);
     int wallX = getEven(r.left, r.right);
     for (int i = r.left; i < r.right; i++) {
-        Maze[wallY][i] = itWALL;
+        Maze[i][wallY] = itWALL;
     }
     for (int i = r.top; i < r.bottom; i++) {
-        Maze[i][wallX] = itWALL;
+        Maze[wallX][i] = itWALL;
     }
     // 随机在三面墙上开洞，要求开洞位置是奇数
-    int direct[4] = { 1, 1, 1, 1 };
+    int direct[4] = {1, 1, 1, 1};
     direct[rand() % 4] = 0;
     if (direct[0]) { // 上
         int roadY = getOdd(r.top, wallY);
-        Maze[roadY][wallX] = itROAD;
+        Maze[wallX][roadY] = itROAD;
     }
     if (direct[1]) { // 下
         int roadY = getOdd(wallY, r.bottom);
-        Maze[roadY][wallX] = itROAD;
+        Maze[wallX][roadY] = itROAD;
     }
     if (direct[2]) { // 左
         int roadX = getOdd(r.left, wallX);
-        Maze[wallY][roadX] = itROAD;
+        Maze[roadX][wallY] = itROAD;
     }
     if (direct[3]) { // 右
         int roadX = getOdd(wallX, r.right);
-        Maze[wallY][roadX] = itROAD;
+        Maze[roadX][wallY] = itROAD;
     }
     drawMaze();
+	setlinecolor(RED);
+	rectangle(r.left * CELL_SIZE - 1, r.top * CELL_SIZE - 1, r.right * CELL_SIZE + 1, r.bottom * CELL_SIZE + 1);
+	FlushBatchDraw();
+	_getch();
     // 继续递归
     generate({ r.left, r.top, wallX, wallY });
     generate({ wallX, r.top, r.right, wallY });
@@ -98,7 +111,7 @@ void createMaze_recursivedivision()
         }
     }
     //	divide({ 1, 1, MAX_COL - 1, MAX_ROW - 1 });
-    generate({ 1, 1, MAX_COL - 1, MAX_ROW - 1 });
+    generate({ 0, 0, MAX_COL - 1, MAX_ROW - 1 });
 }
 
 
