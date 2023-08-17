@@ -41,6 +41,23 @@ void remove(TList* plist, int idx)
     }
 }
 
+void push(TList* plist, ITEM item)
+{
+    append(plist, item);
+}
+
+int pop(TList* plist, ITEM* item)
+{
+    if (plist->size > 0) {
+        item->x = plist->array[plist->size - 1].x;
+        item->y = plist->array[plist->size - 1].y;
+        plist->size--;
+        return 1;
+    }
+    else
+        return 0;
+}
+
 void clear(TList* plist)
 {
     plist->size = 0;

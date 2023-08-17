@@ -107,7 +107,7 @@ void createMaze_deepsearch()
 		// 将A与它四周一个随机的为墙壁的路点打通,
 		// 并将选中路点变为路,并加入待选列表
 		through(road.x, road.y, &roadList);
-		drawMaze();
+//		drawMaze();
 	}
 	drawMaze();
 	freeList(&roadList);
