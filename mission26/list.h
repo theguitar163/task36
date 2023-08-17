@@ -19,3 +19,5 @@ void set(TList* plist, int idx, ITEM it);
 void append(TList* plist, ITEM item);
 void remove(TList* plist, int idx);
 void clear(TList* plist);
+void push(TList* plist, ITEM it);
+int pop(TList* plist, ITEM* it);

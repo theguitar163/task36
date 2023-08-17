@@ -33,6 +33,9 @@
     <ClCompile Include="mazer_recursivedivision.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="finder_deepsearch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="maze.h">

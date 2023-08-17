@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="draw_maze.cpp" />
+    <ClCompile Include="finder_deepsearch.cpp" />
     <ClCompile Include="mazer_recursivedivision.cpp" />
     <ClCompile Include="mazer_deepsearch.cpp" />
     <ClCompile Include="list.cpp" />
