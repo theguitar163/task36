@@ -15,7 +15,9 @@
 
 int main()
 {
-    srand(GetTickCount());	//随机数种子
+    int seed = GetTickCount();
+//    srand(931036593);	//随机数种子
+    srand(GetTickCount());
     initgraph(MAX_COL * CELL_SIZE, MAX_ROW * CELL_SIZE);
 
     BeginBatchDraw();
@@ -26,14 +28,15 @@ int main()
 
     // 深度优先迷宫生成
     createMaze_deepsearch();
-    findPath_deepsearch();
-    _getch();
+   findPath_deepsearch();
+ //   _getch();
 
     // 递归分割迷宫生成
-    createMaze_recursivedivision();
-    findPath_deepsearch();
+//    findPath_deepsearch();
     _getch();
 
     EndBatchDraw();
     closegraph();
+
+    printf("%d\n", seed);
 }

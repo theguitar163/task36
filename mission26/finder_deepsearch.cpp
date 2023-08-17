@@ -4,6 +4,13 @@
 #include "list.h"
 #include "draw_maze.h"
 
+int hasRoad(int x, int y)
+{
+    if (Maze[x - 1][y] == itROAD || Maze[x + 1][y] == itROAD || Maze[x][y - 1] == itROAD || Maze[x][y + 1] == itROAD)
+        return 1;
+    else
+        return 0;
+}
 void findPath_deepsearch()
 {
     int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;
@@ -11,14 +18,13 @@ void findPath_deepsearch()
     initList(&stack, MAX_COL * MAX_ROW);
 
     int x = sx, y = sy;
-    push(&stack, { x, y });
-    Maze[x][y] = itVISITED;
     while (true) {
         // µΩ¥Ô÷’µ„
         if (x == ex && y == ey)
             break;
 
-        if (Maze[x - 1][y] == itROAD || Maze[x + 1][y] == itROAD || Maze[x][y - 1] == itROAD || Maze[x][y + 1] == itROAD) {
+        if (hasRoad(x,y)) {
+
             if (Maze[x + 1][y] == itROAD) {
                 x++;
             }
@@ -34,6 +40,7 @@ void findPath_deepsearch()
             Maze[x][y] = itVISITED;
             push(&stack, { x, y });
             drawCell(x, y, RED);
+
         }
         else {
             ITEM it;
@@ -47,7 +54,14 @@ void findPath_deepsearch()
             FlushBatchDraw();
 //            _getch();
         }
-        FlushBatchDraw();
+
+ /*       if (x == 41 && y == 45) {
+            printf("(%d,%d)%d %d %d %d\n", x, y, Maze[x - 1][y], Maze[x + 1][y], Maze[x][y - 1], Maze[x][y + 1]);
+            drawCell(x, y, GREEN);
+            FlushBatchDraw();
+            _getch();
+        }
+        FlushBatchDraw();*/
     }
     freeList(&stack);
 }
