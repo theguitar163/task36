@@ -1,56 +1,64 @@
 // 迷宫生成算法：递归分割算法（Recursive division）
 // 可以用递归分割法创建迷宫，算法的工作原理如下：
-// 1.开始创建迷宫，使整个空间没有壁，我们称之为“室”。
-// 2.在随机位置生成壁将室分割为两个子室，并在壁上随机开孔，使子室联通。
-// 3.重复步骤2，直到所有子室全部不可分割（即子室某一个维度等于1）。
-// 例如，在矩形迷宫中，在任意点建立彼此垂直的两个壁。 这两个壁将大腔室分成由四个壁分开的四个较小腔室。 
-// 随机选择四个墙壁中的三个，并在三个墙壁的随机点处打开一个单元格的孔。 
+// 1.在矩形迷宫中，在任意点建立彼此垂直的两个壁。 这两个壁将大腔室分成由四个壁分开的四个较小腔室。 
+// 2.随机选择四个墙壁中的三个，并在三个墙壁的随机点处各打开一个单元格的孔。 
 // 继续以这种方式递归，直到每个室在两个方向中的任一个方向上具有一个单元的宽度。
-// 因为没有起点的概念，所以没有起点位置参数，取而代之的是最小面积参数，
-// 这个参数是我用来制造“房间”的，当子空间面积小于这个值就会强制停止分割，
-// 这样就可以造出随机的房间，并在一定程度上避免该算法过于弱智的“一条长长的死胡同”问题。
 #include <conio.h>
 #include "maze.h"
 #include "draw_maze.h"
 
-// 随机获取区间中的偶数
+// 随机获(min, max)取区间中的偶数，不含min和max
+// 若无法取得合适的偶数，则返回-1
 int getEven(int min, int max)
 {
 	if (max - min <= 1)
 		return -1;
-	// Divide both by 2 to ensure the range
+	// 取得随机变化量
 	int num = rand() % (max - min - 1);
+	// 值应大于min
 	num = min + num + 1;
+	// 值应小于max
 	if (num >= max)
 		return -1;
-	if (num % 2 != 0)
+	// 若非偶数
+	if (num % 2 != 0) {
+		// 尝试增1
 		if (num + 1 < max)
 			return num + 1;
+		// 尝试减1
 		else if (num - 1 > min)
 			return num - 1;
 		else
 			return -1;
+	}
 	else
 		return num;
 }
 
-// 随机获取区间中的偶数
+// 随机获取(min, max)区间中的奇数，不含min和max
+// 若无法取得合适的奇数，则返回-1
 int getOdd(int min, int max)
 {
 	if (max - min <= 1)
 		return -1;
-	// Divide both by 2 to ensure the range
+	// 取得随机变化量
 	int num = rand() % (max - min - 1);
+	// 值应大于min
 	num = min + num + 1;
+	// 值应小于max
 	if (num >= max)
 		return -1;
-	if (num % 2 != 1)
+	// 若非奇数
+	if (num % 2 != 1) {
+		// 尝试增1
 		if (num + 1 < max)
 			return num + 1;
+		// 尝试减1
 		else if (num - 1 > min)
 			return num - 1;
 		else
 			return -1;
+	}
 	else
 		return num;
 }
