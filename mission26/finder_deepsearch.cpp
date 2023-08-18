@@ -1,3 +1,4 @@
+// 迷宫寻路算法：深度优先遍历
 #include <stdio.h>
 #include <conio.h>
 #include "maze.h"
@@ -49,7 +50,7 @@ void findPath_deepsearch()
         }
         else {
             ITEM it;
-            if (!pop(&stack, &it)) {
+            if (!pop_stack(&stack, &it)) {
                 printf("why?");
                 break;
             }

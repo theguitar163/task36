@@ -52,24 +52,24 @@ void through(int x, int y, TList* pRoadList)
 
 bool check(int x, int y)
 {
-	bool temp = 0;
+	bool result = 0;
 	//ио
 	if (y - 2 >= 0 && Maze[x][y - 2] == itWALL) {
-		temp = 1;
+		result = 1;
 	}
 	//об
 	if (y + 2 <= MAX_ROW - 1 && Maze[x][y + 2] == itWALL) {
-		temp = 1;
+		result = 1;
 	}
 	//вС
 	if (x - 2 >= 0 && Maze[x - 2][y] == itWALL) {
-		temp = 1;
+		result = 1;
 	}
 	//ср
 	if (x + 2 <= MAX_COL - 1 && Maze[x + 2][y] == itWALL) {
-		temp = 1;
+		result = 1;
 	}
-	return temp;
+	return result;
 }
 
 void createMaze_deepsearch()

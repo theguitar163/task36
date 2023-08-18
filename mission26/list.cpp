@@ -46,12 +46,24 @@ void push(TList* plist, ITEM item)
     append(plist, item);
 }
 
-int pop(TList* plist, ITEM* item)
+int pop_stack(TList* plist, ITEM* item)
 {
     if (plist->size > 0) {
         item->x = plist->array[plist->size - 1].x;
         item->y = plist->array[plist->size - 1].y;
         plist->size--;
+        return 1;
+    }
+    else
+        return 0;
+}
+
+int pop_queue(TList* plist, ITEM* item)
+{
+    if (plist->size > 0) {
+        item->x = plist->array[0].x;
+        item->y = plist->array[0].y;
+        remove(plist, 0);
         return 1;
     }
     else

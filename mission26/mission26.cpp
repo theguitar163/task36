@@ -3,7 +3,6 @@
 // (1) 创建一个随机的迷宫，要求该迷宫有且仅有一条从起点通往终点的路线，同时，任何位置都不存在环路。
 // (2) 自动求解从起点通往终点的路线。
 
-// 迷宫寻路算法：深度优先遍历
 // 迷宫寻路算法：广度优先遍历
 // 迷宫寻路算法：A - Star
 #include <stdio.h>
@@ -25,7 +24,7 @@ int main()
     // PRIM迷宫生成
     createMaze_prim();
     _getch();
-    findPath_deepsearch();
+    findPath_broadsearch();
     _getch();
 
     // 深度优先迷宫生成

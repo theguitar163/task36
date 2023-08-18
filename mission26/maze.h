@@ -12,8 +12,11 @@
 
 extern BYTE Maze[MAX_COL][MAX_ROW];
 
+int hasRoad(int x, int y);
+
 void createMaze_prim();
 void createMaze_deepsearch();
 void createMaze_recursivedivision();
 
 void findPath_deepsearch();
+void findPath_broadsearch();

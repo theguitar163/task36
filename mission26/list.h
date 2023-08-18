@@ -20,4 +20,5 @@ void append(TList* plist, ITEM item);
 void remove(TList* plist, int idx);
 void clear(TList* plist);
 void push(TList* plist, ITEM it);
-int pop(TList* plist, ITEM* it);
+int pop_stack(TList* plist, ITEM* it);
+int pop_queue(TList* plist, ITEM* it);
