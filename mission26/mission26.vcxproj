@@ -135,11 +135,13 @@
     <ClCompile Include="list.cpp" />
     <ClCompile Include="mission26.cpp" />
     <ClCompile Include="mazer_prim.cpp" />
+    <ClCompile Include="tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw_maze.h" />
     <ClInclude Include="list.h" />
     <ClInclude Include="maze.h" />
+    <ClInclude Include="tree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

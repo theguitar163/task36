@@ -12,6 +12,7 @@ int hasRoad(int x, int y)
     else
         return 0;
 }
+
 void findPath_deepsearch()
 {
     int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;

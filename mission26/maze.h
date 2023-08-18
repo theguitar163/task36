@@ -10,6 +10,16 @@
 #define itWAIT 2
 #define itVISITED 3
 
+#define MAX_CHILDREN 4
+
+typedef struct tagItem {
+    int x;
+    int y;
+    // 以下为实现广度优先寻路算法，实现路径记录而建立树形节点
+    struct tagItem* pparent = NULL;
+    struct tagItem* pchildren[MAX_CHILDREN] = { NULL };
+} ITEM;
+
 extern BYTE Maze[MAX_COL][MAX_ROW];
 
 int hasRoad(int x, int y);

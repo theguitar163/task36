@@ -30,13 +30,13 @@ int main()
     // 深度优先迷宫生成
     createMaze_deepsearch();
     _getch();
-    findPath_deepsearch();
+    findPath_broadsearch();
     _getch();
 
     // 递归分割迷宫生成
     createMaze_recursivedivision();
     _getch();
-    findPath_deepsearch();
+    findPath_broadsearch();
     _getch();
 
     EndBatchDraw();
