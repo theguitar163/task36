@@ -39,6 +39,12 @@
     <ClCompile Include="finder_broadsearch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="tree.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="finder_astarsearch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="maze.h">
@@ -48,6 +54,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="draw_maze.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tree.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
