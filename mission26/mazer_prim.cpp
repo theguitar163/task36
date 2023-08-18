@@ -117,7 +117,7 @@ void createMaze_prim()
         addWall(wait.x, wait.y, &waitList);
         // 从列表中删除此格
         remove(&waitList, idx);
-        drawMaze();
+//        drawMaze();
     }
 
     drawMaze();

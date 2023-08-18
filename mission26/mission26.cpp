@@ -23,16 +23,21 @@ int main()
     BeginBatchDraw();
 
     // PRIM迷宫生成
-//    createMaze_prim();
-//    _getch();
+    createMaze_prim();
+    _getch();
+    findPath_deepsearch();
+    _getch();
 
     // 深度优先迷宫生成
     createMaze_deepsearch();
-   findPath_deepsearch();
- //   _getch();
+    _getch();
+    findPath_deepsearch();
+    _getch();
 
     // 递归分割迷宫生成
-//    findPath_deepsearch();
+    createMaze_recursivedivision();
+    _getch();
+    findPath_deepsearch();
     _getch();
 
     EndBatchDraw();

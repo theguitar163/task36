@@ -18,6 +18,10 @@ void findPath_deepsearch()
     initList(&stack, MAX_COL * MAX_ROW);
 
     int x = sx, y = sy;
+    Maze[x][y] = itVISITED;
+    push(&stack, { x, y });
+    drawCell(x, y, RED);
+    FlushBatchDraw();
     while (true) {
         // µΩ¥Ô÷’µ„
         if (x == ex && y == ey)
@@ -40,6 +44,7 @@ void findPath_deepsearch()
             Maze[x][y] = itVISITED;
             push(&stack, { x, y });
             drawCell(x, y, RED);
+            FlushBatchDraw();
 
         }
         else {
@@ -50,8 +55,12 @@ void findPath_deepsearch()
             }
             x = it.x;
             y = it.y;
-            drawCell(x, y, YELLOW);
-            FlushBatchDraw();
+            if (hasRoad(x, y))
+                push(&stack, it);
+            else {
+                drawCell(x, y, YELLOW);
+                FlushBatchDraw();
+            }
 //            _getch();
         }
 

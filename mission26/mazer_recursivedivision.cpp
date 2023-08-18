@@ -123,7 +123,7 @@ void divide(RECT r)
 		}
 	}
 
-    drawMaze();
+ //   drawMaze();
     // ¼ÌÐøµÝ¹é
 	divide({ r.left, r.top, wallX, wallY });
 	divide({ wallX, r.top, r.right, wallY });
@@ -142,4 +142,5 @@ void createMaze_recursivedivision()
         }
     }
 	divide({ 0, 0, MAX_COL - 1, MAX_ROW - 1 });
+	drawMaze();
 }
