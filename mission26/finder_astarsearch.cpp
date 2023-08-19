@@ -7,13 +7,13 @@
 #include "draw_maze.h"
 
 
-void visit(TListp* plist, ITEM* pitem)
+/*void visit(TListp* plist, ITEM* pitem)
 {
     Maze[pitem->x][pitem->y] = itVISITED;
     push(plist, pitem);
 }
 
-void finditROAD_astarsearch()
+void findROAD_astarsearch()
 {
     int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;
     TListp queue;
@@ -79,169 +79,102 @@ void finditROAD_astarsearch()
     }
     freeList(&queue);
     freeTree(proot);
-}
+}*/
 
-class A_Container
+int findMinNode(TListp* plist)
 {
-	struct Node
-	{
-		int x, y;
-		int gVal, hVal, fVal;
-		Node* parent;
-		Node(int _x, int _y, int _g, int _h, Node* _p) :x(_x), y(_y), gVal(_g), hVal(_h), fVal(_g + _h), parent(_p) {}
-	};
-private:
-	Point2 destPos;								// 目标位置
-	std::vector<Node*> closeList;				// closeList 容器
-	std::multiset<Node*, Compare> openList;		// openList 自动排序
-	Node* p_destNode = nullptr;					// 用于返回终点的位置指针
-public:
-
-	~A_Container()
-	{
-		for (auto& no : openList) delete no;
-		for (auto& no : closeList) delete no;
-	}
-
-	// 当前节点的邻居加入 openList
-	void pushOpenList(ITEM _p2)
-	{
-		int gVal = 0;
-		Node* par = nullptr;
-		if (!closeList.empty()) {
-			par = *(--closeList.end()); 
-			gVal = par->gVal + 1; 
-		}
-		Node* temp = new Node(_p2.x, _p2.y, gVal, abs(_p2.x - destPos.x) + abs(_p2.y - destPos.y), par);
-		if (_p2.x == destPos.x && _p2.y == destPos.y) 
-			p_destNode = temp;
-		openList.insert(temp);
-		temp = nullptr;
-	}
-
-	// 从 openList 中取出 fVal 值最小的节点加入 closeList
-	auto getMinNode()
-	{
-		auto it = openList.begin();
-		Point2 ret((*it)->x, (*it)->y);
-		closeList.push_back(*it);
-		openList.erase(it);
-		return ret;
-	}
-
-	// 获取寻路终点，用于回溯得到最短路径
-	Node* getDestNode() 
-	{ 
-		return p_destNode; 
-	}
-
-};
-
-ITEM findMinNode(TList* plist)
-{
+	ITEM* pcur, * pmin;
 	int idx = 0;
-	for (int i = 0; i < plist->size; i++) {
-		if (plist->array[i].Gx + plist->array[i].Hx < plist->array[idx].Gx + plist->array[idx].Hx)
+	for (int i = 1; i < plist->size; i++) {
+		pmin = plist->array[idx];
+		pcur = plist->array[i];
+		if (pcur->Gx + pcur->Hx < pmin->Gx + pmin->Hx)
 			idx = i;
 	}
-	return plist->array[idx];
+	return idx;
 }
 
-void pushNode(TList* plist, ITEM item)
+// 计算欧氏距离
+int calcHx(ITEM* it1, int ex, int ey)
 {
-	int gVal = 0;
-	Node* par = nullptr;
-	if (closeList.size>0) {
-		par = *(--closeList.end());
-		gVal = par->gVal + 1;
-	}
-	Node* temp = createNode(item.x, item.y);
-	gVal, abs(_p2.x - destPos.x) + abs(_p2.y - destPos.y), par);
-	if (_p2.x == destPos.x && _p2.y == destPos.y)
-		p_destNode = temp;
-	openList.insert(temp);
-	temp = nullptr;
+	return abs(it1->x - ex) + abs(it1->y - ey);
 }
 
-// 计算欧式距离
-int calcHx(ITEM it1, ITEM it2)
-{
-	return abs(it1.x - it2.x) + abs(it1.y - it2.y);
-}
-
-boolean canAddopenList(int x, int y) 
+int isRoad(int x, int y)
 {
 	// 不能越界
-	if (x < 0 || x >= map.n || y < 0 || y >= map.n)
+	if (x < 0 || x >= MAX_COL || y < 0 || y >= MAX_ROW)
 		return 0;
-	// 不能等于墙
-	if (map.map[y][x] == itWALL)
-		return 0;
-	if (isInList(&closeList, x, y))
-		return 0;
-	if (isInList(&openList, x, y))
-		return 0;
-	// 以上判断判断都不符合，可以加入
-	return 1;
-}
-
-void addNode(ITEM curr, ITEM next)
-{
-	if (hasRoad(curr.x, curr.y)) {
-		// 当前的距离加1
-		int Gx = curr.Gx + 1;
-		// 这是与目标的距离
-		int Hx = calcHx(curr, end);
-		// 判断是否在终点
-		if (isEnd(next, end)) {
-			next = end;
-			next.pparent = &curr;
-			next.Gx = Gx;
-			next.Hx = calcHx(next, end);
-		}
-		// 如果不在，继续寻找
-		else
-			next = new Point(next, curr, Gx, Hx);
-		// 加入放入可移动的路径
-		append(&openList, next);
-	}
-}
-
-int isInList(TList* plist, int x, int y)
-{
-	for (int i = 0; i < plist->size; i++) {
-		if (x == plist->array[i].x && y == plist->array[i].y)
-			return 1;
-	}
+	// 等于道路
+	if (Maze[y][x] == itROAD)
+		return 1;
+	// 否则返回0
 	return 0;
 }
 
-void Go() 
+void findPath_astarsearch()
 {
-	TList openList;
-	TList closeList;
+	int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;
+	TListp openList;
+	TListp closeList;
+	int dir[4][2] = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
 	initList(&openList, MAX_COL * MAX_ROW);
 	initList(&closeList, MAX_COL * MAX_ROW);
 
-	openList.add(start);
-	while (openList.size>0) {
-		ITEM curr = findMinNode(&openList);
-		remove(&openList, curr);
-		append(&closeList, curr);
-		int x = curr.x;
-		int y = curr.y;
+	ITEM* pstart = createNode({ sx, sy });
+	ITEM* pend;
+	ITEM* pcur;
+	append(&openList, pstart);
 
-		addNode(curr, x - 1, y);	//左
-		addNode(curr, x + 1, y);	//右
-		addNode(curr, x, y - 1);	//上
-		addNode(curr, x, y + 1);	//下
-		if (isInList(&closeList, end.x, end.y)) {
-			drawPath(map.map, map.end);
+	int found = 0;
+	while (openList.size>0) {
+		// 在 openList 中查找预估最短路径的节点
+		int curidx = findMinNode(&openList);
+		pcur = get(&openList, curidx);
+		Maze[pcur->x][pcur->y] = itVISITED;
+		// 从 openList 中移除该节点
+		remove(&openList, curidx);
+		// 将该节点加入 closeList 中
+		append(&closeList, pcur);
+
+		if (pcur->x == ex && pcur->y == ey) {
+			found = 1;
 			break;
+		}
+
+		for (int i = 0; i < 4; i++) {
+			int nx = pcur->x + dir[i][0];
+			int ny = pcur->y + dir[i][1];
+			if (isRoad(nx, ny)) {
+				ITEM* pnext = createNode({ nx, ny });
+				pnext->pparent = pcur;
+				// Gx为从起点到pnext点的步长
+				pnext->Gx = pcur->Gx + 1;
+				// Hx为pnext点到终点的欧氏距离
+				pnext->Hx = calcHx(pnext, ex, ey);
+
+				// 加入放入可移动的路径
+				append(&openList, pnext);
+			}
+		}
+	}
+
+	if (found) {
+		pcur = pend;
+		while (true) {
+			drawCell(pcur->x, pcur->y, RED);
+			FlushBatchDraw();
+			pcur = getParent(pcur);
+			if (pcur == pstart) {
+				drawCell(pcur->x, pcur->y, RED);
+				FlushBatchDraw();
+				break;
+			}
 		}
 	}
 }
 
+/*
 void A_find()
 {
 	TList openList;		// 可移动路径（按F值自动排序）
@@ -266,6 +199,21 @@ void A_find()
 		if (Maze[pcur.x - 1][pcur.y] == itROAD) {
 			Maze[pcur.x - 1][pcur.y] = itVISITED;
 			push(&openList, Point2(pcur.x - 1, pcur.y));
+
+
+			int gVal = 0;
+			Node* par = nullptr;
+			if (!closeList.empty()) {
+				par = *(--closeList.end());
+				gVal = par->gVal + 1;
+			}
+			Node* temp = new Node(_p2.x, _p2.y, gVal, abs(_p2.x - destPos.x) + abs(_p2.y - destPos.y), par);
+			if (_p2.x == destPos.x && _p2.y == destPos.y)
+				p_destNode = temp;
+			openList.insert(temp);
+			temp = nullptr;
+
+
 			drawCell(pcur.x - 1, pcur.y, RGB(0, 255, 255));
 			if (start == Point2(pcur.x - 1, pcur.y)) break;
 		}
@@ -298,3 +246,4 @@ void A_find()
 		drawCell(st->x, st->y, RGB(255, 0, 0));
 	}
 }
+*/
