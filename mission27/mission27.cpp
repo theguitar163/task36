@@ -71,7 +71,7 @@ int main()
         lines[++idx] = line;
     }
 
-    for (int i = 0; i < sizeof(lines) / sizeof(lines[0]); i++) {
+    for (int i = 0; i < cnt; i++) {
         printf("%s\n", lines[i]);
         outtextxy(0, i * 20, lines[i]);
     }
