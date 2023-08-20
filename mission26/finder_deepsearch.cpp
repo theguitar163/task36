@@ -5,14 +5,6 @@
 #include "list.h"
 #include "draw_maze.h"
 
-int hasRoad(int x, int y)
-{
-    if (Maze[x - 1][y] == itROAD || Maze[x + 1][y] == itROAD || Maze[x][y - 1] == itROAD || Maze[x][y + 1] == itROAD)
-        return 1;
-    else
-        return 0;
-}
-
 void findPath_deepsearch()
 {
     int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;

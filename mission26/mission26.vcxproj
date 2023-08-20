@@ -131,6 +131,7 @@
     <ClCompile Include="finder_astarsearch.cpp" />
     <ClCompile Include="finder_broadsearch.cpp" />
     <ClCompile Include="finder_deepsearch.cpp" />
+    <ClCompile Include="maze.cpp" />
     <ClCompile Include="mazer_recursivedivision.cpp" />
     <ClCompile Include="mazer_deepsearch.cpp" />
     <ClCompile Include="list.cpp" />

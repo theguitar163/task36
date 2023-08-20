@@ -24,6 +24,9 @@ int main()
     // PRIM迷宫生成
     createMaze_prim();
     _getch();
+    findPath_astarsearch();
+    _getch();
+    clearMaze();
     findPath_broadsearch();
     _getch();
 

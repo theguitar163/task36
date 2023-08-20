@@ -122,7 +122,7 @@ void findPath_astarsearch()
 	initList(&closeList, MAX_COL * MAX_ROW);
 
 	ITEM* pstart = createNode({ sx, sy });
-	ITEM* pend;
+	ITEM* pend = NULL;
 	ITEM* pcur;
 	append(&openList, pstart);
 
@@ -132,12 +132,16 @@ void findPath_astarsearch()
 		int curidx = findMinNode(&openList);
 		pcur = get(&openList, curidx);
 		Maze[pcur->x][pcur->y] = itVISITED;
+
+		drawCell(pcur->x, pcur->y, LIGHTRED);
+		FlushBatchDraw();
 		// 从 openList 中移除该节点
 		remove(&openList, curidx);
 		// 将该节点加入 closeList 中
 		append(&closeList, pcur);
 
 		if (pcur->x == ex && pcur->y == ey) {
+			pend = pcur;
 			found = 1;
 			break;
 		}
@@ -155,6 +159,8 @@ void findPath_astarsearch()
 
 				// 加入放入可移动的路径
 				append(&openList, pnext);
+				drawCell(pcur->x, pcur->y, YELLOW);
+				FlushBatchDraw();
 			}
 		}
 	}
@@ -172,6 +178,8 @@ void findPath_astarsearch()
 			}
 		}
 	}
+	freeList(&openList);
+	freeList(&closeList);
 }
 
 /*
