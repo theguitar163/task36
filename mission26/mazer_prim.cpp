@@ -19,8 +19,6 @@
 #include "maze.h"
 #include "draw_maze.h"
 
-BYTE Maze[MAX_COL][MAX_ROW];
-
 // 将(rx，ry)四个方向[隔壁的隔壁]还是墙壁状态的路点加入待选列表
 // 并且将这些路点从墙壁状态改为待定状态（主要用于过程展示） 
 //   → ■                       ☑

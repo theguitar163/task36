@@ -26,7 +26,8 @@ typedef struct tagItem {
 extern BYTE Maze[MAX_COL][MAX_ROW];
 
 int hasRoad(int x, int y);
-void clearMaze();
+int isRoad(int x, int y);
+void restoreMaze();
 
 void createMaze_prim();
 void createMaze_deepsearch();

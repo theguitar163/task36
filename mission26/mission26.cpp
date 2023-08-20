@@ -26,7 +26,7 @@ int main()
     _getch();
     findPath_astarsearch();
     _getch();
-    clearMaze();
+    restoreMaze();
     findPath_broadsearch();
     _getch();
 

@@ -6,7 +6,7 @@
 #include "tree.h"
 #include "draw_maze.h"
 
-
+// 查找列表内预估距离最短的节点
 int findMinNode(TListp* plist)
 {
 	ITEM* pcur, * pmin;
@@ -24,18 +24,6 @@ int findMinNode(TListp* plist)
 int calcHx(ITEM* it1, int ex, int ey)
 {
 	return abs(it1->x - ex) + abs(it1->y - ey);
-}
-
-int isRoad(int x, int y)
-{
-	// 不能越界
-	if (x < 0 || x >= MAX_COL || y < 0 || y >= MAX_ROW)
-		return 0;
-	// 等于道路
-	if (Maze[x][y] == itROAD)
-		return 1;
-	// 否则返回0
-	return 0;
 }
 
 void findPath_astarsearch()
@@ -70,7 +58,7 @@ void findPath_astarsearch()
 			found = 1;
 			break;
 		}
-
+		// 采用循环方式试探四个方向是否有路
 		for (int i = 0; i < 4; i++) {
 			int nx = pcur->x + dir[i][0];
 			int ny = pcur->y + dir[i][1];
@@ -91,9 +79,10 @@ void findPath_astarsearch()
 			}
 		}
 	}
-
+	// 找到终点
 	if (found) {
 		pcur = pend;
+		// 从终点起按照父指针
 		while (true) {
 			drawCell(pcur->x, pcur->y, RED);
 			FlushBatchDraw();
