@@ -28,6 +28,8 @@ int calcHx(ITEM* it1, int ex, int ey)
 
 void findPath_astarsearch()
 {
+	restoreMaze();
+	drawMaze();
 	int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;
 	TListp openList;
 	TListp closeList;

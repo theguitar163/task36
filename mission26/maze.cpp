@@ -17,7 +17,7 @@ void restoreMaze()
 }
 
 // 判断周围是否存在道路
-int hasRoad(int x, int y)
+int hasRoadOut(int x, int y)
 {
     if (Maze[x - 1][y] == itROAD || Maze[x + 1][y] == itROAD || Maze[x][y - 1] == itROAD || Maze[x][y + 1] == itROAD)
         return 1;

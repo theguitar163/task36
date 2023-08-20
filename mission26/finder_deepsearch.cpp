@@ -7,6 +7,8 @@
 
 void findPath_deepsearch()
 {
+    restoreMaze();
+    drawMaze();
     int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;
     TList stack;
     initList(&stack, MAX_COL * MAX_ROW);
@@ -21,7 +23,7 @@ void findPath_deepsearch()
         if (x == ex && y == ey)
             break;
 
-        if (hasRoad(x,y)) {
+        if (hasRoadOut(x,y)) {
 
             if (Maze[x + 1][y] == itROAD) {
                 x++;
@@ -49,7 +51,7 @@ void findPath_deepsearch()
             }
             x = it.x;
             y = it.y;
-            if (hasRoad(x, y))
+            if (hasRoadOut(x, y))
                 push(&stack, it);
             else {
                 drawCell(x, y, YELLOW);

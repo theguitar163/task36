@@ -15,6 +15,8 @@ void visit(TListp* plist, ITEM* pitem)
 
 void findPath_broadsearch()
 {
+    restoreMaze();
+    drawMaze();
     int sx = 1, sy = 1, ex = MAX_COL - 2, ey = MAX_ROW - 2;
     TListp queue;
     initList(&queue, MAX_COL * MAX_ROW);
@@ -40,7 +42,7 @@ void findPath_broadsearch()
             break;
         }
 
-        if (hasRoad(pcur->x, pcur->y)) {
+        if (hasRoadOut(pcur->x, pcur->y)) {
             if (Maze[pcur->x + 1][pcur->y] == itROAD) {
                 pchild = createNode({ pcur->x + 1, pcur->y });
                 addChild(pcur, pchild);
