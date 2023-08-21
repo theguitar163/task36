@@ -57,8 +57,7 @@ void initText(TText* ptext, TCHAR* fname)
         ptext->lines[idx] = line;
         while (line != NULL) {
             line = wcstok_s(NULL, L"\n", &ptr);  //其他的使用与strtok()函数相同
-            ptext->lineCnt++;
-            ptext->lines[ptext->lineCnt] = line;
+            ptext->lines[++idx] = line;
         }
     }
     fclose(fp);
