@@ -79,7 +79,7 @@ void initText(TText* ptext, TCHAR* fname)
     else {
         //setlocale(LC_CTYPE,"Chinese-simplified"); // zh_CN.UTF-8
         setlocale(LC_ALL, "zh-CN");
-        if (_wfopen_s(&fp, fname, L"rb") != 0) return;
+        if (_wfopen_s(&fp, fname, L"r") != 0) return;
     }
 
     TCHAR* line;
