@@ -74,17 +74,20 @@ void initText(TText* ptext, TCHAR* fname)
         if (_wfopen_s(&fp, fname, L"rt,ccs=UTF-8") != 0) return;
     }
     else {
-        if (_wfopen_s(&fp, fname, L"rt") != 0) return;
-        setlocale(LC_CTYPE, "Chinese-simplified");
+        setlocale(LC_CTYPE,"Chinese-simplified");
+        int iLength = WideCharToMultiByte(CP_ACP, 0, fname, -1, NULL, 0, NULL, NULL); ;//CString,TCHAR汉字算一个字符，因此不用普通计算长度 
+        char* _char = new char[iLength + 1];
+        WideCharToMultiByte(CP_ACP, 0, fname, -1, _char, iLength, NULL, NULL);
+        if (fopen_s(&fp, _char, "rt") != 0) return;
     }
 
 
     fseek(fp, 0, SEEK_END);
     ptext->buffsize = ftell(fp);
-    ptext->buff = (TCHAR*)malloc(ptext->buffsize);
+    ptext->buff = (TCHAR*)malloc(ptext->buffsize+1);
     if (ptext->buff != NULL) {
         fseek(fp, 0, SEEK_SET);
-        fread(ptext->buff, sizeof(TCHAR), ptext->buffsize, fp);
+        fread(ptext->buff, 1, ptext->buffsize, fp);
 
         ptext->lineCnt = 0;
         for (int i = 0; i < ptext->buffsize; i++) {
