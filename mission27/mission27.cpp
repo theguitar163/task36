@@ -24,10 +24,11 @@
 #include <easyx.h>
 #include <locale.h>
 
+#define MAX_LINE 10000
+#define MAX_LEN  1000
+
 typedef struct tagText {
-    TCHAR* buff;
-    int buffsize;
-    TCHAR** lines;
+    TCHAR* lines[MAX_LINE];
     int lineCnt;
 } TText;
 
@@ -37,8 +38,14 @@ typedef struct tagText {
 #define UTF8      4
 #define ANSI      5
 
-int getEncodeType(unsigned char* buff)
+int fileEncodeType(TCHAR* fname)
 {
+    unsigned char buff[10] = { 0 };
+    FILE* fp;
+    if (_wfopen_s(&fp, fname, L"rb") != 0) return 0;
+    fread(buff, 1, 10, fp);
+    fclose(fp);
+
     if ((0xFF & buff[0]) == 0xEF && (0xFF & buff[1]) == 0xBB && (0xFF & buff[2]) == 0xBF) {
         return UTF8BOM;
     }
@@ -60,12 +67,8 @@ int getEncodeType(unsigned char* buff)
 }
 void initText(TText* ptext, TCHAR* fname)
 {
-    unsigned char buff[10] = { 0 };
     FILE* fp;
-    if (_wfopen_s(&fp, fname, L"rb") != 0) return;
-    fread(buff, 1, 10, fp);
-    fclose(fp);
-    int codetype = getEncodeType(buff);
+    int codetype = fileEncodeType(fname);
 
     if (codetype == UTF8BOM || codetype == UNICODELE || codetype == UNICODEBE) {
         if (_wfopen_s(&fp, fname, L"rt,ccs=UNICODE") != 0) return;
@@ -74,46 +77,50 @@ void initText(TText* ptext, TCHAR* fname)
         if (_wfopen_s(&fp, fname, L"rt,ccs=UTF-8") != 0) return;
     }
     else {
-        setlocale(LC_CTYPE,"Chinese-simplified");
-        int iLength = WideCharToMultiByte(CP_ACP, 0, fname, -1, NULL, 0, NULL, NULL); ;//CString,TCHAR汉字算一个字符，因此不用普通计算长度 
-        char* _char = new char[iLength + 1];
-        WideCharToMultiByte(CP_ACP, 0, fname, -1, _char, iLength, NULL, NULL);
-        if (fopen_s(&fp, _char, "rt") != 0) return;
+        //setlocale(LC_CTYPE,"Chinese-simplified"); // zh_CN.UTF-8
+        setlocale(LC_ALL, "zh-CN");
+        if (_wfopen_s(&fp, fname, L"rb") != 0) return;
     }
 
-
-    fseek(fp, 0, SEEK_END);
-    ptext->buffsize = ftell(fp);
-    ptext->buff = (TCHAR*)malloc(ptext->buffsize+1);
-    if (ptext->buff != NULL) {
-        fseek(fp, 0, SEEK_SET);
-        fread(ptext->buff, 1, ptext->buffsize, fp);
-
-        ptext->lineCnt = 0;
-        for (int i = 0; i < ptext->buffsize; i++) {
-            if (ptext->buff[i] == '\n')
-                ptext->lineCnt++;
+    TCHAR* line;
+    ptext->lineCnt = 0;
+    while (true) {
+        line = (TCHAR*)calloc(MAX_LEN, sizeof(TCHAR));
+        TCHAR* p = fgetws(line, MAX_LEN+1, fp);
+        if (p != NULL) {
+            ptext->lines[ptext->lineCnt] = p;
+            ptext->lineCnt++;
         }
-        ptext->lines = (TCHAR**)malloc(sizeof(TCHAR*) * ptext->lineCnt);
-
-        TCHAR* line = NULL;
-        TCHAR* ptr = NULL;
-        //相较于strtok()函数，strtok_s函数需要用户传入一个指针，用于函数内部判断从哪里开始处理字符串
-        line = wcstok_s((TCHAR*)ptext->buff, L"\n", &ptr);
-        int idx = 0;
-        ptext->lines[idx] = line;
-        while (line != NULL) {
-            line = wcstok_s(NULL, L"\n", &ptr);  //其他的使用与strtok()函数相同
-            ptext->lines[++idx] = line;
-        }
+        else
+            break;
     }
+
+/*    ptext->lineCnt = 0;
+    for (int i = 0; i < ptext->buffsize; i++) {
+        if (ptext->buff[i] == '\n')
+            ptext->lineCnt++;
+    }
+
+    TCHAR* line = NULL;
+    TCHAR* ptr = NULL;
+    //相较于strtok()函数，strtok_s函数需要用户传入一个指针，用于函数内部判断从哪里开始处理字符串
+    line = wcstok_s((TCHAR*)ptext->buff, L"\n", &ptr);
+    int idx = 0;
+    ptext->lines[idx] = line;
+    while (line != NULL) {
+        line = wcstok_s(NULL, "\n", &ptr);  //其他的使用与strtok()函数相同
+        ptext->lines[++idx] = line;
+    }
+    */
     fclose(fp);
 }
 
 void freeText(TText* ptext)
 {
-    free(ptext->buff);
-    free(ptext->lines);
+    for (int i = 0; i < ptext->lineCnt; i++) {
+        free(ptext->lines[i]);
+    }
+    //free(ptext->lines);
 }
 
 void onLoadText(TText* ptext)
@@ -125,7 +132,7 @@ void onLoadText(TText* ptext)
     ofn.lStructSize = sizeof(ofn); // 结构大小
     ofn.lpstrFile = szFile;	       //接收返回的文件名，注意第一个字符需要为NULL
     ofn.nMaxFile = MAX_PATH;       // 路径大小
-    ofn.lpstrFilter = TEXT("文本文件(txt)\0*.txt; *.html;\0\0"); // 文件类型
+    ofn.lpstrFilter = TEXT("文本文件(txt)\0*.txt; *.cpp; *.html;\0\0"); // 文件类型
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // 标志
     if (GetOpenFileName(&ofn)) {
         initText(ptext, ofn.lpstrFile);
@@ -142,7 +149,7 @@ int main()
     TText text;
     onLoadText(&text);
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < text.lineCnt; i++) {
         outtextxy(0, i * 20, text.lines[i]);
     }
 
