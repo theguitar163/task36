@@ -35,43 +35,21 @@ typedef struct tagText {
     int lineCnt;
 } TText;
 
-/*根据msdn描述，如果参数为ccs = UNICODE，则
-如果文件没有BOM头，则编码为ANSI，相当于没有写css =
-如果文件BOM为UTF - 8，则编码为UTF - 8，相当于写了css = UTF - 8
-如果文件BOM为UTF - 16LE，则编码为UTF - 16LE，相当于写了css = UTF - 16LE
-
-Windows自带的Notepad(记事本)程序，可以保存的编码格式有
-ANSI
-Unicode:特指Unicode little endian，即第一段中的UTF - 16LE)
-Unicode big endian(注：此编码在第一段中没有对应的ccs)
-UTF - 8
-
-根据实际测试
-代码中必须使用_wfopen / fgetws，如果使用fopen则fgets时报错
-如果文件编码为ANSI，则需要使用setlocale(LC_CTYPE, "Chinese-simplified")，
-如果是UNICODE(UTF - 8、UTF - 16LE)则不需要。
-（注：locale问题和本文无关，只是顺便提一下，免得写代码时不小心遗漏了）
-
-总结：
-1. 如果文件编码为UNICODE(UTF - 8、UTF - 16LE)，不使用ccs = UNICODE则取出来的格式不正确。（当然，可以以二进制方式"rb"打开，自己转化）
-2. 如果文件编码为UNICODE(UTF - 8、UTF - 16LE)，但没有BOM头，则需要用css = UTF - 8、css = UTF - 16LE来指明编码，不可直接用ccs = UNICODE，否则就当成了ANSI编码。
-3. 记事本中如果保存编码格式为Unicode big endian，则无法使用 ccs = UNICODE 这个功能
-4. 如果用了ccs = UNICODE，则必须使用宽字符格式的相应函数，即便文件本身编码是ANSI格式
-5. 如果文件本身编码是ANSI格式，别忘了setlocale
-*/
 // 文本文件编码格式分类两类
-// 1.包含BOM
+// 1.文件头包含BOM
 // （1）Unicode(little endian)：前四个字节“FF FE 25 4E”，其中“FF FE”表明是小头方式存储，
 // （2）Unicode big endian：前四个字节“FE FF ”，其中“FE FF”表明是大头方式存储。
 // （3）UTF-8：前三个字节“EF BB BF”
-// 2.不包含BOM
-// （1）ANSI：GB2312编码，是采用大头方式存储的。它的存储顺序与编码顺序是一致的。
-// （2）UTF-8：
+// 上述包含了BOM的文件，在打开文件时加上ccs=UNICODE即可正确读取
+// 2.文件头不包含BOM
+// （1）ANSI：汉字编码通过设定区域setlocale(LC_ALL, "zh-CN")确保正确读取
+// （2）UTF-8：打开文件时需要使用ccs=UTF-8来保证正确读取
+// （3）UTF-16：打开文件时需要使用ccs=UTF-16来保证正确读取
 #define UTF8BOM   1
 #define UNICODELE 2
 #define UNICODEBE 3
 #define UTF8      4
-#define ANSI      5
+#define GBK       5
 
 // 通过读取少量文件头，判断文件编码格式
 int fileEncodeType(TCHAR* fname)
@@ -83,22 +61,30 @@ int fileEncodeType(TCHAR* fname)
     fread(buff, 1, 10, fp);
     fclose(fp);
 
+    // 前三字节为EF BB BF
     if ((0xFF & buff[0]) == 0xEF && (0xFF & buff[1]) == 0xBB && (0xFF & buff[2]) == 0xBF) {
         return UTF8BOM;
     }
+    // 前两字节为FF FE
     else if ((0xFF & buff[0]) == 0xFF && (0xFF & buff[1]) == 0xFE) {
         return UNICODELE;
     }
+    // 前两字节为FE FF
     else if ((0xFF & buff[0]) == 0xFE && (0xFF & buff[1]) == 0xFF) {
         return UNICODEBE;
     }
-    else if ((((0xFF & buff[0]) & 0x80) == 0)
-        || (((0xFF & buff[0]) & 0xE0) == 0xC0 && ((0xFF & buff[1]) & 0xC0) == 0x80)
-        || (((0xFF & buff[0]) & 0xF0) == 0xE0 && ((0xFF & buff[1]) & 0xC0) == 0x80 && ((0xFF & buff[2]) & 0xC0) == 0x80)) {
+    // 首字节为0xxx xxxx，表示纯英文ASCII码
+    // 或前两字节为110xxxxx 10xxxxxx，表示两字节编码文字
+    // 或前三字节为1110xxxx 10xxxxxx 10xxxxxx，表示三字节编码文字
+    // （最长可以到六字节）
+    else if ((((0xFF & buff[0]) & 0x80) == 0)   
+        || (((0xFF & buff[0]) & 0xE0) == 0xC0 && ((0xFF & buff[1]) & 0xC0) == 0x80) 
+        || (((0xFF & buff[0]) & 0xF0) == 0xE0 && ((0xFF & buff[1]) & 0xC0) == 0x80 && ((0xFF & buff[2]) & 0xC0) == 0x80)) { 
         return UTF8;
     }
+    // GBK编码范围为，第一字节0x81–0xFE，第二个字节 0x40–0xFE
     else if (((0xFF & buff[0]) & 0xFF) >= 0x81 && ((0xFF & buff[1]) & 0xFF) >= 0x40) {
-        return ANSI;
+        return GBK;
     }
     return 0;
 }
@@ -131,7 +117,7 @@ void initText(TText* ptext, TCHAR* fname)
     else if (codetype == UTF8) {
         if (_wfopen_s(&fp, fname, L"rt,ccs=UTF-8") != 0) return;
     }
-    else if (codetype == ANSI) {
+    else if (codetype == GBK) {
         setlocale(LC_ALL, "zh-CN");
         if (_wfopen_s(&fp, fname, L"rt") != 0) return;
     }
@@ -174,6 +160,7 @@ void initText(TText* ptext, TCHAR* fname)
     fclose(fp);
 }
 
+// 释放为每行分配的内存
 void freeText(TText* ptext)
 {
     for (int i = 0; i < ptext->lineCnt; i++) {
