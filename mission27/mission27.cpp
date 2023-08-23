@@ -35,6 +35,38 @@ typedef struct tagText {
     int lineCnt;
 } TText;
 
+/*根据msdn描述，如果参数为ccs = UNICODE，则
+如果文件没有BOM头，则编码为ANSI，相当于没有写css =
+如果文件BOM为UTF - 8，则编码为UTF - 8，相当于写了css = UTF - 8
+如果文件BOM为UTF - 16LE，则编码为UTF - 16LE，相当于写了css = UTF - 16LE
+
+Windows自带的Notepad(记事本)程序，可以保存的编码格式有
+ANSI
+Unicode:特指Unicode little endian，即第一段中的UTF - 16LE)
+Unicode big endian(注：此编码在第一段中没有对应的ccs)
+UTF - 8
+
+根据实际测试
+代码中必须使用_wfopen / fgetws，如果使用fopen则fgets时报错
+如果文件编码为ANSI，则需要使用setlocale(LC_CTYPE, "Chinese-simplified")，
+如果是UNICODE(UTF - 8、UTF - 16LE)则不需要。
+（注：locale问题和本文无关，只是顺便提一下，免得写代码时不小心遗漏了）
+
+总结：
+1. 如果文件编码为UNICODE(UTF - 8、UTF - 16LE)，不使用ccs = UNICODE则取出来的格式不正确。（当然，可以以二进制方式"rb"打开，自己转化）
+2. 如果文件编码为UNICODE(UTF - 8、UTF - 16LE)，但没有BOM头，则需要用css = UTF - 8、css = UTF - 16LE来指明编码，不可直接用ccs = UNICODE，否则就当成了ANSI编码。
+3. 记事本中如果保存编码格式为Unicode big endian，则无法使用 ccs = UNICODE 这个功能
+4. 如果用了ccs = UNICODE，则必须使用宽字符格式的相应函数，即便文件本身编码是ANSI格式
+5. 如果文件本身编码是ANSI格式，别忘了setlocale
+*/
+// 文本文件编码格式分类两类
+// 1.包含BOM
+// （1）Unicode(little endian)：编码是四个字节“FF FE 25 4E”，其中“FF FE”表明是小头方式存储，
+// （2）Unicode big endian：编码是四个字节“FE FF ”，其中“FE FF”表明是大头方式存储。
+// （3）UTF-8：编码是六个字节“EF BB BF”，前三个字节“EF BB BF”表示这是UTF - 8编码，
+// 2.不包含BOM
+// （1）ANSI：GB2312编码，是采用大头方式存储的。它的存储顺序与编码顺序是一致的。
+// （2）UTF-8：
 #define UTF8BOM   1
 #define UNICODELE 2
 #define UNICODEBE 3
@@ -70,6 +102,7 @@ int fileEncodeType(TCHAR* fname)
     return 0;
 }
 
+// 将从文件读取的内容p填充至line中，同步(扩展)分配内存
 TCHAR* fillLine(TCHAR* line, TCHAR* p)
 {
     // 若line为NULL，标明此行为初次读取，需分配新的内存块
@@ -77,7 +110,7 @@ TCHAR* fillLine(TCHAR* line, TCHAR* p)
         line = (TCHAR*)malloc((wcslen(p) + 1) * sizeof(TCHAR));
         if (line != NULL) wcscpy(line, p);
     }
-    // 否则，表明此行已包含内容，需重新扩展分配内存，并将新的内容追加在尾部
+    // 否则，表明此行已存在内容，需重新扩展分配内存，并将新的内容追加在尾部
     else {
         line = (TCHAR*)realloc(line, (wcslen(line) + wcslen(p) + 1) * sizeof(TCHAR));
         if (line != NULL) wcscat(line, p);
@@ -109,33 +142,32 @@ void initText(TText* ptext, TCHAR* fname)
     while (true) {
         // 按行读取文本，每次读取MAX_LEN，若有需要则多次读取同一行
         TCHAR* p = fgetws(buff, MAX_LEN, fp);
-        if (p != NULL) {
-            TCHAR* crptr = wcschr(p, '\n');
-            // 发现回车符，替换为0
-            if (crptr != NULL) *crptr = '\0';
-            // 换行或文件尾
-            if (crptr != NULL || feof(fp)) {
-                // 根据实际字符串长度重新分配每行的内存，避免浪费
-                line = fillLine(line, p);
-                // 行指针数组记录行内存块地址
-                ptext->lines[ptext->lineCnt] = line;
-                ptext->lineCnt++;
-                // 行终止，将line初始化为NULL
-                line = NULL;
-
-                // 超过最大行数，简单处理，直接不再读取
-                if (ptext->lineCnt >= MAX_LINE)
-                    break;
-            }
-            // 当前fgetws读取的行未结束，需要多次读取
-            else {
-                // 将从文件读取的行内容，填充或追加进行内存块中，若有必要则扩充
-                line = fillLine(line, p);
-            }
-        }
         // 文件读取完毕，直接退出循环
-        else
+        if (p == NULL)
             break;
+
+        // 检测回车符，替换为0
+        TCHAR* crptr = wcschr(p, '\n');
+        if (crptr != NULL) *crptr = '\0';
+        // 换行或文件尾
+        if (crptr != NULL || feof(fp)) {
+            // 根据实际字符串长度重新分配每行的内存，避免浪费
+            line = fillLine(line, p);
+            // 行指针数组记录行内存块地址
+            ptext->lines[ptext->lineCnt] = line;
+            ptext->lineCnt++;
+            // 行结束，将line初始化为NULL
+            line = NULL;
+
+            // 超过最大行数，简单处理，直接不再读取
+            if (ptext->lineCnt >= MAX_LINE)
+                break;
+        }
+        // 当前fgetws读取的行未结束，需要多次读取
+        else {
+            // 将从文件读取的行内容，填充或追加进行内存块中，若有必要则扩充
+            line = fillLine(line, p);
+        }
     }
     fclose(fp);
 }
@@ -183,34 +215,4 @@ int main()
     closegraph();
 }
 
-/*根据msdn描述，如果参数为ccs = UNICODE，则
-如果文件没有BOM头，则编码为ANSI，相当于没有写css =
-如果文件BOM为UTF - 8，则编码为UTF - 8，相当于写了css = UTF - 8
-如果文件BOM为UTF - 16LE，则编码为UTF - 16LE，相当于写了css = UTF - 16LE
 
-Windows自带的Notepad(记事本)程序，可以保存的编码格式有
-ANSI
-Unicode:特指Unicode little endian，即第一段中的UTF - 16LE)
-Unicode big endian(注：此编码在第一段中没有对应的ccs)
-UTF - 8
-
-根据实际测试
-代码中必须使用_wfopen / fgetws，如果使用fopen则fgets时报错
-如果文件编码为ANSI，则需要使用setlocale(LC_CTYPE, "Chinese-simplified")，
-如果是UNICODE(UTF - 8、UTF - 16LE)则不需要。
-（注：locale问题和本文无关，只是顺便提一下，免得写代码时不小心遗漏了）
-
-总结：
-1. 如果文件编码为UNICODE(UTF - 8、UTF - 16LE)，不使用ccs = UNICODE则取出来的格式不正确。（当然，可以以二进制方式"rb"打开，自己转化）
-2. 如果文件编码为UNICODE(UTF - 8、UTF - 16LE)，但没有BOM头，则需要用css = UTF - 8、css = UTF - 16LE来指明编码，不可直接用ccs = UNICODE，否则就当成了ANSI编码。
-3. 记事本中如果保存编码格式为Unicode big endian，则无法使用 ccs = UNICODE 这个功能
-4. 如果用了ccs = UNICODE，则必须使用宽字符格式的相应函数，即便文件本身编码是ANSI格式
-5. 如果文件本身编码是ANSI格式，别忘了setlocale
-*/
-// 打”记事本“程序Notepad.exe依次采用ANSI，Unicode，Unicode big endian 和 UTF - 8编码方式保存。
-// 然后，用文本编辑软件UltraEdit中的”十六进制功能“，观察该文件的内部编码方式。
-//1）ANSI：GB2312编码，是采用大头方式存储的。
-//2）Unicode：编码是四个字节“FF FE 25 4E”，其中“FF FE”表明是小头方式存储，
-//3）Unicode big endian：编码是四个字节“FE FF ”，其中“FE FF”表明是大头方式存储。
-//4）UTF - 8：编码是六个字节“EF BB BF”，前三个字节“EF BB BF”表示这是UTF - 8编码，
-// 它的存储顺序与编码顺序是一致的。
