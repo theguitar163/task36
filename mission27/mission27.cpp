@@ -71,6 +71,20 @@ int fileEncodeType(TCHAR* fname)
     return 0;
 }
 
+TCHAR* readInLine(TCHAR* line, TCHAR* p)
+{
+    // 若line为NULL，标明此行为初次读取
+    if (line == NULL) {
+        line = (TCHAR*)malloc((wcslen(p) + 1) * sizeof(TCHAR));
+        if (line != NULL) wcscpy(line, p);
+    }
+    else {
+        line = (TCHAR*)realloc(line, (wcslen(line) + wcslen(p) + 1) * sizeof(TCHAR));
+        if (line != NULL) wcscat(line, p);
+    }
+    return line;
+}
+
 void initText(TText* ptext, TCHAR* fname)
 {
     FILE* fp;
@@ -92,21 +106,24 @@ void initText(TText* ptext, TCHAR* fname)
     TCHAR* line = NULL;
 
     while (true) {
+        // 按行读取文本
         TCHAR* p = fgetws(buff, MAX_LEN, fp);
         if (p != NULL) {
             TCHAR* crptr = wcschr(p, '\n');
-            // 发现回车符，读取到了行尾部
-            if (crptr != NULL) {
-                *crptr = '\0';
-                // 若line为NULL，标明此行为初次读取
+            // 发现回车符，替换为0
+            if (crptr != NULL) *crptr = '\0';
+            // 换行或文件尾
+            if (crptr != NULL || feof(fp)) {
+ /*               // 若line为NULL，标明此行为初次读取
                 if (line == NULL) {
-                    line = (TCHAR*)malloc(wcslen(p) + 1);
+                    line = (TCHAR*)malloc((wcslen(p) + 1) * sizeof(TCHAR));
                     if (line!=NULL) wcscpy(line, p);
                 }
                 else {
-                    line = (TCHAR*)realloc(line, wcslen(line) + wcslen(p) + 1);
+                    line = (TCHAR*)realloc(line, (wcslen(line) + wcslen(p) + 1) * sizeof(TCHAR));
                     if (line != NULL) wcscat(line, p);
-                }
+                }*/
+                line = readInLine(line, p);
                 // 根据实际字符串长度重新分配每行的内存，避免浪费
                 ptext->lines[ptext->lineCnt] = line;
                 ptext->lineCnt++;
@@ -119,15 +136,16 @@ void initText(TText* ptext, TCHAR* fname)
             }
             // 当前fgetws读取的行未结束，需要多次读取
             else {
-                // 若line为NULL，标明此行为初次读取
+ /*               // 若line为NULL，标明此行为初次读取
                 if (line == NULL) {
-                    line = (TCHAR*)malloc(wcslen(p) + 1);
+                    line = (TCHAR*)malloc((wcslen(p) + 1)*sizeof(TCHAR));
                     if (line != NULL) wcscpy(line, p);
                 }
                 else {
-                    line = (TCHAR*)realloc(line, wcslen(line) + wcslen(p) + 1);
+                    line = (TCHAR*)realloc(line, (wcslen(line) + wcslen(p) + 1)*sizeof(TCHAR));
                     if (line != NULL) wcscat(line, p);
-                }
+                }*/
+                line = readInLine(line, p);
             }
         }
         else
