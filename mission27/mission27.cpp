@@ -61,9 +61,9 @@ UTF - 8
 */
 // 文本文件编码格式分类两类
 // 1.包含BOM
-// （1）Unicode(little endian)：编码是四个字节“FF FE 25 4E”，其中“FF FE”表明是小头方式存储，
-// （2）Unicode big endian：编码是四个字节“FE FF ”，其中“FE FF”表明是大头方式存储。
-// （3）UTF-8：编码是六个字节“EF BB BF”，前三个字节“EF BB BF”表示这是UTF - 8编码，
+// （1）Unicode(little endian)：前四个字节“FF FE 25 4E”，其中“FF FE”表明是小头方式存储，
+// （2）Unicode big endian：前四个字节“FE FF ”，其中“FE FF”表明是大头方式存储。
+// （3）UTF-8：前三个字节“EF BB BF”
 // 2.不包含BOM
 // （1）ANSI：GB2312编码，是采用大头方式存储的。它的存储顺序与编码顺序是一致的。
 // （2）UTF-8：
@@ -73,6 +73,7 @@ UTF - 8
 #define UTF8      4
 #define ANSI      5
 
+// 通过读取少量文件头，判断文件编码格式
 int fileEncodeType(TCHAR* fname)
 {
     unsigned char buff[10] = { 0 };
@@ -118,6 +119,7 @@ TCHAR* fillLine(TCHAR* line, TCHAR* p)
     return line;
 }
 
+// 逐行读取文件内容至TText文件结构中
 void initText(TText* ptext, TCHAR* fname)
 {
     FILE* fp;
