@@ -27,22 +27,22 @@
 #include <locale.h>
 
 
-#define MAX_LINE 1000    // 最大行数
+#define MAX_LINE 1000     // 最大行数
 #define MAX_LEN  1000     // 每行最大字数
 
-typedef struct tagText {
+typedef struct tagTextDocument {
     TCHAR* lines[MAX_LINE];
-    int lineCnt;
-} TText;
+    int lineCount;
+} TTextDoc;
 
 // 文本文件编码格式分类两类
 // 1.文件头包含BOM
-// （1）Unicode(little endian)：前四个字节“FF FE 25 4E”，其中“FF FE”表明是小头方式存储，
-// （2）Unicode big endian：前四个字节“FE FF ”，其中“FE FF”表明是大头方式存储。
+// （1）Unicode(little endian)：前两个字节“FF FE”，表示小头方式存储
+// （2）Unicode big endian：前两个字节“FE FF ”，表示大头方式存储
 // （3）UTF-8：前三个字节“EF BB BF”
 // 上述包含了BOM的文件，在打开文件时加上ccs=UNICODE即可正确读取
 // 2.文件头不包含BOM
-// （1）ANSI：汉字编码通过设定区域setlocale(LC_ALL, "zh-CN")确保正确读取
+// （1）GBK：汉字编码通过设定区域setlocale(LC_ALL, "zh-CN")确保正确读取
 // （2）UTF-8：打开文件时需要使用ccs=UTF-8来保证正确读取
 // （3）UTF-16：打开文件时需要使用ccs=UTF-16来保证正确读取
 #define UTF8BOM   1
@@ -52,11 +52,11 @@ typedef struct tagText {
 #define GBK       5
 
 // 通过读取少量文件头，判断文件编码格式
+// TODO：采样数量太少，可能会误判
 int fileEncodeType(TCHAR* fname)
 {
     unsigned char buff[10] = { 0 };
-    FILE* fp;
-    if (_wfopen_s(&fp, fname, L"rb") != 0) return 0;
+    FILE* fp = _wfopen(fname, L"rb");
     if (fp == NULL) return 0;
     fread(buff, 1, 10, fp);
     fclose(fp);
@@ -106,27 +106,27 @@ TCHAR* fillLine(TCHAR* line, TCHAR* p)
 }
 
 // 逐行读取文件内容至TText文件结构中
-void initText(TText* ptext, TCHAR* fname)
+void initText(TTextDoc* ptext, TCHAR* fname)
 {
     FILE* fp;
     int codetype = fileEncodeType(fname);
     // 根据文件编码不同，采用不同的打开方式
     if (codetype == UTF8BOM || codetype == UNICODELE || codetype == UNICODEBE) {
-        if (_wfopen_s(&fp, fname, L"rt,ccs=UNICODE") != 0) return;
+        if ((fp = _wfopen(fname, L"rt,ccs=UNICODE")) == NULL) return;
     }
     else if (codetype == UTF8) {
-        if (_wfopen_s(&fp, fname, L"rt,ccs=UTF-8") != 0) return;
+        if ((fp = _wfopen(fname, L"rt,ccs=UTF-8")) == NULL) return;
     }
     else if (codetype == GBK) {
         setlocale(LC_ALL, "zh-CN");
-        if (_wfopen_s(&fp, fname, L"rt") != 0) return;
+        if ((fp = _wfopen(fname, L"rt")) == NULL) return;
     }
     else
         return;
 
     TCHAR buff[MAX_LEN] = { 0 };
     TCHAR* line = NULL;
-    ptext->lineCnt = 0;
+    ptext->lineCount = 0;
     while (true) {
         // 按行读取文本，每次读取MAX_LEN，若有需要则多次读取同一行
         TCHAR* p = fgetws(buff, MAX_LEN, fp);
@@ -142,13 +142,13 @@ void initText(TText* ptext, TCHAR* fname)
             // 根据实际字符串长度重新分配每行的内存，避免浪费
             line = fillLine(line, p);
             // 行指针数组记录行内存块地址
-            ptext->lines[ptext->lineCnt] = line;
-            ptext->lineCnt++;
+            ptext->lines[ptext->lineCount] = line;
+            ptext->lineCount++;
             // 行结束，将line初始化为NULL
             line = NULL;
 
             // 超过最大行数，简单处理，直接不再读取
-            if (ptext->lineCnt >= MAX_LINE)
+            if (ptext->lineCount >= MAX_LINE)
                 break;
         }
         // 当前fgetws读取的行未结束，需要多次读取
@@ -161,15 +161,15 @@ void initText(TText* ptext, TCHAR* fname)
 }
 
 // 释放为每行分配的内存
-void freeText(TText* ptext)
+void freeText(TTextDoc* ptext)
 {
-    for (int i = 0; i < ptext->lineCnt; i++) {
+    for (int i = 0; i < ptext->lineCount; i++) {
         free(ptext->lines[i]);
     }
     //free(ptext->lines);
 }
 
-void onLoadText(TText* ptext)
+void loadTextFile(TTextDoc* ptext)
 {
     OPENFILENAME ofn;
     TCHAR szFile[MAX_PATH] = { 0 };	//用于接收文件名
@@ -185,6 +185,24 @@ void onLoadText(TText* ptext)
     }
 }
 
+typedef struct tagTextView {
+    RECT r;
+    LOGFONT font;
+    int linespace;
+} TTextView;
+
+void initView(TTextView* pview)
+{
+    pview->r.left = 10;
+    pview->r.top = 10;
+    pview->r.right = getwidth() - 10;
+    pview->r.bottom = getheight() - 10;
+    pview->linespace = 2;
+    gettextstyle(&pview->font);
+    _tcscpy(pview->font.lfFaceName, L"微软雅黑");
+    pview->font.lfQuality = ANTIALIASED_QUALITY;
+}
+
 int main()
 {
     initgraph(800, 800);
@@ -192,11 +210,20 @@ int main()
     cleardevice();
     settextcolor(BLACK);
 
-    TText text;
-    onLoadText(&text);
+    TTextDoc text;
+    loadTextFile(&text);
 
-    for (int i = 0; i < text.lineCnt; i++) {
-        outtextxy(0, i * 20, text.lines[i]);
+    TTextView view;
+    initView(&view);
+
+    view.font.lfHeight = 22;
+    settextstyle(&view.font);
+    int y = view.r.top;
+    for (int i = 0; i < text.lineCount; i++) {
+        outtextxy(view.r.left, y, text.lines[i]);
+        int th = textheight(text.lines[i]);
+        if (th == 0) th = textheight(L" ");
+        y = y + th + view.linespace;
     }
 
     _getch();
