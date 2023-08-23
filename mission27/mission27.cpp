@@ -52,7 +52,7 @@ typedef struct tagTextDocument {
 #define GBK       5
 
 // 通过读取少量文件头，判断文件编码格式
-// TODO：采样数量太少，可能会误判
+// TODO：对于无BOM的文件，因为采样数量太少，可能会误判
 int fileEncodeType(TCHAR* fname)
 {
     unsigned char buff[10] = { 0 };
