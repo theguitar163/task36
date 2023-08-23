@@ -31,7 +31,6 @@
 #define MAX_LEN  1000     // 每行最大字数
 
 typedef struct tagText {
-    TCHAR* buff;
     TCHAR* lines[MAX_LINE];
     int lineCnt;
 } TText;
@@ -46,7 +45,7 @@ int fileEncodeType(TCHAR* fname)
 {
     unsigned char buff[10] = { 0 };
     FILE* fp;
-    if (_wfopen_s(&fp, fname, L"rb") == 0) return 0;
+    if (_wfopen_s(&fp, fname, L"rb") != 0) return 0;
     if (fp == NULL) return 0;
     fread(buff, 1, 10, fp);
     fclose(fp);
@@ -71,13 +70,14 @@ int fileEncodeType(TCHAR* fname)
     return 0;
 }
 
-TCHAR* readInLine(TCHAR* line, TCHAR* p)
+TCHAR* fillLine(TCHAR* line, TCHAR* p)
 {
-    // 若line为NULL，标明此行为初次读取
+    // 若line为NULL，标明此行为初次读取，需分配新的内存块
     if (line == NULL) {
         line = (TCHAR*)malloc((wcslen(p) + 1) * sizeof(TCHAR));
         if (line != NULL) wcscpy(line, p);
     }
+    // 否则，表明此行已包含内容，需重新扩展分配内存，并将新的内容追加在尾部
     else {
         line = (TCHAR*)realloc(line, (wcslen(line) + wcslen(p) + 1) * sizeof(TCHAR));
         if (line != NULL) wcscat(line, p);
@@ -89,24 +89,25 @@ void initText(TText* ptext, TCHAR* fname)
 {
     FILE* fp;
     int codetype = fileEncodeType(fname);
-
+    // 根据文件编码不同，采用不同的打开方式
     if (codetype == UTF8BOM || codetype == UNICODELE || codetype == UNICODEBE) {
         if (_wfopen_s(&fp, fname, L"rt,ccs=UNICODE") != 0) return;
     }
     else if (codetype == UTF8) {
         if (_wfopen_s(&fp, fname, L"rt,ccs=UTF-8") != 0) return;
     }
-    else {
+    else if (codetype == ANSI) {
         setlocale(LC_ALL, "zh-CN");
         if (_wfopen_s(&fp, fname, L"rt") != 0) return;
     }
+    else
+        return;
 
-    ptext->lineCnt = 0;
     TCHAR buff[MAX_LEN] = { 0 };
     TCHAR* line = NULL;
-
+    ptext->lineCnt = 0;
     while (true) {
-        // 按行读取文本
+        // 按行读取文本，每次读取MAX_LEN，若有需要则多次读取同一行
         TCHAR* p = fgetws(buff, MAX_LEN, fp);
         if (p != NULL) {
             TCHAR* crptr = wcschr(p, '\n');
@@ -114,20 +115,12 @@ void initText(TText* ptext, TCHAR* fname)
             if (crptr != NULL) *crptr = '\0';
             // 换行或文件尾
             if (crptr != NULL || feof(fp)) {
- /*               // 若line为NULL，标明此行为初次读取
-                if (line == NULL) {
-                    line = (TCHAR*)malloc((wcslen(p) + 1) * sizeof(TCHAR));
-                    if (line!=NULL) wcscpy(line, p);
-                }
-                else {
-                    line = (TCHAR*)realloc(line, (wcslen(line) + wcslen(p) + 1) * sizeof(TCHAR));
-                    if (line != NULL) wcscat(line, p);
-                }*/
-                line = readInLine(line, p);
                 // 根据实际字符串长度重新分配每行的内存，避免浪费
+                line = fillLine(line, p);
+                // 行指针数组记录行内存块地址
                 ptext->lines[ptext->lineCnt] = line;
                 ptext->lineCnt++;
-                // 行终止，将line初始化位NULL
+                // 行终止，将line初始化为NULL
                 line = NULL;
 
                 // 超过最大行数，简单处理，直接不再读取
@@ -136,18 +129,11 @@ void initText(TText* ptext, TCHAR* fname)
             }
             // 当前fgetws读取的行未结束，需要多次读取
             else {
- /*               // 若line为NULL，标明此行为初次读取
-                if (line == NULL) {
-                    line = (TCHAR*)malloc((wcslen(p) + 1)*sizeof(TCHAR));
-                    if (line != NULL) wcscpy(line, p);
-                }
-                else {
-                    line = (TCHAR*)realloc(line, (wcslen(line) + wcslen(p) + 1)*sizeof(TCHAR));
-                    if (line != NULL) wcscat(line, p);
-                }*/
-                line = readInLine(line, p);
+                // 将从文件读取的行内容，填充或追加进行内存块中，若有必要则扩充
+                line = fillLine(line, p);
             }
         }
+        // 文件读取完毕，直接退出循环
         else
             break;
     }
