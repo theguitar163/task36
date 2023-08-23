@@ -106,7 +106,7 @@ TCHAR* fillLine(TCHAR* line, TCHAR* p)
 }
 
 // 逐行读取文件内容至TText文件结构中
-void initText(TTextDoc* ptext, TCHAR* fname)
+void initText(TTextDoc* pdoc, TCHAR* fname)
 {
     FILE* fp;
     int codetype = fileEncodeType(fname);
@@ -126,7 +126,7 @@ void initText(TTextDoc* ptext, TCHAR* fname)
 
     TCHAR buff[MAX_LEN] = { 0 };
     TCHAR* line = NULL;
-    ptext->lineCount = 0;
+    pdoc->lineCount = 0;
     while (true) {
         // 按行读取文本，每次读取MAX_LEN，若有需要则多次读取同一行
         TCHAR* p = fgetws(buff, MAX_LEN, fp);
@@ -142,13 +142,13 @@ void initText(TTextDoc* ptext, TCHAR* fname)
             // 根据实际字符串长度重新分配每行的内存，避免浪费
             line = fillLine(line, p);
             // 行指针数组记录行内存块地址
-            ptext->lines[ptext->lineCount] = line;
-            ptext->lineCount++;
+            pdoc->lines[pdoc->lineCount] = line;
+            pdoc->lineCount++;
             // 行结束，将line初始化为NULL
             line = NULL;
 
             // 超过最大行数，简单处理，直接不再读取
-            if (ptext->lineCount >= MAX_LINE)
+            if (pdoc->lineCount >= MAX_LINE)
                 break;
         }
         // 当前fgetws读取的行未结束，需要多次读取
@@ -161,15 +161,15 @@ void initText(TTextDoc* ptext, TCHAR* fname)
 }
 
 // 释放为每行分配的内存
-void freeText(TTextDoc* ptext)
+void freeText(TTextDoc* pdoc)
 {
-    for (int i = 0; i < ptext->lineCount; i++) {
-        free(ptext->lines[i]);
+    for (int i = 0; i < pdoc->lineCount; i++) {
+        free(pdoc->lines[i]);
     }
     //free(ptext->lines);
 }
 
-void loadTextFile(TTextDoc* ptext)
+void loadTextFile(TTextDoc* pdoc)
 {
     OPENFILENAME ofn;
     TCHAR szFile[MAX_PATH] = { 0 };	//用于接收文件名
@@ -181,7 +181,7 @@ void loadTextFile(TTextDoc* ptext)
     ofn.lpstrFilter = TEXT("文本文件(txt)\0*.txt; *.cpp; *.html;\0\0"); // 文件类型
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // 标志
     if (GetOpenFileName(&ofn)) {
-        initText(ptext, ofn.lpstrFile);
+        initText(pdoc, ofn.lpstrFile);
     }
 }
 
@@ -189,9 +189,10 @@ typedef struct tagTextView {
     RECT r;
     LOGFONT font;
     int linespace;
+    TTextDoc* pdoc;
 } TTextView;
 
-void initView(TTextView* pview)
+void initView(TTextView* pview, TTextDoc* pdoc)
 {
     pview->r.left = 10;
     pview->r.top = 10;
@@ -201,6 +202,20 @@ void initView(TTextView* pview)
     gettextstyle(&pview->font);
     _tcscpy(pview->font.lfFaceName, L"微软雅黑");
     pview->font.lfQuality = ANTIALIASED_QUALITY;
+    pview->pdoc = pdoc;
+}
+
+void paintView(TTextView* pview)
+{
+    pview->font.lfHeight = 22;
+    settextstyle(&pview->font);
+    int y = pview->r.top;
+    for (int i = 0; i < pview->pdoc->lineCount; i++) {
+        outtextxy(pview->r.left, y, pview->pdoc->lines[i]);
+        int th = textheight(pview->pdoc->lines[i]);
+        if (th == 0) th = textheight(L" ");
+        y = y + th + pview->linespace;
+    }
 }
 
 int main()
@@ -210,24 +225,16 @@ int main()
     cleardevice();
     settextcolor(BLACK);
 
-    TTextDoc text;
-    loadTextFile(&text);
+    TTextDoc doc;
+    loadTextFile(&doc);
 
     TTextView view;
-    initView(&view);
+    initView(&view, &doc);
 
-    view.font.lfHeight = 22;
-    settextstyle(&view.font);
-    int y = view.r.top;
-    for (int i = 0; i < text.lineCount; i++) {
-        outtextxy(view.r.left, y, text.lines[i]);
-        int th = textheight(text.lines[i]);
-        if (th == 0) th = textheight(L" ");
-        y = y + th + view.linespace;
-    }
+    paintView(&view);
 
     _getch();
-    freeText(&text);
+    freeText(&doc);
     closegraph();
 }
 
