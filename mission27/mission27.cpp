@@ -18,16 +18,20 @@
 //      当文档中含有 a < b 这样的内容，如何确保正确解析并显示？要在设计阶段就考虑清楚。
 //   2).格式定义要允许嵌套。例如：<b>xxx<i>xxx< / i>xxx< / b> 表示粗体里面若干内容在粗体的基础上增加了斜体样式。
 //   3).如果文档比较长，暂时可以不考虑滚动条的实现。
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
 #include <easyx.h>
 #include <locale.h>
 
-#define MAX_LINE 10000
-#define MAX_LEN  1000
+
+#define MAX_LINE 1000    // 最大行数
+#define MAX_LEN  1000     // 每行最大字数
 
 typedef struct tagText {
+    TCHAR* buff;
     TCHAR* lines[MAX_LINE];
     int lineCnt;
 } TText;
@@ -42,7 +46,8 @@ int fileEncodeType(TCHAR* fname)
 {
     unsigned char buff[10] = { 0 };
     FILE* fp;
-    if (_wfopen_s(&fp, fname, L"rb") != 0) return 0;
+    if (_wfopen_s(&fp, fname, L"rb") == 0) return 0;
+    if (fp == NULL) return 0;
     fread(buff, 1, 10, fp);
     fclose(fp);
 
@@ -65,6 +70,7 @@ int fileEncodeType(TCHAR* fname)
     }
     return 0;
 }
+
 void initText(TText* ptext, TCHAR* fname)
 {
     FILE* fp;
@@ -77,41 +83,56 @@ void initText(TText* ptext, TCHAR* fname)
         if (_wfopen_s(&fp, fname, L"rt,ccs=UTF-8") != 0) return;
     }
     else {
-        //setlocale(LC_CTYPE,"Chinese-simplified"); // zh_CN.UTF-8
         setlocale(LC_ALL, "zh-CN");
-        if (_wfopen_s(&fp, fname, L"r") != 0) return;
+        if (_wfopen_s(&fp, fname, L"rt") != 0) return;
     }
 
-    TCHAR* line;
     ptext->lineCnt = 0;
+    TCHAR buff[MAX_LEN] = { 0 };
+    TCHAR* line = NULL;
+
     while (true) {
-        line = (TCHAR*)calloc(MAX_LEN, sizeof(TCHAR));
-        TCHAR* p = fgetws(line, MAX_LEN+1, fp);
+        TCHAR* p = fgetws(buff, MAX_LEN, fp);
         if (p != NULL) {
-            ptext->lines[ptext->lineCnt] = p;
-            ptext->lineCnt++;
+            TCHAR* crptr = wcschr(p, '\n');
+            // 发现回车符，读取到了行尾部
+            if (crptr != NULL) {
+                *crptr = '\0';
+                // 若line为NULL，标明此行为初次读取
+                if (line == NULL) {
+                    line = (TCHAR*)malloc(wcslen(p) + 1);
+                    if (line!=NULL) wcscpy(line, p);
+                }
+                else {
+                    line = (TCHAR*)realloc(line, wcslen(line) + wcslen(p) + 1);
+                    if (line != NULL) wcscat(line, p);
+                }
+                // 根据实际字符串长度重新分配每行的内存，避免浪费
+                ptext->lines[ptext->lineCnt] = line;
+                ptext->lineCnt++;
+                // 行终止，将line初始化位NULL
+                line = NULL;
+
+                // 超过最大行数，简单处理，直接不再读取
+                if (ptext->lineCnt >= MAX_LINE)
+                    break;
+            }
+            // 当前fgetws读取的行未结束，需要多次读取
+            else {
+                // 若line为NULL，标明此行为初次读取
+                if (line == NULL) {
+                    line = (TCHAR*)malloc(wcslen(p) + 1);
+                    if (line != NULL) wcscpy(line, p);
+                }
+                else {
+                    line = (TCHAR*)realloc(line, wcslen(line) + wcslen(p) + 1);
+                    if (line != NULL) wcscat(line, p);
+                }
+            }
         }
         else
             break;
     }
-
-/*    ptext->lineCnt = 0;
-    for (int i = 0; i < ptext->buffsize; i++) {
-        if (ptext->buff[i] == '\n')
-            ptext->lineCnt++;
-    }
-
-    TCHAR* line = NULL;
-    TCHAR* ptr = NULL;
-    //相较于strtok()函数，strtok_s函数需要用户传入一个指针，用于函数内部判断从哪里开始处理字符串
-    line = wcstok_s((TCHAR*)ptext->buff, L"\n", &ptr);
-    int idx = 0;
-    ptext->lines[idx] = line;
-    while (line != NULL) {
-        line = wcstok_s(NULL, "\n", &ptr);  //其他的使用与strtok()函数相同
-        ptext->lines[++idx] = line;
-    }
-    */
     fclose(fp);
 }
 
@@ -189,68 +210,3 @@ UTF - 8
 //3）Unicode big endian：编码是四个字节“FE FF ”，其中“FE FF”表明是大头方式存储。
 //4）UTF - 8：编码是六个字节“EF BB BF”，前三个字节“EF BB BF”表示这是UTF - 8编码，
 // 它的存储顺序与编码顺序是一致的。
-
-/*int main1(int argc, char** argv)
-{
-    unsigned char* buffer;
-    char* fpath = argv[1];
-    FILE* pFile = fopen(fpath, "rb");
-    //FILE *pFile=fopen("277.txt", "rb+");// "rw,ccs=UTF-8");
-    fseek(pFile, 0, SEEK_END);
-    int lsize = ftell(pFile);
-    rewind(pFile);
-    buffer = (unsigned char*)malloc(sizeof(unsigned char) * lsize);
-    memset(buffer, 0, sizeof(unsigned char) * lsize);
-    int result = fread(buffer, 1, lsize, pFile);
-    printf("sizw=%d   %d\n %s\n", lsize, strlen((const char*)buffer), buffer);
-    fclose(pFile);
-    int i = 0;
-    for (i = 0; i < lsize; i++) {
-        printf("%02X ", (unsigned  char)buffer[i]);
-    }
-
-    printf("\n");
-
-    if (lsize > 2 && (0xFF & buffer[0]) == 0xEF && (0xFF & buffer[1]) == 0xBB && (0xFF & buffer[2]) == 0xBF) {
-        printf("utf-8 bom\n");
-        memmove(buffer, buffer + 3, strlen((const char*)buffer) - 2);
-        lsize = strlen((const char*)buffer) - 2;
-
-    }
-    else if (lsize > 1 && (0xFF & buffer[0]) == 0xFF && (0xFF & buffer[1]) == 0xFE) {
-        printf("litter unicode\n");
-        memmove(buffer, buffer + 2, lsize - 1);
-        lsize = lsize - 1;
-        i = 0;
-        for (i = 0; i < lsize; i++) {
-            int tmp = buffer[i];
-            buffer[i] = buffer[i + 1];
-            buffer[i + 1] = tmp;
-            i++;
-
-        }
-    }
-    else if (lsize > 1 && (0xFF & buffer[0]) == 0xFE && (0xFF & buffer[1]) == 0xFF) {
-        printf("default big unicode\n");
-        memmove(buffer, buffer + 2, lsize - 1);
-        lsize = lsize - 1;
-
-    }
-    else if ((((0xFF & buffer[0]) & 0x80) == 0) 
-        || (lsize > 1 && ((0xFF & buffer[0]) & 0xE0) == 0xC0 && ((0xFF & buffer[1]) & 0xC0) == 0x80) 
-        || (lsize > 2 && ((0xFF & buffer[0]) & 0xF0) == 0xE0 && ((0xFF & buffer[1]) & 0xC0) == 0x80 && ((0xFF & buffer[2]) & 0xC0) == 0x80)) {
-        printf("utf-8 no bom\n");
-    }
-    else if (((0xFF & buffer[0]) & 0xFF) >= 0x81 && ((0xFF & buffer[1]) & 0xFF) >= 0x40) {
-        printf("ansi\n");
-    }
-
-
-    i = 0;
-    for (i = 0; i < lsize; i++) {
-        printf("%02X ", (unsigned  char)buffer[i]);
-    }
-    printf("\n");
-    return 0;
-}
-*/
