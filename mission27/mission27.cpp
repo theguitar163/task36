@@ -30,9 +30,17 @@
 #define MAX_LINE 1000     // 最大行数
 #define MAX_LEN  1000     // 每行最大字数
 
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+
 typedef struct tagTextDocument {
+    TCHAR* buff;
+    TCHAR linebuff[MAX_LEN];
+    ULONG lineptr[MAX_LINE];
     TCHAR* lines[MAX_LINE];
     int lineCount;
+    TCHAR* lines1[MAX_LINE];
+    int lineCount1;
 } TTextDoc;
 
 // 文本文件编码格式分类两类
@@ -157,6 +165,26 @@ void initText(TTextDoc* pdoc, TCHAR* fname)
             line = fillLine(line, p);
         }
     }
+
+    int size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    pdoc->buff = (TCHAR*)malloc(sizeof(TCHAR) * (size + 1));
+    pdoc->lineCount1 = 0;
+    line = pdoc->buff;
+    while (true) {
+        // 按行读取文本，每次读取MAX_LEN，若有需要则多次读取同一行
+        TCHAR* p = fgetws(buff, MAX_LEN, fp);
+        // 文件读取完毕，直接退出循环
+        if (p == NULL)
+            break;
+        wcsncpy(line, p, wcslen(p));
+        line = line + wcslen(p);
+    }
+    int lineno = 0;
+    for (int i = 0; i < wcslen(pdoc->buff); i++) {
+        if (pdoc->buff[i] == '\n')
+            pdoc->lineptr[]
+    }
     fclose(fp);
 }
 
@@ -166,7 +194,27 @@ void freeText(TTextDoc* pdoc)
     for (int i = 0; i < pdoc->lineCount; i++) {
         free(pdoc->lines[i]);
     }
-    //free(ptext->lines);
+    free(pdoc->buff);
+}
+
+int getLine(TTextDoc* pdoc, int lineno)
+{
+    TCHAR* lineptr;
+    ULONG linelen;
+
+    // find the start of the specified line
+    lineptr = (TCHAR*)pdoc->buff + pdoc->lineptr[lineno];
+
+    // work out how long it is, by looking at the next line's starting point
+    if (lineno >= pdoc->lineCount) return NULL;
+    linelen = pdoc->lineptr[lineno + 1] - pdoc->lineptr[lineno];
+
+    // make sure we don't overflow caller's buffer
+    linelen = min(linelen, MAX_LEN);
+
+    memcpy(pdoc->linebuff, lineptr, linelen);
+    pdoc->linebuff[linelen] = '\0';
+    return linelen;
 }
 
 void loadTextFile(TTextDoc* pdoc)
@@ -211,7 +259,9 @@ void paintView(TTextView* pview)
     settextstyle(&pview->font);
     int y = pview->r.top;
     for (int i = 0; i < pview->pdoc->lineCount; i++) {
-        outtextxy(pview->r.left, y, pview->pdoc->lines[i]);
+        //outtextxy(pview->r.left, y, pview->pdoc->lines[i]);
+        getLine(pview->pdoc, i);
+        outtextxy(pview->r.left, y, pview->pdoc->linebuff);
         int th = textheight(pview->pdoc->lines[i]);
         if (th == 0) th = textheight(L" ");
         y = y + th + pview->linespace;
