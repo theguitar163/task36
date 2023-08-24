@@ -34,13 +34,11 @@
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 
 typedef struct tagTextDocument {
-    TCHAR* buff;
-    TCHAR linebuff[MAX_LEN];
+    TCHAR* text;
     ULONG lineptr[MAX_LINE];
-    TCHAR* lines[MAX_LINE];
     int lineCount;
-    TCHAR* lines1[MAX_LINE];
-    int lineCount1;
+
+    TCHAR linebuff[MAX_LEN+1];
 } TTextDoc;
 
 // 文本文件编码格式分类两类
@@ -97,6 +95,67 @@ int fileEncodeType(TCHAR* fname)
     return 0;
 }
 
+// 逐行读取文件内容至TText文件结构中
+// 经反复验证，fgetws能够正确解码，而fread不能正确解码
+// 实验了两种数据结构：
+// 1.分行读取，为每行分配字符串(内存)，将每行的指针记录至数组中；
+// 2.连续分行读取全部文件至连续的内存块中，记录每行开始的偏移位置
+// 分行单独存储不方便对文件内容连续操作，但胜在分行访问便捷
+// 连续存储为便于跨行连续对文件内容操作，但不方便对单独行的访问
+// 结论：采用方式2.
+void initDoc(TTextDoc* pdoc, TCHAR* fname)
+{
+    FILE* fp;
+    // 检测文件编码
+    int codetype = fileEncodeType(fname);
+    // 根据文件编码不同，采用不同的打开方式
+    if (codetype == UTF8BOM || codetype == UNICODELE || codetype == UNICODEBE) {
+        if ((fp = _wfopen(fname, L"rt,ccs=UNICODE")) == NULL) return;
+    }
+    else if (codetype == UTF8) {
+        if ((fp = _wfopen(fname, L"rt,ccs=UTF-8")) == NULL) return;
+    }
+    else if (codetype == GBK) {
+        setlocale(LC_ALL, "zh-CN");
+        if ((fp = _wfopen(fname, L"rt")) == NULL) return;
+    }
+    else
+        return;
+
+    // 方法二：连续存储
+    // 求文件长度
+    fseek(fp, 0, SEEK_END);
+    int filesize = ftell(fp);
+    // 分配内存，注意使用sizeof(TCHAR)为最小单位
+    pdoc->text = (TCHAR*)malloc(sizeof(TCHAR) * (filesize + 1));
+
+    TCHAR* line = pdoc->text;
+    TCHAR buff[MAX_LEN] = { 0 };
+    fseek(fp, 0, SEEK_SET);
+    while (true) {
+        // 按行读取文本，每次读取MAX_LEN，若有需要则多次读取同一行
+        TCHAR* p = fgetws(buff, MAX_LEN, fp);
+        // 文件读取完毕，直接退出循环
+        if (p == NULL)
+            break;
+        wcsncpy(line, p, wcslen(p));
+        line = line + wcslen(p);
+    }
+
+    // 逐字检测回车符，记录每行的偏移地址
+    int lineno = 0;
+    pdoc->lineptr[0] = 0;
+    for (int i = 0; i < wcslen(pdoc->text); i++) {
+        if (pdoc->text[i] == '\n') {
+            lineno++;
+            pdoc->lineptr[lineno] = i + 1;
+        }
+    }
+    pdoc->lineCount = lineno+1;
+    fclose(fp);
+}
+
+/*
 // 将从文件读取的内容p填充至line中，同步(扩展)分配内存
 TCHAR* fillLine(TCHAR* line, TCHAR* p)
 {
@@ -113,10 +172,11 @@ TCHAR* fillLine(TCHAR* line, TCHAR* p)
     return line;
 }
 
-// 逐行读取文件内容至TText文件结构中
-void initText(TTextDoc* pdoc, TCHAR* fname)
+//  方法一。分行单独存储
+void initDoc(TTextDoc* pdoc, TCHAR* fname)
 {
     FILE* fp;
+    // 检测文件编码
     int codetype = fileEncodeType(fname);
     // 根据文件编码不同，采用不同的打开方式
     if (codetype == UTF8BOM || codetype == UNICODELE || codetype == UNICODEBE) {
@@ -132,7 +192,8 @@ void initText(TTextDoc* pdoc, TCHAR* fname)
     else
         return;
 
-    TCHAR buff[MAX_LEN] = { 0 };
+
+    TCHAR buff[MAX_LEN] = {0};
     TCHAR* line = NULL;
     pdoc->lineCount = 0;
     while (true) {
@@ -165,56 +226,36 @@ void initText(TTextDoc* pdoc, TCHAR* fname)
             line = fillLine(line, p);
         }
     }
-
-    int size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-    pdoc->buff = (TCHAR*)malloc(sizeof(TCHAR) * (size + 1));
-    pdoc->lineCount1 = 0;
-    line = pdoc->buff;
-    while (true) {
-        // 按行读取文本，每次读取MAX_LEN，若有需要则多次读取同一行
-        TCHAR* p = fgetws(buff, MAX_LEN, fp);
-        // 文件读取完毕，直接退出循环
-        if (p == NULL)
-            break;
-        wcsncpy(line, p, wcslen(p));
-        line = line + wcslen(p);
-    }
-    int lineno = 0;
-    for (int i = 0; i < wcslen(pdoc->buff); i++) {
-        if (pdoc->buff[i] == '\n')
-            pdoc->lineptr[]
-    }
     fclose(fp);
 }
+*/
 
-// 释放为每行分配的内存
+// 释放文本内存
 void freeText(TTextDoc* pdoc)
 {
-    for (int i = 0; i < pdoc->lineCount; i++) {
-        free(pdoc->lines[i]);
-    }
-    free(pdoc->buff);
+    free(pdoc->text);
 }
 
-int getLine(TTextDoc* pdoc, int lineno)
+// 获取指定行的内容
+TCHAR* getLine(TTextDoc* pdoc, int lineno)
 {
-    TCHAR* lineptr;
-    ULONG linelen;
-
-    // find the start of the specified line
-    lineptr = (TCHAR*)pdoc->buff + pdoc->lineptr[lineno];
-
-    // work out how long it is, by looking at the next line's starting point
+    // 检测行数参数的合法性
     if (lineno >= pdoc->lineCount) return NULL;
-    linelen = pdoc->lineptr[lineno + 1] - pdoc->lineptr[lineno];
 
-    // make sure we don't overflow caller's buffer
-    linelen = min(linelen, MAX_LEN);
+    // 行起始位置指针
+    TCHAR* ptr = (TCHAR*)pdoc->text + pdoc->lineptr[lineno];
+    ULONG len;
+    if (lineno == pdoc->lineCount - 1)
+        len = wcslen(ptr);
+    else
+        len = pdoc->lineptr[lineno + 1] - pdoc->lineptr[lineno];
 
-    memcpy(pdoc->linebuff, lineptr, linelen);
-    pdoc->linebuff[linelen] = '\0';
-    return linelen;
+    // 确保缓冲区不溢出
+    len = min(len, MAX_LEN);
+
+    wcsncpy(pdoc->linebuff, ptr, len);
+    pdoc->linebuff[len] = '\0';
+    return pdoc->linebuff;
 }
 
 void loadTextFile(TTextDoc* pdoc)
@@ -229,7 +270,7 @@ void loadTextFile(TTextDoc* pdoc)
     ofn.lpstrFilter = TEXT("文本文件(txt)\0*.txt; *.cpp; *.html;\0\0"); // 文件类型
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // 标志
     if (GetOpenFileName(&ofn)) {
-        initText(pdoc, ofn.lpstrFile);
+        initDoc(pdoc, ofn.lpstrFile);
     }
 }
 
@@ -259,10 +300,9 @@ void paintView(TTextView* pview)
     settextstyle(&pview->font);
     int y = pview->r.top;
     for (int i = 0; i < pview->pdoc->lineCount; i++) {
-        //outtextxy(pview->r.left, y, pview->pdoc->lines[i]);
-        getLine(pview->pdoc, i);
-        outtextxy(pview->r.left, y, pview->pdoc->linebuff);
-        int th = textheight(pview->pdoc->lines[i]);
+        TCHAR* p = getLine(pview->pdoc, i);
+        outtextxy(pview->r.left, y, p);
+        int th = textheight(p);
         if (th == 0) th = textheight(L" ");
         y = y + th + pview->linespace;
     }
