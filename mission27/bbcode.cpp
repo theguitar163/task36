@@ -110,16 +110,6 @@ static bbcode_type bbtypes[] = {
 	{ STRING("align"), BBCODE_BLOCK, printhtmlalign, NULL },
 };
 
-size_t bbcode_fwrite(void *ptr, size_t size, size_t nitems, void *stream)
-{
-	return fwrite(ptr, size, nitems, (FILE *)stream);
-}
-
-size_t bbcode_fread(void *ptr, size_t size, size_t nitems, void *stream)
-{
-	return fread(ptr, size, nitems, (FILE *)stream);
-}
-
 int xprintf(px *x, const char *fmt, ...)
 {
 	char *str;
@@ -196,25 +186,25 @@ void parsebb(rx *x)
 	ti = -1;
 	i = 0;
 
-	while((c = xgetc(x)) != EOF)
-	switch(c) {
-	case '[':
-		ti = x->len - 1;
-		break;
-	case ']':
-		if(ti < 0)
+	while((c = xgetc(x)) != EOF) {
+		switch(c) {
+		case '[':
+			ti = x->len - 1;
 			break;
-		bb = parsetag(x, x->buf + ti, x->len - ti);
-		if(bb == NULL)
+		case ']':
+			if(ti < 0)
+				break;
+			bb = parsetag(x, x->buf + ti, x->len - ti);
+			if(bb == NULL)
+				break;
+			blocknext = bb->type->type == BBCODE_BLOCK;
+			addtext(x->doc, x->buf + i, ti - i, blockprev, blocknext);
+			addtag(x->doc, bb);
+			blockprev = blocknext;
+			i = x->len;
 			break;
-		blocknext = bb->type->type == BBCODE_BLOCK;
-		addtext(x->doc, x->buf + i, ti - i, blockprev, blocknext);
-		addtag(x->doc, bb);
-		blockprev = blocknext;
-		i = x->len;
-		break;
+		}
 	}
-
 	addtext(x->doc, x->buf + i, x->len - i, blockprev, 0);
 }
 

@@ -35,7 +35,7 @@
 
 typedef struct tagTextDocument {
     TCHAR* text;
-    ULONG lineptr[MAX_LINE];
+    long lineptr[MAX_LINE];
     int lineCount;
 
     TCHAR linebuff[MAX_LEN+1];
@@ -244,7 +244,7 @@ TCHAR* getLine(TTextDoc* pdoc, int lineno)
 
     // 行起始位置指针
     TCHAR* ptr = (TCHAR*)pdoc->text + pdoc->lineptr[lineno];
-    ULONG len;
+    long len;
     if (lineno == pdoc->lineCount - 1)
         len = wcslen(ptr);
     else
@@ -309,6 +309,95 @@ void paintView(TTextView* pview)
 }
 
 
+
+#define BBCODE_TEXT 1
+#define BBCODE_TAG  2
+#define BBCODE_CRLF   3
+#define BBCODE_END  4
+
+typedef struct tagToken {
+    int type;
+    TCHAR content[MAX_LEN];
+} TToken;
+
+void gettoken(TTextDoc* pdoc, long* pp, TToken* ptoken)
+{
+     // 初始化偏移量指针
+    long ptr = *pp;
+
+    // 记录起始位置
+    long start = ptr;
+    long end = ptr;
+
+    if (ptr >= wcslen(pdoc->text)) {
+        ptoken->type = BBCODE_END;
+    }
+    else if (pdoc->text[ptr] == L'\n') {
+        ptoken->type = BBCODE_CRLF;
+        ptr++;
+    }
+    else if (pdoc->text[ptr] == L'[') {
+        while (true) {
+            if (ptr >= wcslen(pdoc->text) || pdoc->text[ptr] == L'\n') {
+                ptoken->type = BBCODE_TEXT;
+                wcsncpy(ptoken->content, pdoc->text + start, ptr - start);
+                ptoken->content[ptr - start] = L'\0';
+                break;
+            }
+            else if (pdoc->text[ptr] == L']') {
+                ptr++;
+                ptoken->type = BBCODE_TAG;
+                wcsncpy(ptoken->content, pdoc->text + start, ptr - start);
+                ptoken->content[ptr - start] = L'\0';
+                break;
+            }
+            ptr++;
+        }
+    }
+    else {
+        while (true) {
+            if (ptr >= wcslen(pdoc->text) || pdoc->text[ptr] == L'[' || pdoc->text[ptr] == L'\n') {
+                ptoken->type = BBCODE_TEXT;
+                wcsncpy(ptoken->content, pdoc->text + start, ptr - start);
+                ptoken->content[ptr - start] = L'\0';
+                *pp = ptr;
+                break;
+            }
+            ptr++;
+        }
+    }
+    *pp = ptr;
+}
+
+
+void paintTokenView(TTextView* pview)
+{
+    pview->font.lfHeight = 22;
+    settextstyle(&pview->font);
+    int x = pview->r.left;
+    int y = pview->r.top;
+    int th = 0;
+
+    TToken token;
+    long ptr = 0;
+    gettoken(pview->pdoc, &ptr, &token);
+    while (token.type != BBCODE_END) {
+        switch (token.type) {
+        case BBCODE_TEXT:
+            outtextxy(x, y, token.content);
+            th = max(th, textheight(token.content));
+            x = x + textwidth(token.content);
+            break;
+        case BBCODE_CRLF:
+            x = pview->r.left;
+            y = y + th + pview->linespace;
+            break;
+        }
+
+        gettoken(pview->pdoc, &ptr, &token);
+    }
+}
+
 int main()
 {
     initgraph(800, 800);
@@ -322,7 +411,7 @@ int main()
     TTextView view;
     initView(&view, &doc);
 
-    paintView(&view);
+    paintTokenView(&view);
 
     _getch();
     freeText(&doc);
