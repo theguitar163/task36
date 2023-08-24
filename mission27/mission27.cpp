@@ -141,6 +141,7 @@ void initDoc(TTextDoc* pdoc, TCHAR* fname)
         wcsncpy(line, p, wcslen(p));
         line = line + wcslen(p);
     }
+    *line = L'\0';
 
     // 逐字检测回车符，记录每行的偏移地址
     int lineno = 0;
@@ -290,13 +291,13 @@ void initView(TTextView* pview, TTextDoc* pdoc)
     pview->linespace = 2;
     gettextstyle(&pview->font);
     _tcscpy(pview->font.lfFaceName, L"微软雅黑");
-    pview->font.lfQuality = ANTIALIASED_QUALITY;
+ //   pview->font.lfQuality = ANTIALIASED_QUALITY;
     pview->pdoc = pdoc;
 }
 
 void paintView(TTextView* pview)
 {
-    pview->font.lfHeight = 22;
+    pview->font.lfHeight = 12;
     settextstyle(&pview->font);
     int y = pview->r.top;
     for (int i = 0; i < pview->pdoc->lineCount; i++) {
@@ -328,7 +329,7 @@ void gettoken(TTextDoc* pdoc, long* pp, TToken* ptoken)
     // 记录起始位置
     long start = ptr;
 
-    if (ptr >= wcslen(pdoc->text)) {
+    if (pdoc->text[ptr] == L'\0') {
         ptoken->type = BBCODE_END;
     }
     else if (pdoc->text[ptr] == L'\n') {
@@ -337,13 +338,14 @@ void gettoken(TTextDoc* pdoc, long* pp, TToken* ptoken)
     }
     else if (pdoc->text[ptr] == L'[') {
         while (true) {
-            if (ptr >= wcslen(pdoc->text) || pdoc->text[ptr] == L'\n') {
+            TCHAR c = pdoc->text[ptr];
+            if (c == L'\0' || c == L'\n') {
                 ptoken->type = BBCODE_TEXT;
                 wcsncpy(ptoken->content, pdoc->text + start, ptr - start);
                 ptoken->content[ptr - start] = L'\0';
                 break;
             }
-            else if (pdoc->text[ptr] == L']') {
+            else if (c == L']') {
                 ptr++;
                 ptoken->type = BBCODE_TAG;
                 wcsncpy(ptoken->content, pdoc->text + start, ptr - start);
@@ -355,7 +357,8 @@ void gettoken(TTextDoc* pdoc, long* pp, TToken* ptoken)
     }
     else {
         while (true) {
-            if (ptr >= wcslen(pdoc->text) || pdoc->text[ptr] == L'[' || pdoc->text[ptr] == L'\n') {
+            TCHAR c = pdoc->text[ptr];
+            if (c == L'\0' || c == L'[' || c == L'\n') {
                 ptoken->type = BBCODE_TEXT;
                 wcsncpy(ptoken->content, pdoc->text + start, ptr - start);
                 ptoken->content[ptr - start] = L'\0';
@@ -371,7 +374,7 @@ void gettoken(TTextDoc* pdoc, long* pp, TToken* ptoken)
 
 void paintTokenView(TTextView* pview)
 {
-    pview->font.lfHeight = 22;
+    pview->font.lfHeight = 11;
     settextstyle(&pview->font);
     int x = pview->r.left;
     int y = pview->r.top;
@@ -391,6 +394,7 @@ void paintTokenView(TTextView* pview)
             x = pview->r.left;
             y = y + th + pview->linespace;
             break;
+        case BBCODE_TAG:
         }
 
         gettoken(pview->pdoc, &ptr, &token);
@@ -410,6 +414,9 @@ int main()
     TTextView view;
     initView(&view, &doc);
 
+    paintView(&view);
+    _getch();
+    cleardevice();
     paintTokenView(&view);
 
     _getch();
