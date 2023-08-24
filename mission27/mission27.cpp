@@ -218,6 +218,7 @@ void paintView(TTextView* pview)
     }
 }
 
+
 int main()
 {
     initgraph(800, 800);
