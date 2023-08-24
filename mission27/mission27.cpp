@@ -327,7 +327,6 @@ void gettoken(TTextDoc* pdoc, long* pp, TToken* ptoken)
 
     // 记录起始位置
     long start = ptr;
-    long end = ptr;
 
     if (ptr >= wcslen(pdoc->text)) {
         ptoken->type = BBCODE_END;
