@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mission01.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="tangram.cpp" />
   </ItemGroup>
   <ItemGroup>

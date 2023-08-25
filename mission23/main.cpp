@@ -9,6 +9,7 @@
 #define ROUND(x) (int)round(x)
 #define PI 3.14159265359
 
+// 迭代（递归）次数
 void drawline(int n, double x, double y, double len, double alpha)
 {
     double px = x, py = y;

@@ -127,9 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mission25.cpp" />
+    <ClCompile Include="eightqueens.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="eightqueens.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

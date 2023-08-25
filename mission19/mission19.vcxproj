@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mission19.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="skyline.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="skyline.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

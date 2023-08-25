@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mission16.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="typing.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="typing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

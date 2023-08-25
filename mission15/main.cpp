@@ -123,6 +123,7 @@ void Q2()
 int main()
 {
 	initgraph(800, 800);
+	cleardevice();
 	Q1();
 	Q2();
 	_getch();

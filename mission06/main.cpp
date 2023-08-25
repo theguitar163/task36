@@ -128,7 +128,6 @@ void throwBall(POINT startp, double vx, double vy)
     EndBatchDraw();
 }
 
-
 int main()
 {
     initgraph(800, 800);

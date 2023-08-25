@@ -127,8 +127,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bbcode.cpp" />
     <ClCompile Include="list.cpp" />
-    <ClCompile Include="mission27.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="textdoc.cpp" />
     <ClCompile Include="textview.cpp" />
   </ItemGroup>

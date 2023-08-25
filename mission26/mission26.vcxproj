@@ -135,7 +135,7 @@
     <ClCompile Include="mazer_recursivedivision.cpp" />
     <ClCompile Include="mazer_deepsearch.cpp" />
     <ClCompile Include="list.cpp" />
-    <ClCompile Include="mission26.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="mazer_prim.cpp" />
     <ClCompile Include="panel.cpp" />
     <ClCompile Include="tree.cpp" />

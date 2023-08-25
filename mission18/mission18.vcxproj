@@ -129,7 +129,7 @@
   <ItemGroup>
     <ClCompile Include="painter.cpp" />
     <ClCompile Include="imageproc.cpp" />
-    <ClCompile Include="mission18.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="panel.cpp" />
   </ItemGroup>

@@ -11,6 +11,7 @@
 #define PI 3.1415926
 int left, right, top, bottom;
 
+// 绘制坐标
 void drawCoordinate()
 {
     setlinecolor(WHITE);
@@ -30,7 +31,6 @@ void drawCoordinate()
         line(-3, -i * ULEN, 3, -i * ULEN);
     }
 }
-
 
 // 正弦波
 // y = sin(x) 注意x为弧度

@@ -1,37 +1,7 @@
-ï»¿// åŒäººå‡»çƒæ¸¸æˆã€‚
-//
-// è¯·é¡ºåºå®Œæˆä»¥ä¸‹æ­¥éª¤ï¼š
-// 1. åœ¨å±å¹•ä¸Šç”»ä¸€ä¸ªè¾ƒå¤§çš„é•¿æ–¹å½¢ä½œä¸ºæ¸¸æˆåŒºåŸŸï¼Œé‡Œé¢æœ‰ä¸€ä¸ªå°çƒåš 45 åº¦åå¼¹ã€‚
-// 2. å°†æ¸¸æˆåŒºåŸŸé•¿æ–¹å½¢çš„å·¦ã€å³è¾¹ç•Œæ“¦æ‰ï¼Œæ”¹ä¸ºåœ¨å·¦å³å„ç”»ä¸€ä¸ªå°çŸ©å½¢è¡¨ç¤ºæŒ¡æ¿ï¼Œé€šè¿‡æŒ‰é”®å¯ä»¥ç§»åŠ¨è¿™ä¸ªæŒ¡æ¿ã€‚
-//    å·¦å³æŒ¡æ¿åªèƒ½åœ¨å·±æ–¹çš„åŒºåŸŸï¼ˆä»¥ä¸åŒé¢œè‰²åŒºåˆ†ï¼‰å†…ç§»åŠ¨ã€‚å°çƒç¢°åˆ°æŒ¡æ¿å°±åå¼¹ï¼›å°çƒè¶Šè¿‡å·¦ã€å³è¾¹ç•Œï¼Œæ¸¸æˆç»“æŸã€‚
-// 3. å·¦ä¾§æ¸¸æˆè€…é€šè¿‡ASDWã€å³ä¾§æ¸¸æˆè€…é€šè¿‡æ–¹å‘é”®åœ¨å„è‡ªçš„åŒºåŸŸå†…ä¸Šä¸‹å·¦å³å››ä¸ªæ–¹å‘ç§»åŠ¨æŒ¡æ¿ï¼Œå‡»æ‰“å°çƒã€‚
-// 4. æŒ¡æ¿æ”¹ä¸ºåœ†çƒï¼Œå°çƒç¢°æ’åˆ°çƒå½¢æŒ¡æ¿åï¼Œæ ¹æ®ä¸¤çƒç¢°æ’çš„æ¥è§¦ä½ç½®ï¼Œè®¡ç®—å‡ºå°çƒçš„åå¼¹è§’åº¦ã€‚
-// 5. åœ¨é¡¶éƒ¨å¢åŠ æ¸¸æˆä¿¡æ¯ï¼Œå…ˆç´¯è®¡èµ¢ 3 æ¬¡è€…ï¼Œèƒœåˆ©ã€‚
-
-#include <stdio.h>
-#include <easyx.h>
-#include <conio.h>
 #include <math.h>
-#include <time.h>
+#include "batgame.h"
 
-#define PI 3.1415926
-#define MARGIN  50
-
-#define SIDE_LEFT  1
-#define SIDE_RIGHT 0
-
-#define BAT_TYPE_BAR  0
-#define BAT_TYPE_BALL 1
-
-#define KEY_DOWN(vk_code) (GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0
-
-typedef struct tagTable {
-    int left;
-    int top;
-    int right;
-    int bottom;
-    int batRange;
-} TTable;
+// Çò×ÀÏà¹Øº¯Êı
 
 void initTable(TTable* ptable)
 {
@@ -56,19 +26,9 @@ void drawTable(TTable* ptable)
     line(ptable->left, ptable->bottom, ptable->right, ptable->bottom);
 }
 
-typedef struct tagBat {
-    TTable* ptable;
-    int v;
-    int side;
-    int type;
-    int x;
-    int y;
-    int w;
-    int h;
-    int r;
-} TBat;
+// ÇòÅÄÏà¹Øº¯Êı
 
-void initBat(TBat* pbat, TTable* ptable, int side, int type=BAT_TYPE_BAR) 
+void initBat(TBat* pbat, TTable* ptable, int side, int type)
 {
     pbat->ptable = ptable;
     pbat->side = side;
@@ -81,13 +41,13 @@ void initBat(TBat* pbat, TTable* ptable, int side, int type=BAT_TYPE_BAR)
         pbat->r = 40;
     }
     pbat->v = 5;
-    pbat->x = (pbat->side==SIDE_LEFT) ? ptable->left : ptable->right;
+    pbat->x = (pbat->side == SIDE_LEFT) ? ptable->left : ptable->right;
     pbat->y = ptable->top + (ptable->bottom - ptable->top) / 2;
- }
+}
 
 void moveBat(TBat* pbat, unsigned char vkcode)
 {
-    // æ ¹æ®æŒ‰é”®ç§»åŠ¨æŒ¡æ¿
+    // ¸ù¾İ°´¼üÒÆ¶¯µ²°å
     if (vkcode == VK_UP)
         pbat->y -= pbat->v;
     if (vkcode == VK_DOWN)
@@ -97,9 +57,9 @@ void moveBat(TBat* pbat, unsigned char vkcode)
     if (vkcode == VK_RIGHT)
         pbat->x += pbat->v;
 
-    // è¾¹ç•Œæ£€æµ‹
+    // ±ß½ç¼ì²â
     TTable* ptable = pbat->ptable;
-    // ä¸Šä¸‹è¾¹ç•Œæ£€æµ‹
+    // ÉÏÏÂ±ß½ç¼ì²â
     if (pbat->type == BAT_TYPE_BALL) {
         if (pbat->y < ptable->top + pbat->r)
             pbat->y = ptable->top + pbat->r;
@@ -113,8 +73,8 @@ void moveBat(TBat* pbat, unsigned char vkcode)
             pbat->y = ptable->bottom - pbat->h / 2;
     }
 
-    // å·¦å³è¾¹ç•Œæ£€æµ‹ï¼Œéœ€è¦åˆ†å·¦å³ä¸¤è¾¹åˆ†åˆ«è¿›è¡Œæ£€æµ‹
-    if (pbat->side==SIDE_LEFT) {
+    // ×óÓÒ±ß½ç¼ì²â£¬ĞèÒª·Ö×óÓÒÁ½±ß·Ö±ğ½øĞĞ¼ì²â
+    if (pbat->side == SIDE_LEFT) {
         if (pbat->x < pbat->ptable->left)
             pbat->x = ptable->left;
         if (pbat->x > ptable->left + ptable->batRange)
@@ -130,7 +90,7 @@ void moveBat(TBat* pbat, unsigned char vkcode)
 
 void drawBat(TBat* pbat)
 {
-    COLORREF c = (pbat->side==SIDE_LEFT) ? BLUE : BROWN;
+    COLORREF c = (pbat->side == SIDE_LEFT) ? BLUE : BROWN;
     setfillcolor(c);
     if (pbat->type == BAT_TYPE_BAR) {
         int left = pbat->x - pbat->w / 2;
@@ -143,15 +103,7 @@ void drawBat(TBat* pbat)
         solidcircle(pbat->x, pbat->y, pbat->r);
 }
 
-typedef struct tagPlayer {
-    TCHAR name[20];
-    int hitCount;
-    int winCount;
-    int side;
-    int textx;
-    int texty;
-    TBat* pbat;
-} TPlayer;
+// Íæ¼ÒÏà¹Øº¯Êı
 
 void initPlayer(TPlayer* pplayer, const TCHAR* name, int side, TTable* ptable)
 {
@@ -175,18 +127,7 @@ void drawPlayer(TPlayer* pplayer)
     outtextxy(pplayer->textx, pplayer->texty, str);
 }
 
-typedef struct tagBall {
-    TTable* ptable;
-    TBat* pbatA;
-    TBat* pbatB;
-    TPlayer* pplayerA;
-    TPlayer* pplayerB;
-    int x;
-    int y;
-    int r;
-    double v;
-    double theta;
-} TBall;
+// ÇòÌåÏà¹Øº¯Êı
 
 void initBall(TBall* pball, TTable* ptable, TBat* pbatA, TBat* pbatB, TPlayer* pplayerA, TPlayer* pplayerB)
 {
@@ -219,14 +160,14 @@ void nextBallPos(TBall* pball, int* px, int* py)
 
 int collisionBat(TBall* pball, int x, int y, TBat* pbat)
 {
-    // è‹¥ä¸ºæ¡çŠ¶æŒ¡æ¿ï¼Œè¿›è¡Œç¢°æ’æ£€æµ‹
+    // ÈôÎªÌõ×´µ²°å£¬½øĞĞÅö×²¼ì²â
     if (pbat->type == BAT_TYPE_BAR) {
         double dist = pbat->x - x;
-        // ç¢°åˆ°æ¡çŠ¶æŒ¡æ¿ï¼Œæ”¹å˜å°çƒè¿åŠ¨è§’åº¦
-        if (fabs(dist) <= pbat->w/2 + pball->r + pball->v    // xè½´æ–¹å‘è·ç¦»å·²ç»è¿›å…¥ç¢°æ’
-            && pball->y > pbat->y - pbat->h / 2              // yè½´æ–¹å‘åœ¨æ¡çŠ¶æŒ¡æ¿èŒƒå›´ä¹‹å†…
+        // Åöµ½Ìõ×´µ²°å£¬¸Ä±äĞ¡ÇòÔË¶¯½Ç¶È
+        if (fabs(dist) <= pbat->w / 2 + pball->r + pball->v    // xÖá·½Ïò¾àÀëÒÑ¾­½øÈëÅö×²
+            && pball->y > pbat->y - pbat->h / 2              // yÖá·½ÏòÔÚÌõ×´µ²°å·¶Î§Ö®ÄÚ
             && pball->y < pbat->y + pbat->h / 2) {
-            // è€ƒè™‘åˆ°å°çƒä¸æŒ¡æ¿è·ç¦»æœ‰å¯èƒ½è¿‡è¿‘ï¼Œéœ€è¦ä¿®æ­£å°çƒä½ç½®è‡³ç¢°æ’ç‚¹
+            // ¿¼ÂÇµ½Ğ¡ÇòÓëµ²°å¾àÀëÓĞ¿ÉÄÜ¹ı½ü£¬ĞèÒªĞŞÕıĞ¡ÇòÎ»ÖÃÖÁÅö×²µã
             if (dist < 0)
                 pball->x = pbat->x + (pbat->w / 2 + pball->r + pball->v);
             else
@@ -235,16 +176,16 @@ int collisionBat(TBall* pball, int x, int y, TBat* pbat)
             return 1;
         }
     }
-    // è‹¥ä¸ºçƒå½¢æŒ¡æ¿
+    // ÈôÎªÇòĞÎµ²°å
     else if (pbat->type == BAT_TYPE_BALL) {
-        // ä½¿ç”¨å°çƒé¢„è®¡çš„ä½ç½®ï¼Œè®¡ç®—ä¸¤è€…ä¹‹é—´çš„è·ç¦»
+        // Ê¹ÓÃĞ¡ÇòÔ¤¼ÆµÄÎ»ÖÃ£¬¼ÆËãÁ½ÕßÖ®¼äµÄ¾àÀë
         double dist = sqrt(pow(pbat->y - y, 2) + pow(pbat->x - x, 2));
         if (dist <= pbat->r + pball->r + pball->v) {
             double delta = atan2(pbat->y - pball->y, pbat->x - pball->x);
-            // è€ƒè™‘åˆ°å°çƒä¸æŒ¡æ¿è·ç¦»æœ‰å¯èƒ½è¿‡è¿‘ï¼Œéœ€è¦ä¿®æ­£å°çƒä½ç½®è‡³ç¢°æ’ç‚¹
+            // ¿¼ÂÇµ½Ğ¡ÇòÓëµ²°å¾àÀëÓĞ¿ÉÄÜ¹ı½ü£¬ĞèÒªĞŞÕıĞ¡ÇòÎ»ÖÃÖÁÅö×²µã
             pball->x = pbat->x + cos(PI + delta) * (pbat->r + pball->r + pball->v);
             pball->y = pbat->y + sin(PI + delta) * (pbat->r + pball->r + pball->v);
-            // ä¿®æ­£è§’åº¦
+            // ĞŞÕı½Ç¶È
             pball->theta = PI + 2 * delta - pball->theta;
             return 1;
         }
@@ -255,10 +196,10 @@ int collisionBat(TBall* pball, int x, int y, TBat* pbat)
 int moveBall(TBall* pball)
 {
     int x, y;
-    // é¢„å…ˆè®¡ç®—å°çƒä¸‹ä¸€ä¸ªä½ç½®
+    // Ô¤ÏÈ¼ÆËãĞ¡ÇòÏÂÒ»¸öÎ»ÖÃ
     nextBallPos(pball, &x, &y);
 
-    // æ£€æµ‹æ˜¯å¦å·¦å³è¶…ç•Œ
+    // ¼ì²âÊÇ·ñ×óÓÒ³¬½ç
     if (x + pball->r > pball->ptable->right) {
         pball->pplayerA->winCount++;
         return 0;
@@ -268,11 +209,11 @@ int moveBall(TBall* pball)
         return 0;
     }
 
-    // ä¸Šä¸‹è¾¹ç•Œç¢°æ’å¤„ç†
-    if (y+pball->r > pball->ptable->bottom || y-pball->r < pball->ptable->top)
+    // ÉÏÏÂ±ß½çÅö×²´¦Àí
+    if (y + pball->r > pball->ptable->bottom || y - pball->r < pball->ptable->top)
         pball->theta = -pball->theta;
 
-    // ä½¿ç”¨é¢„å…ˆè®¡ç®—çš„å°çƒä¸‹ä¸€ä½ç½®è¿›è¡ŒæŒ¡æ¿ç¢°æ’å¤„ç†
+    // Ê¹ÓÃÔ¤ÏÈ¼ÆËãµÄĞ¡ÇòÏÂÒ»Î»ÖÃ½øĞĞµ²°åÅö×²´¦Àí
     if (collisionBat(pball, x, y, pball->pbatA))
         pball->pplayerA->hitCount++;
     if (collisionBat(pball, x, y, pball->pbatB))
@@ -281,60 +222,3 @@ int moveBall(TBall* pball)
     return 1;
 }
 
-TTable table;
-TBat batA, batB;
-TPlayer playerA, playerB;
-TBall ball;
-
-void initAll(int all=1)
-{
-    initTable(&table);
-    initBat(&batA, &table, SIDE_LEFT, BAT_TYPE_BALL);
-    initBat(&batB, &table, SIDE_RIGHT); // , BAT_TYPE_BALL);
-    if (all) {
-        initPlayer(&playerA, L"å–œæ´‹æ´‹", SIDE_LEFT, &table);
-        initPlayer(&playerB, L"ç¾ç¾Šç¾Š", SIDE_RIGHT, &table);
-    }
-    initBall(&ball, &table, &batA, &batB, &playerA, &playerB);
-}
-
-void render()
-{
-    drawTable(&table);
-    drawBat(&batA);
-    drawBat(&batB);
-    drawBall(&ball);
-    drawPlayer(&playerA);
-    drawPlayer(&playerB);
-}
-
-int main()
-{
-    initgraph(1200, 600);
-    srand(time(NULL));
-
-    initAll();
-
-    BeginBatchDraw();
-    while (true) {
-        if (KEY_DOWN(VK_ESCAPE))
-            break;
-
-        if (KEY_DOWN('A')) moveBat(&batA, VK_LEFT);
-        if (KEY_DOWN(VK_LEFT)) moveBat(&batB, VK_LEFT);
-        if (KEY_DOWN('D')) moveBat(&batA, VK_RIGHT);
-        if (KEY_DOWN(VK_RIGHT)) moveBat(&batB, VK_RIGHT);
-        if (KEY_DOWN('W')) moveBat(&batA, VK_UP);
-        if (KEY_DOWN(VK_UP)) moveBat(&batB, VK_UP);
-        if (KEY_DOWN('S')) moveBat(&batA, VK_DOWN);
-        if (KEY_DOWN(VK_DOWN)) moveBat(&batB, VK_DOWN);
-
-        if (!moveBall(&ball))
-            initAll(0);
-        render();
-        FlushBatchDraw();
-        Sleep(10);
-    }
-    EndBatchDraw();
-    closegraph();
-}

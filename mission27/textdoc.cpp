@@ -1,9 +1,21 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <easyx.h>
 #include <stdio.h>
 #include <locale.h>
 #include "textdoc.h"
 
 // 通过读取少量文件头，判断文件编码格式
+// 文本文件编码格式分类两类
+// 1.文件头包含BOM
+// （1）Unicode(little endian)：前两个字节“FF FE”，表示小头方式存储
+// （2）Unicode big endian：前两个字节“FE FF ”，表示大头方式存储
+// （3）UTF-8：前三个字节“EF BB BF”
+// 上述包含了BOM的文件，在打开文件时加上ccs=UNICODE即可正确读取
+// 2.文件头不包含BOM
+// （1）GBK：汉字编码通过设定区域setlocale(LC_ALL, "zh-CN")确保正确读取
+// （2）UTF-8：打开文件时需要使用ccs=UTF-8来保证正确读取
+// （3）UTF-16：打开文件时需要使用ccs=UTF-16来保证正确读取
 // TODO：对于无BOM的文件，因为采样数量太少，可能会误判
 int fileEncodeType(TCHAR* fname)
 {

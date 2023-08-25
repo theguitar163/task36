@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "textdoc.h"
 #include "textview.h"
 #include "bbcode.h"
@@ -29,6 +31,38 @@ void paintView(TTextView* pview)
     }
 }
 
+void procTag_B(TCHAR* key, TCHAR* value, int tagState)
+{
+    LOGFONT font;
+    if (tagState == tagOPEN) {
+        gettextstyle(&font);
+        font.lfWeight = FW_BOLD;
+        settextstyle(&font);
+    }
+    else {
+
+    }
+}
+
+void procTag_I(TCHAR* key, TCHAR* value, int tagState)
+{
+    LOGFONT font;
+    if (tagState == tagCLOSE) {
+        gettextstyle(&font);
+        font.lfItalic = 1;
+        settextstyle(&font);
+    }
+    else {
+
+    }
+}
+
+THandler handlers[] = {
+    {eBBCode_B, L"B", L"/B", procTag_B},
+    {eBBCode_I, L"I", L"/I", procTag_I},
+    {eBBCode_NULL},
+};
+
 void paintTokenView(TTextView* pview)
 {
     pview->font.lfHeight = 20;
@@ -39,23 +73,23 @@ void paintTokenView(TTextView* pview)
 
     TToken token;
     long ptr = 0;
-    gettoken(pview->pdoc, &ptr, &token);
-    while (token.type != BBCODE_END) {
-        switch (token.type) {
-        case BBCODE_TEXT:
+    gettoken(pview->pdoc->text, &ptr, &token);
+    while (token.tokentype != TOKEN_END) {
+        switch (token.tokentype) {
+        case TOKEN_TEXT:
             outtextxy(x, y, token.content);
             th = max(th, textheight(token.content));
             x = x + textwidth(token.content);
             break;
-        case BBCODE_CRLF:
+        case TOKEN_CRLF:
             x = pview->r.left;
             y = y + th + pview->linespace;
             break;
-        case BBCODE_TAG:
-            parseTag(&token);
+        case TOKEN_BBCODE:
+            parseBBCode(&token, handlers);
             break;
         }
 
-        gettoken(pview->pdoc, &ptr, &token);
+        gettoken(pview->pdoc->text, &ptr, &token);
     }
 }

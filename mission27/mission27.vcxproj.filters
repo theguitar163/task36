@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mission27.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="list.cpp">
@@ -25,6 +25,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="textview.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="bbcode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

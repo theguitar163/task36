@@ -1,22 +1,5 @@
-ï»¿// ä»»åŠ¡ï¼šå¯è§†åŒ–æ’åºã€‚
-// 1.ç”Ÿæˆ 20 ä¸ªé«˜åº¦éšæœºã€é¢œè‰²éšæœºçš„ç«‹æŸ±ï¼Œå°†å…¶æ¨ªå‘ä¸€æ’æ˜¾ç¤ºå‡ºæ¥ã€‚
-// 2.å°†å…¶æŒ‰ç…§ä»å°åˆ°å¤§çš„é¡ºåºåï¼Œæ˜¾ç¤ºå‡ºæ¥ã€‚
-// 3.å†ç„¶åï¼Œå®ç°å¯è§†åŒ–çš„æ’åºè¿‡ç¨‹ï¼Œæ’åºçš„æ¯ä¸€ä¸ªæ­¥éª¤ï¼Œè°å’Œè°æ¯”è¾ƒï¼Œè°å’Œè°äº¤æ¢ï¼Œ
-//   ç”¨åŠ¨ç”»æ˜¾ç¤ºå‡ºæ¥ï¼Œå±•ç¤ºå®Œæ•´çš„æ’åºè¿‡ç¨‹ã€‚
-#include <stdio.h>
 #include <easyx.h>
-#include <conio.h>
-#include <time.h>
-
-#define MAX_NUM 100
-#define MIN_NUM 10
-#define DATA_COUNT 20
-#define FRAME_RATE (1000/10)
-
-typedef struct tagData {
-    int num;
-    COLORREF color;
-} TData;
+#include "sort.h"
 
 TData data[DATA_COUNT];
 
@@ -45,30 +28,30 @@ void drawData()
         setfillcolor(data[i].color);
         x = left + i * width / DATA_COUNT;
         y = bottom - data[i].num * height / MAX_NUM;
-        solidrectangle(x, bottom, x+barwidth-2, y);
-        // åœ¨çŸ©å½¢åº•éƒ¨ç»˜åˆ¶æ•°å­—
+        solidrectangle(x, bottom, x + barwidth - 2, y);
+        // ÔÚ¾ØĞÎµ×²¿»æÖÆÊı×Ö
         swprintf_s(s, L"%d", data[i].num);
         outtextxy(x + (barwidth - textwidth(s)) / 2, bottom - 20, s);
     }
 }
 
-void swapData(TData *pd1, TData* pd2)
+void swapData(TData* pd1, TData* pd2)
 {
     TData d = *pd1;
     *pd1 = *pd2;
     *pd2 = d;
 }
 
-// å†’æ³¡æ’åº
-void bubbleSort() 
+// Ã°ÅİÅÅĞò
+void bubbleSort()
 {
     cleardevice();
     drawData();
     for (int i = 0; i < DATA_COUNT - 1; i++) {
-        // æ¯è½®å¾ªç¯ç¡®ä¿æœ€å¤§çš„æ•°ï¼Œé€šè¿‡äº¤æ¢å†’æ³¡è‡³æœ€å        
+        // Ã¿ÂÖÑ­»·È·±£×î´óµÄÊı£¬Í¨¹ı½»»»Ã°ÅİÖÁ×îºó        
         for (int j = 0; j < DATA_COUNT - 1 - i; j++) {
-            if (data[j].num > data[j + 1].num) {        // ç›¸é‚»ä¸¤æ•°ä¸¤ä¸¤å¯¹æ¯”
-                swapData(&data[j], &data[j + 1]);       // äº¤æ¢ä¸¤æ•°
+            if (data[j].num > data[j + 1].num) {        // ÏàÁÚÁ½ÊıÁ½Á½¶Ô±È
+                swapData(&data[j], &data[j + 1]);       // ½»»»Á½Êı
 
                 cleardevice();
                 drawData();
@@ -79,7 +62,7 @@ void bubbleSort()
     }
 }
 
-// é€‰æ‹©æ’åº
+// Ñ¡ÔñÅÅĞò
 void selectSort()
 {
     cleardevice();
@@ -87,13 +70,13 @@ void selectSort()
     int minIdx;
     for (int i = 0; i < DATA_COUNT - 1; i++) {
         minIdx = i;
-        // å¯»æ‰¾å‰©ä½™æ•°ç»„([i+1]è‡³æœ€å)ä¸­æœ€å°çš„æ•°æ®ï¼Œè®°å½•å…¶ä¸‹æ ‡
+        // Ñ°ÕÒÊ£ÓàÊı×é([i+1]ÖÁ×îºó)ÖĞ×îĞ¡µÄÊı¾İ£¬¼ÇÂ¼ÆäÏÂ±ê
         for (int j = i + 1; j < DATA_COUNT; j++) {
             if (data[minIdx].num > data[j].num) {
                 minIdx = j;
             }
         }
-        // æ‰¾åˆ°åï¼Œå°†æœ€å°æ•°[minIdx]ä¸å½“å‰å¾…æ’åºçš„ç¬¬ä¸€ä¸ªæ•°æ®[i]è¿›è¡Œäº¤æ¢
+        // ÕÒµ½ºó£¬½«×îĞ¡Êı[minIdx]Óëµ±Ç°´ıÅÅĞòµÄµÚÒ»¸öÊı¾İ[i]½øĞĞ½»»»
         swapData(&data[i], &data[minIdx]);
 
         cleardevice();
@@ -101,23 +84,4 @@ void selectSort()
         FlushBatchDraw();
         Sleep(FRAME_RATE);
     }
-}
-
-int main()
-{
-    initgraph(800, 600);
-    srand(time(NULL));
-    BeginBatchDraw();
-
-    // å†’æ³¡æ’åº
-    initData();
-    bubbleSort();
-    // é€‰æ‹©æ’åº
-    initData();
-    selectSort();
-
-    EndBatchDraw();
-    _getch();
-    closegraph();
-    return 0;
 }

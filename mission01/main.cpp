@@ -112,7 +112,7 @@ int main()
 	drawTangram(bird, { 800, 700 });
 	drawTangram(duct, { 200, 300 });
 	drawTangram(shirt, { 500, 400 });
-	drawTangram(windmill, { 800, 400 });
+	drawTangram(windmill, { 800,300 });
 	// getmessage(EX_CHAR);
 	_getch();
 	closegraph();

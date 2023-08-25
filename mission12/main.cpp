@@ -23,7 +23,6 @@ void initStars()
 		stars[i].y = rand() % getheight();
 		stars[i].v = rand() % 10;	// 速度太快看不清，限制在16以下
 	}
-
 }
 
 void drawStars()
