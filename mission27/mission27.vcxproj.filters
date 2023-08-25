@@ -18,11 +18,26 @@
     <ClCompile Include="mission27.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="bbcode.cpp">
+    <ClCompile Include="list.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="textdoc.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="textview.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="list.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="textdoc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="textview.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="bbcode.h">
       <Filter>头文件</Filter>
     </ClInclude>

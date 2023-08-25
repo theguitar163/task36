@@ -1,22 +1,27 @@
 #pragma once
 
-/*#include <stdio.h>
+typedef struct tagContext {
+    COLORREF color;
+    LOGFONT font;
+} TViewContext;
 
-typedef struct _bbcode_doc bbcode_doc;
+#define BBCODE_TEXT 1
+#define BBCODE_TAG  2
+#define BBCODE_CRLF   3
+#define BBCODE_END  4
 
-bbcode_doc* bbcode_parse(size_t(*read)(void*, size_t, size_t, void*), void* data);
+typedef void (TProcTag)(TCHAR* key, TCHAR* value, int tagState);
 
-// returns how much written or negative number if error
-int bbcode_print(
-    bbcode_doc* doc,
-    size_t(*write)(void*, size_t, size_t, void*),
-    void* data,
-    char* roorpath
-);
+typedef struct tagHandler {
+    const TCHAR* keyopen;
+    const TCHAR* keyclose;
+    TProcTag* proc;
+} THandler;
 
-void bbcode_doc_destroy(bbcode_doc* doc);
+typedef struct tagToken {
+    int type;
+    TCHAR content[MAX_LEN];
+} TToken;
 
-size_t bbcode_fwrite(void* ptr, size_t size, size_t nitems, void* stream);
-size_t bbcode_fread(void* ptr, size_t size, size_t nitems, void* stream);
-
-*/
+#define tagOPEN  0
+#define tagCLOSE 1

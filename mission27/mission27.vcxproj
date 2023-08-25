@@ -127,11 +127,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bbcode.cpp" />
+    <ClCompile Include="list.cpp" />
     <ClCompile Include="mission27.cpp" />
+    <ClCompile Include="textdoc.cpp" />
+    <ClCompile Include="textview.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bbcode.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="textdoc.h" />
+    <ClInclude Include="textview.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

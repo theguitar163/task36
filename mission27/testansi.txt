@@ -1,9 +1,9 @@
 竞赛系统管理员操作指南
 
 1、启动服务器端
-打开Windows10的Windows PowerShell程序
+[ b]打开[/b ]Windows10的Windows PowerShell程序
 在命令行中输入一下指令：
-ssh theguitar@theguitar.synology.me -p 222
+[ i ]ssh theguitar@theguitar.synology.me -p 222[/i]
 输入登录密码(另附)后，进入linux操作系统
 在linux操作系统提示符下，输入以下指令：
 cd /var/services/web/chat
