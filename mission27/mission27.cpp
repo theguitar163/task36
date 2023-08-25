@@ -275,6 +275,13 @@ void loadTextFile(TTextDoc* pdoc)
     }
 }
 
+typedef struct tagContext {
+    COLORREF color;
+    LOGFONT font;
+} TViewContext;
+
+
+
 typedef struct tagTextView {
     RECT r;
     LOGFONT font;
@@ -321,6 +328,12 @@ typedef struct tagToken {
     TCHAR content[MAX_LEN];
 } TToken;
 
+void parsetag(TToken* ptoken)
+{
+    wcsstr(ptoken->content, L"=");
+
+    wcscmp
+}
 void gettoken(TTextDoc* pdoc, long* pp, TToken* ptoken)
 {
      // 初始化偏移量指针
