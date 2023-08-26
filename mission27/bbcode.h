@@ -12,25 +12,21 @@
 #define tagOPEN  0
 #define tagCLOSE 1
 
-typedef enum tagBBCodeType {
-    eBBCode_NULL, // 用于标志THandler数组结束
-    eBBCode_B, eBBCode_I, eBBCode_S, eBBCode_U, eBBCode_FONT, eBBCode_COLOR,
-} BBCodeType;
-
-typedef void (TProcTag)(TCHAR* key, TCHAR* value, int tagState);
-
-typedef struct tagHandler {
-    BBCodeType bbcodetype;
-    const TCHAR* keyopen;
-    const TCHAR* keyclose;
-    TProcTag* proc;
-} THandler;
-
 typedef struct tagToken {
     int tokentype;
     TCHAR content[MAX_TOKEN];
 } TToken;
 
+typedef enum {
+    eBBCode_NULL, // 用于标志THandler数组结束
+    eBBCode_B, eBBCode_I, eBBCode_S, eBBCode_U, eBBCode_FONT, eBBCode_COLOR,
+} BBCodeType;
+
+typedef struct tagBBCodeMap {
+    BBCodeType bbcodetype;
+    const TCHAR* keyopen;
+    const TCHAR* keyclose;
+} BBCodeMap;
 
 void gettoken(TCHAR* text, long* pp, TToken* ptoken);
-void parseBBCode(TToken* ptoken, THandler handlers[]);
+void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR* pvalue, int* pstate);

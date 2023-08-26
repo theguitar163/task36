@@ -1,8 +1,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <easyx.h>
+#include <stdio.h>
 #include "textdoc.h"
 #include "textview.h"
 #include "bbcode.h"
+#include "list.h"
 
 void initView(TTextView* pview, TTextDoc* pdoc)
 {
@@ -15,9 +18,20 @@ void initView(TTextView* pview, TTextDoc* pdoc)
     _tcscpy(pview->font.lfFaceName, L"微软雅黑");
     //   pview->font.lfQuality = ANTIALIASED_QUALITY;
     pview->pdoc = pdoc;
+    initList(&pview->list, 100);
 }
 
-void paintView(TTextView* pview)
+void freeView(TTextView* pview)
+{
+    TContext* ctx;
+    while (pview->list.size > 0) {
+        pop_stack(&pview->list, &ctx);
+        free(ctx);
+    }
+    freeList(&pview->list);
+}
+
+void displayText(TTextView* pview)
 {
     pview->font.lfHeight = 20;
     settextstyle(&pview->font);
@@ -31,20 +45,47 @@ void paintView(TTextView* pview)
     }
 }
 
-void procTag_B(TCHAR* key, TCHAR* value, int tagState)
+TContext* createContext()
+{
+    return (TContext*)malloc(sizeof(TContext));
+}
+
+void freeContext(TContext* ctx)
+{
+    free(ctx);
+}
+
+void procTag_B(TTextView* pview, TCHAR* value, int tagState)
 {
     LOGFONT font;
+    TContext* ctx;
     if (tagState == tagOPEN) {
-        gettextstyle(&font);
+        // 保存当前ctx
+        TContext* ctx = createContext();
+        gettextstyle(&ctx->font);
+        ctx->color = gettextcolor();
+        ctx->bbcodetype = eBBCode_B;
+        push(&pview->list, ctx);
+        // 更改当前字体
         font.lfWeight = FW_BOLD;
         settextstyle(&font);
     }
     else {
-
+        // 出栈
+        pop_stack(&pview->list, &ctx);
+        // 类型匹配
+        if (ctx->bbcodetype == eBBCode_B) {
+            settextcolor(ctx->color);
+            settextstyle(&ctx->font);
+            freeContext(ctx);
+        }
+        else {
+            push(&pview->list, ctx);
+        }
     }
 }
 
-void procTag_I(TCHAR* key, TCHAR* value, int tagState)
+void procTag_I(TTextView* pview, TCHAR* value, int tagState)
 {
     LOGFONT font;
     if (tagState == tagCLOSE) {
@@ -58,12 +99,12 @@ void procTag_I(TCHAR* key, TCHAR* value, int tagState)
 }
 
 THandler handlers[] = {
-    {eBBCode_B, L"B", L"/B", procTag_B},
-    {eBBCode_I, L"I", L"/I", procTag_I},
+    {eBBCode_B, procTag_B},
+    {eBBCode_I, procTag_I},
     {eBBCode_NULL},
 };
 
-void paintTokenView(TTextView* pview)
+void displayRichText(TTextView* pview)
 {
     pview->font.lfHeight = 20;
     settextstyle(&pview->font);
@@ -86,7 +127,11 @@ void paintTokenView(TTextView* pview)
             y = y + th + pview->linespace;
             break;
         case TOKEN_BBCODE:
-            parseBBCode(&token, handlers);
+            BBCodeType type;
+            TCHAR* value;
+            int state;
+            parseBBCode(&token, &type, value, &state);
+
             break;
         }
 

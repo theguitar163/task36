@@ -1,9 +1,8 @@
 #pragma once
-// 列表相关结构和函数
 
 #include "textview.h"
 
-typedef TViewContext ITEM;
+// 列表相关结构和函数
 
 // 实体化s数组方式存储的item列表
 typedef struct tagList {

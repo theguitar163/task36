@@ -25,7 +25,6 @@
 #include "textdoc.h"
 #include "textview.h"
 
-
 int main()
 {
     initgraph(800, 800);
@@ -39,10 +38,10 @@ int main()
     TTextView view;
     initView(&view, &doc);
 
-    paintView(&view);
+    displayText(&view);
     _getch();
     cleardevice();
-    paintTokenView(&view);
+    displayRichText(&view);
 
     _getch();
     freeText(&doc);
