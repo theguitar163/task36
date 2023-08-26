@@ -76,12 +76,12 @@ void gettoken(TCHAR* text, long* pp, TToken* ptoken)
 BBCodeMap bbcodemap[] = {
     {eBBCode_B, L"B", L"/B"},
     {eBBCode_I, L"I", L"/I"},
-    {eBBCode_NULL},
+    {eBBCode_MAX},
 };
 // 解析BBCode
 // !隐患，token是全局变量。在处理过程中还会gettoken，引起token的变化
 // 因此再次处理必须重新声明token，但是当前指针尤为重要
-void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR* pvalue, int* pstate)
+void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR** pvalue, int* pstate)
 {
     TCHAR* key;
     TCHAR* value;
@@ -90,18 +90,18 @@ void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR* pvalue, int* pstate)
     value = trim(wcstok(NULL, L"=", &ptr));
 
     int i = 0;
-    *ptype = eBBCode_NULL;
+    *ptype = eBBCode_MAX;
     *pstate = tagCLOSE;
-    while (bbcodemap[i].bbcodetype != eBBCode_NULL) {
-        if (_wcsicmp(key, bbcodemap[i].keyopen)) {
+    while (bbcodemap[i].bbcodetype != eBBCode_MAX) {
+        if (_wcsicmp(key, bbcodemap[i].keyopen)==0) {
             *ptype = bbcodemap[i].bbcodetype;
-            pvalue = value;
+            *pvalue = value;
             *pstate = tagOPEN;
             break;
         }
-        else if (_wcsicmp(key, bbcodemap[i].keyclose)) {
+        else if (_wcsicmp(key, bbcodemap[i].keyclose)==0) {
             *ptype = bbcodemap[i].bbcodetype;
-            pvalue = value;
+            *pvalue = value;
             *pstate = tagCLOSE;
             break;
         }

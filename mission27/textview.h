@@ -3,22 +3,19 @@
 #include <easyx.h>
 #include "bbcode.h"
 #include "textdoc.h"
+#include "list.h"
 
-typedef struct tagContext {
-    BBCodeType bbcodetype;
-    COLORREF color;
-    LOGFONT font;
-} TContext, ITEM;
+
+typedef void (TProcBBCode)(struct tagTextView* pview, TCHAR* value, int tagState);
 
 typedef struct tagTextView {
     RECT r;
     LOGFONT font;
     int linespace;
     TTextDoc* pdoc;
-   TListp list;
+    TListp list;
+    TProcBBCode* handlers[eBBCode_MAX];
 } TTextView;
-
-typedef void (TProcBBCode)(TTextView* pview, TCHAR* value, int tagState);
 
 typedef struct tagHandler {
     BBCodeType bbcodetype;

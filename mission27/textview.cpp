@@ -7,6 +7,87 @@
 #include "bbcode.h"
 #include "list.h"
 
+
+
+TContext* createContext()
+{
+    return (TContext*)malloc(sizeof(TContext));
+}
+
+void freeContext(TContext* ctx)
+{
+    free(ctx);
+}
+
+
+void procTag_B(TTextView* pview, TCHAR* value, int tagState)
+{
+    LOGFONT font;
+    TContext* ctx;
+    if (tagState == tagOPEN) {
+        // 取得当前字体
+        gettextstyle(&font);
+        // 创建ctx
+        ctx = createContext();
+        ctx->font = font;
+        ctx->color = gettextcolor();
+        ctx->bbcodetype = eBBCode_B;
+        push(&pview->list, ctx);
+        // 更改当前字体
+        font.lfWeight = FW_BOLD;
+        settextstyle(&font);
+    }
+    else {
+        // 出栈
+        if (pop_stack(&pview->list, &ctx)) {
+            // 类型匹配
+            if (ctx->bbcodetype == eBBCode_B) {
+                settextcolor(ctx->color);
+                settextstyle(&ctx->font);
+                freeContext(ctx);
+            }
+            else {
+                push(&pview->list, ctx);
+            }
+        }
+    }
+}
+
+void procTag_I(TTextView* pview, TCHAR* value, int tagState)
+{
+    LOGFONT font;
+    TContext* ctx;
+    if (tagState == tagOPEN) {
+        // 取得当前字体
+        gettextstyle(&font);
+        // 创建ctx
+        ctx = createContext();
+        ctx->font = font;
+        ctx->color = gettextcolor();
+        ctx->bbcodetype = eBBCode_B;
+        push(&pview->list, ctx);
+        // 更改当前字体
+        font.lfItalic = 1;
+        settextstyle(&font);
+    }
+    else {
+        // 出栈
+        if (pop_stack(&pview->list, &ctx)) {
+            // 类型匹配
+            if (ctx->bbcodetype == eBBCode_B) {
+                settextcolor(ctx->color);
+                settextstyle(&ctx->font);
+                freeContext(ctx);
+            }
+            else {
+                push(&pview->list, ctx);
+            }
+        }
+    }
+}
+
+
+
 void initView(TTextView* pview, TTextDoc* pdoc)
 {
     pview->r.left = 10;
@@ -19,6 +100,9 @@ void initView(TTextView* pview, TTextDoc* pdoc)
     //   pview->font.lfQuality = ANTIALIASED_QUALITY;
     pview->pdoc = pdoc;
     initList(&pview->list, 100);
+    
+    pview->handlers[eBBCode_B] = &procTag_B;
+    pview->handlers[eBBCode_I] = &procTag_I;
 }
 
 void freeView(TTextView* pview)
@@ -45,64 +129,6 @@ void displayText(TTextView* pview)
     }
 }
 
-TContext* createContext()
-{
-    return (TContext*)malloc(sizeof(TContext));
-}
-
-void freeContext(TContext* ctx)
-{
-    free(ctx);
-}
-
-void procTag_B(TTextView* pview, TCHAR* value, int tagState)
-{
-    LOGFONT font;
-    TContext* ctx;
-    if (tagState == tagOPEN) {
-        // 保存当前ctx
-        TContext* ctx = createContext();
-        gettextstyle(&ctx->font);
-        ctx->color = gettextcolor();
-        ctx->bbcodetype = eBBCode_B;
-        push(&pview->list, ctx);
-        // 更改当前字体
-        font.lfWeight = FW_BOLD;
-        settextstyle(&font);
-    }
-    else {
-        // 出栈
-        pop_stack(&pview->list, &ctx);
-        // 类型匹配
-        if (ctx->bbcodetype == eBBCode_B) {
-            settextcolor(ctx->color);
-            settextstyle(&ctx->font);
-            freeContext(ctx);
-        }
-        else {
-            push(&pview->list, ctx);
-        }
-    }
-}
-
-void procTag_I(TTextView* pview, TCHAR* value, int tagState)
-{
-    LOGFONT font;
-    if (tagState == tagCLOSE) {
-        gettextstyle(&font);
-        font.lfItalic = 1;
-        settextstyle(&font);
-    }
-    else {
-
-    }
-}
-
-THandler handlers[] = {
-    {eBBCode_B, procTag_B},
-    {eBBCode_I, procTag_I},
-    {eBBCode_NULL},
-};
 
 void displayRichText(TTextView* pview)
 {
@@ -128,10 +154,11 @@ void displayRichText(TTextView* pview)
             break;
         case TOKEN_BBCODE:
             BBCodeType type;
-            TCHAR* value;
+            TCHAR* value = NULL;
             int state;
-            parseBBCode(&token, &type, value, &state);
-
+            parseBBCode(&token, &type, &value, &state);
+            if (type < eBBCode_MAX)
+                pview->handlers[type](pview, value, state);
             break;
         }
 

@@ -17,9 +17,9 @@ typedef struct tagToken {
     TCHAR content[MAX_TOKEN];
 } TToken;
 
-typedef enum {
-    eBBCode_NULL, // 用于标志THandler数组结束
-    eBBCode_B, eBBCode_I, eBBCode_S, eBBCode_U, eBBCode_FONT, eBBCode_COLOR,
+typedef enum tagBBCodeType{
+    eBBCode_B = 0, eBBCode_I, eBBCode_S, eBBCode_U, eBBCode_FONT, eBBCode_COLOR,
+    eBBCode_MAX, // 用于标志THandler数组结束
 } BBCodeType;
 
 typedef struct tagBBCodeMap {
@@ -29,4 +29,4 @@ typedef struct tagBBCodeMap {
 } BBCodeMap;
 
 void gettoken(TCHAR* text, long* pp, TToken* ptoken);
-void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR* pvalue, int* pstate);
+void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR** pvalue, int* pstate);

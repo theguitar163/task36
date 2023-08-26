@@ -1,8 +1,13 @@
 #pragma once
 
-#include "textview.h"
+#include "bbcode.h"
 
 // 列表相关结构和函数
+typedef struct tagContext {
+    BBCodeType bbcodetype;
+    COLORREF color;
+    LOGFONT font;
+} TContext, ITEM;
 
 // 实体化s数组方式存储的item列表
 typedef struct tagList {
