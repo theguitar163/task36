@@ -158,6 +158,7 @@ void displayRichText(TTextView* pview)
         case TOKEN_CRLF:
             x = pview->r.left;
             y = y + th + pview->linespace;
+            th = 0;
             break;
         case TOKEN_BBCODE:
             BBCodeType type;
