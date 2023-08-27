@@ -76,6 +76,11 @@ void gettoken(TCHAR* text, long* pp, TToken* ptoken)
 BBCodeMap bbcodemap[] = {
     {eBBCode_B, L"B", L"/B"},
     {eBBCode_I, L"I", L"/I"},
+    {eBBCode_S, L"S", L"/S"},
+    {eBBCode_U, L"U", L"/U"},
+    {eBBCode_FONT, L"FONT", L"/FONT"},
+    {eBBCode_COLOR, L"COLOR", L"/COLOR"},
+    {eBBCode_SIZE, L"SIZE", L"/SIZE"},
     {eBBCode_MAX},
 };
 // Ω‚ŒˆBBCode

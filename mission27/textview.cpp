@@ -65,8 +65,10 @@ void procTag_FONT(TTextView* pview, BBCodeType type, TCHAR* value, int tagState)
             settextcolor(RED);
             break;
         case eBBCode_SIZE:
-
-            settextcolor(RED);
+            int size;
+            swscanf(value, L"%d", &size);
+            font.lfHeight = size;
+            settextstyle(&font);
             break;
         }
     }
