@@ -18,7 +18,7 @@ typedef struct tagToken {
 } TToken;
 
 typedef enum tagBBCodeType{
-    eBBCode_B = 0, eBBCode_I, eBBCode_S, eBBCode_U, eBBCode_FONT, eBBCode_COLOR,
+    eBBCode_B = 0, eBBCode_I, eBBCode_S, eBBCode_U, eBBCode_FONT, eBBCode_COLOR, eBBCode_SIZE,
     eBBCode_MAX, // 用于标志THandler数组结束
 } BBCodeType;
 

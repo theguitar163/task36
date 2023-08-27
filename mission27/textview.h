@@ -6,7 +6,7 @@
 #include "list.h"
 
 
-typedef void (TProcBBCode)(struct tagTextView* pview, TCHAR* value, int tagState);
+typedef void (TProcBBCode)(struct tagTextView* pview, BBCodeType type, TCHAR* value, int tagState);
 
 typedef struct tagTextView {
     RECT r;
