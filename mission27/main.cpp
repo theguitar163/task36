@@ -87,8 +87,6 @@ void setRichText()
 }
 
 
-
-
 TButton buttons[] = {
     {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 60, 20, &loadTextFile, bgNONE},
     {bsRDRECT, btDEFAULT, L"纯文本格式", LIGHTGRAY, 100, 20, &setPlainText, bgFORMAT},
