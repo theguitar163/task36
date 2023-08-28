@@ -216,7 +216,8 @@ void buttonClick(TPanel* ppanel, int x, int y)
             if (pfun != NULL)
                 // (*pfun)(ppanel->ppainter);
                 (*pfun)();
-
+            int btnIdx = ppanel->btnClicked;
+            updateButtonGroup(ppanel, btnIdx);
             drawPanel(ppanel);
             FlushBatchDraw();
 
@@ -229,6 +230,7 @@ void buttonClick(TPanel* ppanel, int x, int y)
 void updateButtonGroup(TPanel* ppanel, int btnIdx)
 {
     int gid = ppanel->pbuttons[btnIdx]->groupid;
+    if (gid == bgNONE) return;
     for (int i = 0; i < ppanel->btnCount; i++) {
         if (ppanel->pbuttons[i]->groupid == gid) {
             if (btnIdx == i)

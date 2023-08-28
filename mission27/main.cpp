@@ -90,7 +90,7 @@ void setRichText()
 
 
 TButton buttons[] = {
-    {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 60, 20, &loadTextFile},
+    {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 60, 20, &loadTextFile, bgNONE},
     {bsRDRECT, btDEFAULT, L"纯文本格式", LIGHTGRAY, 100, 20, &setPlainText, bgFORMAT},
     {bsRDRECT, btDEFAULT, L"富文本格式", LIGHTGRAY, 100, 20, &setRichText, bgFORMAT},
 };
@@ -111,6 +111,7 @@ int main()
     for (int i = 1; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
         addButton(&panel, &buttons[i], 10, adRIGHT);
     }
+    initButtonGroup(&panel);
 
     BeginBatchDraw();
     drawPanel(&panel);
