@@ -98,13 +98,13 @@ void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR** pvalue, int* pstate)
     *ptype = eBBCode_MAX;
     *pstate = tagCLOSE;
     while (bbcodemap[i].bbcodetype != eBBCode_MAX) {
-        if (_wcsicmp(key, bbcodemap[i].keyopen)==0) {
+        if (key!=NULL && _wcsicmp(key, bbcodemap[i].keyopen)==0) {
             *ptype = bbcodemap[i].bbcodetype;
             *pvalue = value;
             *pstate = tagOPEN;
             break;
         }
-        else if (_wcsicmp(key, bbcodemap[i].keyclose)==0) {
+        else if (key!=NULL && _wcsicmp(key, bbcodemap[i].keyclose)==0) {
             *ptype = bbcodemap[i].bbcodetype;
             *pvalue = value;
             *pstate = tagCLOSE;
