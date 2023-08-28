@@ -17,7 +17,7 @@
 
 3、管理端和大屏端启动
 管理端和大屏端均通过浏览器进入，网址为
-http://theguitar.synology.me:8088/jxquiz/
+[u]http://theguitar.synology.me:8088/jxquiz/[/u]
 管理端账号为: admin
 大屏端账号为: board
 账号均为小写。

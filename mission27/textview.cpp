@@ -185,7 +185,7 @@ void displayRichText(TTextView* pview)
 
     TToken token;
     long ptr = 0;
-    gettoken(pview->pdoc->text, &ptr, &token);
+    getToken(pview->pdoc->text, &ptr, &token);
     while (token.tokentype != TOKEN_END) {
         switch (token.tokentype) {
         case TOKEN_TEXT:
@@ -208,6 +208,7 @@ void displayRichText(TTextView* pview)
             break;
         }
 
-        gettoken(pview->pdoc->text, &ptr, &token);
+        getToken(pview->pdoc->text, &ptr, &token);
     }
+    pview->allheight = y + th - pview->r.top;
 }

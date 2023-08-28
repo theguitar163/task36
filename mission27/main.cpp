@@ -43,7 +43,39 @@ int main()
     cleardevice();
     displayRichText(&view);
 
-    _getch();
+    BeginBatchDraw();
+    ExMessage em;
+    while (true) {
+        getmessage(&em);
+        int update = false;
+        if (em.message == WM_KEYUP) {
+            if (em.vkcode == VK_ESCAPE) {
+                break;
+            }
+            else if (em.vkcode == VK_NEXT) {
+                view.r.top -= getheight();
+                if (view.allheight + view.r.top < view.defaultheight)
+                    view.r.top = (view.defaultheight - view.allheight);
+                update = true;
+            }
+            else if (em.vkcode == VK_PRIOR) {
+                view.r.top += getheight();
+                if (view.r.top > 0)
+                    view.r.top = 0;
+                update = true;
+            }
+        }
+        else if (em.message == WM_MOUSEWHEEL) {
+            update = true;
+        }
+        if (update) {
+            cleardevice();
+            displayRichText(&view);
+            FlushBatchDraw();
+        }
+    }
+    EndBatchDraw();
+    freeView(&view);
     freeText(&doc);
     closegraph();
 }

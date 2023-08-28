@@ -28,5 +28,5 @@ typedef struct tagBBCodeMap {
     const TCHAR* keyclose;
 } BBCodeMap;
 
-void gettoken(TCHAR* text, long* pp, TToken* ptoken);
+void getToken(TCHAR* text, long* pp, TToken* ptoken);
 void parseBBCode(TToken* ptoken, BBCodeType* ptype, TCHAR** pvalue, int* pstate);

@@ -13,6 +13,8 @@ typedef struct tagTextView {
     LOGFONT font;
     int linespace;
     int defaultheight;
+    int allheight;
+    int allwidth;
     TTextDoc* pdoc;
     TListp list;
     TProcBBCode* handlers[eBBCode_MAX];
@@ -26,3 +28,4 @@ typedef struct tagHandler {
 void initView(TTextView* pview, TTextDoc* pdoc);
 void displayText(TTextView* pview);
 void displayRichText(TTextView* pview);
+void freeView(TTextView* pview);

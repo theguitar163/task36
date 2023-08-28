@@ -22,7 +22,7 @@ TCHAR* trim(TCHAR* str)
 }
 
 // 从字符串中取得token
-void gettoken(TCHAR* text, long* pp, TToken* ptoken)
+void getToken(TCHAR* text, long* pp, TToken* ptoken)
 {
     // 初始化偏移量指针
     long ptr = *pp;
