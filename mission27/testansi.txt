@@ -1,14 +1,14 @@
-竞赛系统管理员操作指南
+竞[font=隶书][size=38]赛系统管理员操作指南[/size][/font]
 
 1、启动服务器端
 [ b]打开[/b ]Windows10的Windows PowerShell程序
 [size=44][b]在命令行中输入一下指令：[/b][/size]
 [U]ssh theguitar@theguitar.synology.me -p 222[/u]
-输入登录密码(另附)后，进入linux操作系统
+[color=GREEN]输入登录密码(另附)后，进入linux[/color]操作系统
 在linux操作系统提示符下，输入以下指令：
 [i]cd /var/services/web/chat[/i]
 [s]php start.php start[/s]
-此时可看到服务器启动界面，保持该对话框。
+[color=#FFFF00]此时可看到服务器启动界面，保持该对话框。[/color]
 
 2、终止服务器
 按ctrl+c

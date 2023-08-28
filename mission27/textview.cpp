@@ -19,9 +19,40 @@ void freeContext(TContext* ctx)
     free(ctx);
 }
 
-COLORREF string2color(TCHAR* str)
+typedef struct tagColorName {
+    const TCHAR* name;
+    const COLORREF color;
+} TColorName;
+
+TColorName colorNames[] = {
+    {L"BLACK", BLACK},
+    {L"BLUE", BLUE},
+    {L"GREEN", GREEN},
+    {L"CYAN", CYAN},
+    {L"RED", RED},
+    {L"MAGENTA", MAGENTA},
+    {L"BROWN", BROWN},
+    {L"LIGHTGRAY", LIGHTGRAY},
+    {L"DARKGRAY", DARKGRAY},
+    {L"LIGHTBLUE", LIGHTBLUE},
+    {L"LIGHTGREEN", LIGHTGREEN},
+    {L"LIGHTCYAN", LIGHTCYAN},
+    {L"LIGHTRED", LIGHTRED},
+    {L"LIGHTMAGENTA",LIGHTMAGENTA},
+    {L"YELLOW", YELLOW},
+    {L"WHITE", WHITE},
+    {NULL}
+};
+COLORREF string2color(TCHAR* str, COLORREF defaultColor)
 {
-    return RED;
+    int i = 0;
+    while (colorNames[i].name != NULL) {
+        if (_wcsicmp(colorNames[i].name, str) == 0) {
+            return colorNames[i].color;
+        }
+        i++;
+    }
+    return defaultColor;
 }
 
 void procTag_FONT(TTextView* pview, BBCodeType type, TCHAR* value, int tagState)
@@ -61,14 +92,20 @@ void procTag_FONT(TTextView* pview, BBCodeType type, TCHAR* value, int tagState)
             settextstyle(&font);
             break;
         case eBBCode_COLOR:
-
-            settextcolor(RED);
+            int r, g, b;
+            if (swscanf(value, L"#%2x%2x%2x", &r, &g, &b) == 3) {
+                settextcolor(RGB(r, g, b));
+            }
+            else {
+                settextcolor(string2color(value, gettextcolor()));
+            }
             break;
         case eBBCode_SIZE:
             int size;
-            swscanf(value, L"%d", &size);
-            font.lfHeight = size;
-            settextstyle(&font);
+            if (swscanf(value, L"%d", &size) == 1) {
+                font.lfHeight = size;
+                settextstyle(&font);
+            }
             break;
         }
     }
@@ -96,6 +133,7 @@ void initView(TTextView* pview, TTextDoc* pdoc)
     pview->r.right = getwidth() - 10;
     pview->r.bottom = getheight() - 10;
     pview->linespace = 2;
+    pview->defaultheight = textheight(' ');
     gettextstyle(&pview->font);
     _tcscpy(pview->font.lfFaceName, L"Î¢ÈíÑÅºÚ");
     //   pview->font.lfQuality = ANTIALIASED_QUALITY;
@@ -158,7 +196,7 @@ void displayRichText(TTextView* pview)
         case TOKEN_CRLF:
             x = pview->r.left;
             y = y + th + pview->linespace;
-            th = 0;
+            th = pview->defaultheight;
             break;
         case TOKEN_BBCODE:
             BBCodeType type;
