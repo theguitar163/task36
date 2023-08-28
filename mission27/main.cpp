@@ -40,15 +40,16 @@ int main()
 
     displayText(&view);
     _getch();
+    BeginBatchDraw();
     cleardevice();
     displayRichText(&view);
+    FlushBatchDraw();
 
-    BeginBatchDraw();
     ExMessage em;
     while (true) {
         getmessage(&em);
         int update = false;
-        if (em.message == WM_KEYUP) {
+        if (em.message == WM_KEYDOWN) {
             if (em.vkcode == VK_ESCAPE) {
                 break;
             }
@@ -66,6 +67,11 @@ int main()
             }
         }
         else if (em.message == WM_MOUSEWHEEL) {
+            view.r.top += em.wheel;
+            if (view.allheight + view.r.top < view.defaultheight)
+                view.r.top = (view.defaultheight - view.allheight);
+            if (view.r.top > 0)
+                view.r.top = 0;
             update = true;
         }
         if (update) {
