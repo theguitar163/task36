@@ -66,7 +66,9 @@ void procTag_FONT(TTextView* pview, BBCodeType type, TCHAR* value, int tagState)
         ctx->font = font;
         ctx->color = gettextcolor();
         ctx->bbcodetype = eBBCode_B;
+        // 当前ctx压栈
         push(&pview->list, ctx);
+        // 根据BBCodeType执行相应的操作
         switch (type) {
         case eBBCode_B:
             // 更改当前字体
@@ -109,15 +111,16 @@ void procTag_FONT(TTextView* pview, BBCodeType type, TCHAR* value, int tagState)
         }
     }
     else {
-        // 出栈
+        // ctx出栈
         if (pop_stack(&pview->list, &ctx)) {
-            // 类型匹配
+            // 类型匹配，恢复ctx
             if (ctx->bbcodetype == eBBCode_B) {
                 settextcolor(ctx->color);
                 settextstyle(&ctx->font);
                 freeContext(ctx);
             }
             else {
+                // 不匹配则重新压栈
                 push(&pview->list, ctx);
             }
         }
