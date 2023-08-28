@@ -26,6 +26,4 @@ void initDoc(TTextDoc* pdoc, TCHAR* fname);
 // 获取指定行的内容
 TCHAR* getLine(TTextDoc* pdoc, int lineno);
 // 释放文本内存
-void freeText(TTextDoc* pdoc);
-// 加载文本文件
-void loadTextFile(TTextDoc* pdoc);
+void freeDoc(TTextDoc* pdoc);

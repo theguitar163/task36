@@ -24,65 +24,135 @@
 #include <easyx.h>
 #include "textdoc.h"
 #include "textview.h"
+#include "panel.h"
+
+#define PANEL_HEIGHT 40
+
+TTextDoc doc;
+TTextView view;
+
+#define PLAIN_TEXT 0
+#define RICH_TEXT  1
+
+int g_textFormat = PLAIN_TEXT;
+int g_loaded = false;
+
+void displayText()
+{
+    if (g_loaded) {
+        cleardevice();
+        if (g_textFormat == RICH_TEXT)
+            displayRichText(&view);
+        else
+            displayPlainText(&view);
+    }
+}
+
+void loadTextFile()
+{
+    OPENFILENAME ofn;
+    TCHAR szFile[MAX_PATH] = { 0 };	//用于接收文件名
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.hwndOwner = GetHWnd();
+    ofn.lStructSize = sizeof(ofn); // 结构大小
+    ofn.lpstrFile = szFile;	       //接收返回的文件名，注意第一个字符需要为NULL
+    ofn.nMaxFile = MAX_PATH;       // 路径大小
+    ofn.lpstrFilter = TEXT("文本文件(txt)\0*.txt; *.cpp; *.html;\0\0"); // 文件类型
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // 标志
+    if (GetOpenFileName(&ofn)) {
+        freeDoc(&doc);
+        freeView(&view);
+        initDoc(&doc, ofn.lpstrFile);
+        initView(&view, &doc);
+        setViewport(&view, { 10, PANEL_HEIGHT + 10, getwidth() - 10, getheight() - 10 });
+        g_loaded = true;
+        displayText();
+    }
+}
+
+void setPlainText()
+{
+    if (g_textFormat != PLAIN_TEXT) {
+        g_textFormat = PLAIN_TEXT;
+        displayText();
+    }
+}
+
+void setRichText()
+{
+    if (g_textFormat != RICH_TEXT) {
+        g_textFormat = RICH_TEXT;
+        displayText();
+    }
+}
+
+
+
+
+TButton buttons[] = {
+    {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 60, 20, &loadTextFile},
+    {bsRDRECT, btDEFAULT, L"纯文本格式", LIGHTGRAY, 100, 20, &setPlainText, bgFORMAT},
+    {bsRDRECT, btDEFAULT, L"富文本格式", LIGHTGRAY, 100, 20, &setRichText, bgFORMAT},
+};
 
 int main()
 {
     initgraph(800, 800);
     setbkcolor(WHITE);
+    setbkmode(TRANSPARENT);
     cleardevice();
     settextcolor(BLACK);
 
-    TTextDoc doc;
-    loadTextFile(&doc);
+    TPanel panel;
+    initPanel(&panel, PANEL_HEIGHT, alTOP);
 
-    TTextView view;
-    initView(&view, &doc);
+    setButtonPos(&buttons[0], 20, 10);
+    addButton(&panel, &buttons[0]);
+    for (int i = 1; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
+        addButton(&panel, &buttons[i], 10, adRIGHT);
+    }
 
-    displayText(&view);
-    _getch();
     BeginBatchDraw();
-    cleardevice();
-    displayRichText(&view);
+    drawPanel(&panel);
     FlushBatchDraw();
 
     ExMessage em;
     while (true) {
         getmessage(&em);
         int update = false;
-        if (em.message == WM_KEYDOWN) {
-            if (em.vkcode == VK_ESCAPE) {
-                break;
+        if (em.message == WM_KEYDOWN && em.vkcode == VK_ESCAPE) 
+            break;
+
+        if (em.message == WM_LBUTTONDOWN) {
+            if (ptInPanel({ em.x, em.y }, &panel))
+                buttonClick(&panel, em.x, em.y);
+        }
+
+        if (g_loaded) {
+            if (em.message == WM_KEYDOWN) {
+                if (em.vkcode == VK_NEXT) {
+                    scrollPage(&view,  -getheight());
+                    update = true;
+                }
+                else if (em.vkcode == VK_PRIOR) {
+                    scrollPage(&view, getheight());
+                    update = true;
+                }
             }
-            else if (em.vkcode == VK_NEXT) {
-                view.r.top -= getheight();
-                if (view.allheight + view.r.top < view.defaultheight)
-                    view.r.top = (view.defaultheight - view.allheight);
+            else if (em.message == WM_MOUSEWHEEL) {
+                scrollPage(&view, em.wheel);
                 update = true;
             }
-            else if (em.vkcode == VK_PRIOR) {
-                view.r.top += getheight();
-                if (view.r.top > 0)
-                    view.r.top = 0;
-                update = true;
+            if (update) {
+                displayText();
+                drawPanel(&panel);
+                FlushBatchDraw();
             }
-        }
-        else if (em.message == WM_MOUSEWHEEL) {
-            view.r.top += em.wheel;
-            if (view.allheight + view.r.top < view.defaultheight)
-                view.r.top = (view.defaultheight - view.allheight);
-            if (view.r.top > 0)
-                view.r.top = 0;
-            update = true;
-        }
-        if (update) {
-            cleardevice();
-            displayRichText(&view);
-            FlushBatchDraw();
         }
     }
     EndBatchDraw();
     freeView(&view);
-    freeText(&doc);
+    freeDoc(&doc);
     closegraph();
 }
 

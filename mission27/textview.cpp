@@ -7,8 +7,6 @@
 #include "bbcode.h"
 #include "list.h"
 
-
-
 TContext* createContext()
 {
     return (TContext*)malloc(sizeof(TContext));
@@ -43,6 +41,7 @@ TColorName colorNames[] = {
     {L"WHITE", WHITE},
     {NULL}
 };
+
 COLORREF string2color(TCHAR* str, COLORREF defaultColor)
 {
     int i = 0;
@@ -147,7 +146,11 @@ void initView(TTextView* pview, TTextDoc* pdoc)
     pview->handlers[eBBCode_FONT] = &procTag_FONT;
     pview->handlers[eBBCode_COLOR] = &procTag_FONT;
     pview->handlers[eBBCode_SIZE] = &procTag_FONT;
+}
 
+void setViewport(TTextView* pview, RECT r)
+{
+    pview->r = r;
 }
 
 void freeView(TTextView* pview)
@@ -160,18 +163,21 @@ void freeView(TTextView* pview)
     freeList(&pview->list);
 }
 
-void displayText(TTextView* pview)
+void displayPlainText(TTextView* pview)
 {
     pview->font.lfHeight = 20;
     settextstyle(&pview->font);
-    int y = pview->r.top;
+    int th = 0;
+    int starty = pview->r.top + pview->offset;
+    int y = starty;
     for (int i = 0; i < pview->pdoc->lineCount; i++) {
         TCHAR* p = getLine(pview->pdoc, i);
         outtextxy(pview->r.left, y, p);
-        int th = textheight(p);
+        th = textheight(p);
         if (th == 0) th = textheight(L" ");
         y = y + th + pview->linespace;
     }
+    pview->allheight = y + th - starty;
 }
 
 
@@ -180,7 +186,8 @@ void displayRichText(TTextView* pview)
     pview->font.lfHeight = 20;
     settextstyle(&pview->font);
     int x = pview->r.left;
-    int y = pview->r.top;
+    int starty = pview->r.top + pview->offset;
+    int y = starty;
     int th = 0;
 
     TToken token;
@@ -210,5 +217,14 @@ void displayRichText(TTextView* pview)
 
         getToken(pview->pdoc->text, &ptr, &token);
     }
-    pview->allheight = y + th - pview->r.top;
+    pview->allheight = y + th - starty;
+}
+
+void scrollPage(TTextView* pview, int dist)
+{
+    pview->offset += dist;
+    if (pview->allheight + pview->offset < pview->defaultheight)
+        pview->offset = (pview->defaultheight - pview->allheight);
+    if (pview->offset > 0)
+        pview->offset = 0;
 }

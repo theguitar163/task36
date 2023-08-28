@@ -15,6 +15,7 @@ typedef struct tagTextView {
     int defaultheight;
     int allheight;
     int allwidth;
+    int offset = 0;
     TTextDoc* pdoc;
     TListp list;
     TProcBBCode* handlers[eBBCode_MAX];
@@ -26,6 +27,8 @@ typedef struct tagHandler {
 } THandler;
 
 void initView(TTextView* pview, TTextDoc* pdoc);
-void displayText(TTextView* pview);
+void displayPlainText(TTextView* pview);
 void displayRichText(TTextView* pview);
+void setViewport(TTextView* pview, RECT r);
+void scrollPage(TTextView* pview, int dist);
 void freeView(TTextView* pview);

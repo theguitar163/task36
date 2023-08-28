@@ -30,6 +30,9 @@
     <ClCompile Include="bbcode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="panel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="list.h">
@@ -42,6 +45,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="bbcode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="panel.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

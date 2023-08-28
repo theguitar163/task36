@@ -190,7 +190,7 @@ void initDoc(TTextDoc* pdoc, TCHAR* fname)
 */
 
 // 释放文本内存
-void freeText(TTextDoc* pdoc)
+void freeDoc(TTextDoc* pdoc)
 {
     free(pdoc->text);
 }
@@ -215,20 +215,4 @@ TCHAR* getLine(TTextDoc* pdoc, int lineno)
     wcsncpy(pdoc->linebuff, ptr, len);
     pdoc->linebuff[len] = '\0';
     return pdoc->linebuff;
-}
-
-void loadTextFile(TTextDoc* pdoc)
-{
-    OPENFILENAME ofn;
-    TCHAR szFile[MAX_PATH] = { 0 };	//用于接收文件名
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.hwndOwner = GetHWnd();
-    ofn.lStructSize = sizeof(ofn); // 结构大小
-    ofn.lpstrFile = szFile;	       //接收返回的文件名，注意第一个字符需要为NULL
-    ofn.nMaxFile = MAX_PATH;       // 路径大小
-    ofn.lpstrFilter = TEXT("文本文件(txt)\0*.txt; *.cpp; *.html;\0\0"); // 文件类型
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // 标志
-    if (GetOpenFileName(&ofn)) {
-        initDoc(pdoc, ofn.lpstrFile);
-    }
 }

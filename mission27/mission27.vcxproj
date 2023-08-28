@@ -130,12 +130,14 @@
     <ClCompile Include="bbcode.cpp" />
     <ClCompile Include="list.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="panel.cpp" />
     <ClCompile Include="textdoc.cpp" />
     <ClCompile Include="textview.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bbcode.h" />
     <ClInclude Include="list.h" />
+    <ClInclude Include="panel.h" />
     <ClInclude Include="textdoc.h" />
     <ClInclude Include="textview.h" />
   </ItemGroup>
