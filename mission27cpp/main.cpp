@@ -87,7 +87,7 @@ void setRichText()
 }
 
 
-TButton buttons[] = {
+CButton buttons[] = {
     {bsRDRECT, btDEFAULT, L"打开", LIGHTGRAY, 60, 20, &loadTextFile, bgNONE},
     {bsRDRECT, btDEFAULT, L"纯文本格式", LIGHTGRAY, 100, 20, &setPlainText, bgFORMAT},
     {bsRDRECT, btDEFAULT, L"富文本格式", LIGHTGRAY, 100, 20, &setRichText, bgFORMAT},
@@ -101,18 +101,18 @@ int main()
     cleardevice();
     settextcolor(BLACK);
 
-    TPanel panel;
-    initPanel(&panel, PANEL_HEIGHT, alTOP);
+    CPanel panel;
+    panel.initPanel(PANEL_HEIGHT, alTOP);
 
-    setButtonPos(&buttons[0], 20, 10);
-    addButton(&panel, &buttons[0]);
+    buttons[0].setButtonPos(20, 10);
+    panel.addButton(&buttons[0]);
     for (int i = 1; i < sizeof(buttons) / sizeof(buttons[0]); i++) {
-        addButton(&panel, &buttons[i], 10, adRIGHT);
+        panel.addButton(&buttons[i], 10, adRIGHT);
     }
-    initButtonGroup(&panel);
+    panel.initButtonGroup();
 
     BeginBatchDraw();
-    drawPanel(&panel);
+    panel.drawPanel();
     FlushBatchDraw();
 
     ExMessage em;
@@ -123,8 +123,8 @@ int main()
             break;
 
         if (em.message == WM_LBUTTONDOWN) {
-            if (ptInPanel({ em.x, em.y }, &panel))
-                buttonClick(&panel, em.x, em.y);
+            if (panel.ptInPanel({ em.x, em.y }))
+                panel.buttonClick(em.x, em.y);
         }
 
         if (g_loaded) {
@@ -144,7 +144,7 @@ int main()
             }
             if (update) {
                 displayText();
-                drawPanel(&panel);
+                panel.drawPanel();
                 FlushBatchDraw();
             }
         }
