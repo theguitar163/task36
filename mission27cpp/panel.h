@@ -28,14 +28,14 @@ public:
     int m_type;                   // 按钮类型btDEFAULT/btCOLOR/btNUM/btBOOL
     const TCHAR* m_text;          // 按钮上的文字
     COLORREF m_color;             // 按钮的颜色
-    int m_w, m_h;                   // 按钮宽高
-    TFunction* pOnClick = NULL; // 点击按钮事件关联函数指针
+    int m_w, m_h;                 // 按钮宽高
+    TFunction* pOnClick = NULL;   // 点击按钮事件关联函数指针
     int m_groupid = bgNONE;       // 群组id
     LONG m_tag = 0;               // 特殊类型值可兼容颜色、整数、布尔数，由type决定其含义
-    int m_x, m_y;                   // 按钮的坐标
+    int m_x, m_y;                 // 按钮的坐标
     int m_selected = 0;           // 选中状态
     CPanel* m_container; // 控制板容器
-
+public:
     // 设置按钮位置
     void setButtonPos(int x, int y);
     // 读取按钮颜色
@@ -78,7 +78,7 @@ public:
     int m_btnCount = 0;       // 按钮数量
     int m_btnClicked = -1;    // 最近被点击按钮的下标
  //   struct tagPainter* ppainter;
-
+public:
     void initPanel(int size, int align);
     void addButton(CButton* pbutton);
     void addButton(CButton* pbutton, int spacing, int dir = adRIGHT);
