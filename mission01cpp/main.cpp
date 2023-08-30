@@ -12,16 +12,19 @@
 #include <math.h>
 #include "tangram.h"
 
-TTangram box = {
-	{eTriangleS, 135, 0, 0, BROWN},
-	{eTriangleS, -135, -sqrt(2)/2, sqrt(2)/2, YELLOW},
-	{eTriangleM, 0, -sqrt(2), -sqrt(2), BLUE},
-	{eTriangleL, -45, 0, 0, RED},
-	{eTriangleL, 45, 0, 0, CYAN},
-	{eSquare, -135, 0, 0, GREEN},
-	{eParallelogramL, 0, 0, -sqrt(2), MAGENTA},
-};
-TTangram house = {
+CTriangleS* b1 = new CTriangleS(135, { 0, 0 }, BROWN);
+CTangram* box = new CTangram({})
+	
+/*{
+	new CTriangleS(135, { 0, 0 }, BROWN),
+	new CTriangleS(-135, { -sqrt(2) / 2, sqrt(2) / 2 }, YELLOW),
+	new CTriangleM(0, {-sqrt(2), -sqrt(2)}, BLUE),
+	new CTriangleL(-45, {0, 0}, RED),
+	new CTriangleL(45, {0, 0}, CYAN),
+	new CSquare(-135, {0, 0}, GREEN),
+	new CParallelogramL(0, {0, -sqrt(2)}, MAGENTA)
+}};*/
+CTangram house = {
 	{eTriangleS, -45, -sqrt(2)/2, -sqrt(2)/2, BROWN},
 	{eTriangleS, -135, -sqrt(2)/2, -sqrt(2)/2, YELLOW},
 	{eTriangleM, 180, sqrt(2), 0, BLUE},
