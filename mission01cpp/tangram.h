@@ -1,4 +1,5 @@
 #pragma once
+
 #define ULEN 50
 #define PI 3.14159265359
 #define BLOCK_COUNT 7
@@ -9,6 +10,8 @@ typedef struct {
 	double x;
 	double y;
 } TPoint;
+
+void rotatePoint(TPoint* pp, int angle);
 
 typedef enum {
 	eTriangleS, eTriangleM, eTriangleL, eSquare, eParallelogramR, eParallelogramL
@@ -23,8 +26,6 @@ protected:
 	COLORREF m_color;
 	int m_ptCount;
 	TPoint m_points[4];
-
-	virtual void initBlock() = 0;
 
 	void moveBlock(TPoint pos)
 	{
@@ -50,7 +51,8 @@ public:
 		m_angle = angle;
 		m_pos = pos;
 		m_color = color;
-		initBlock();
+		rotateBlock(m_angle);
+		moveBlock(m_pos);
 	};
 
 	void setColor(COLORREF color)
@@ -73,9 +75,10 @@ public:
 };
 
 // 小三角形◣，左下角为原点，边长 1 - 1 - sqrt(2)
-class CTriangleS :CBlock
+class CTriangleS :public CBlock
 {
-	void initBlock() override
+public:
+	CTriangleS(int angle, TPoint pos, COLORREF color) : CBlock(angle, pos, color)
 	{
 		m_ptCount = 3;
 		m_points[0].x = 0;
@@ -84,13 +87,14 @@ class CTriangleS :CBlock
 		m_points[1].y = 1 * ULEN;
 		m_points[2].x = 1 * ULEN;
 		m_points[2].y = 0;
-	};
+	}
 };
 
 // 中三角形◣，左下角为原点，边长 sqrt(2) - sqrt(2) - 2
-class CTriangleM :CBlock
+class CTriangleM :public CBlock
 {
-	void initBlock() override
+public:
+	CTriangleM(int angle, TPoint pos, COLORREF color) : CBlock(angle, pos, color)
 	{
 		m_ptCount = 3;
 		m_points[0].x = 0;
@@ -103,9 +107,10 @@ class CTriangleM :CBlock
 };
 
 // 大三角形◣，左下角为原点，边长 2 - 2 - 2*sqrt(2)
-class CTriangleL :CBlock
+class CTriangleL :public CBlock
 {
-	void initBlock() override
+public:
+	CTriangleL(int angle, TPoint pos, COLORREF color) : CBlock(angle, pos, color)
 	{
 		m_ptCount = 3;
 		m_points[0].x = 0;
@@ -118,9 +123,10 @@ class CTriangleL :CBlock
 };
 
 // 正方形■，左下角为原点，边长 1 - 1 - 1 - 1
-class CSquare :CBlock
+class CSquare :public CBlock
 {
-	void initBlock() override
+public:
+	CSquare(int angle, TPoint pos, COLORREF color) : CBlock(angle, pos, color)
 	{
 		m_ptCount = 4;
 		m_points[0].x = 0;
@@ -135,9 +141,10 @@ class CSquare :CBlock
 };
 
 // 右向平行四边形◢■◤，左下角为原点，边长sqrt(2) - 1 - sqrt(2) - 1
-class CParallelogramR : CBlock
+class CParallelogramR :public CBlock
 {
-	void initBlock() override
+public:
+	CParallelogramR(int angle, TPoint pos, COLORREF color) : CBlock(angle, pos, color)
 	{
 		m_ptCount = 4;
 		m_points[0].x = 0;
@@ -152,9 +159,10 @@ class CParallelogramR : CBlock
 };
 
 // 左向平行四边形◥■◣，左下角为原点，边长sqrt(2) - 1 - sqrt(2) - 1
-class CParallelogramL : CBlock
+class CParallelogramL :public CBlock
 {
-	void initBlock() override
+public:
+	CParallelogramL(int angle, TPoint pos, COLORREF color) : CBlock(angle, pos, color)
 	{
 		m_ptCount = 4;
 		m_points[0].x = 0;
@@ -170,13 +178,18 @@ class CParallelogramL : CBlock
 
 class CTangram
 {
-	CBlock* m_blocks[7];
+	CBlock* m_blocks[BLOCK_COUNT];
 
 public:
-	CTangram(CBlock *bs[7])
+	CTangram(CBlock *bs[BLOCK_COUNT])
 	{
-		for (int i = 0; i < 7; i++)
+		for (int i = 0; i < BLOCK_COUNT; i++)
 			m_blocks[i] = bs[i];
+	}
+	~CTangram()
+	{
+		for (int i = 0; i < BLOCK_COUNT; i++)
+			delete m_blocks[i];
 	}
 
 	void drawTangram(TPoint pos)

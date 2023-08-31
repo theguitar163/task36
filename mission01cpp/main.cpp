@@ -12,93 +12,94 @@
 #include <math.h>
 #include "tangram.h"
 
-CTriangleS* b1 = new CTriangleS(135, { 0, 0 }, BROWN);
-CTangram* box = new CTangram({})
-	
-/*{
-	new CTriangleS(135, { 0, 0 }, BROWN),
+CBlock* arrbox[] = {
+	new CTriangleS(135, {0, 0}, BROWN),
 	new CTriangleS(-135, { -sqrt(2) / 2, sqrt(2) / 2 }, YELLOW),
 	new CTriangleM(0, {-sqrt(2), -sqrt(2)}, BLUE),
 	new CTriangleL(-45, {0, 0}, RED),
 	new CTriangleL(45, {0, 0}, CYAN),
 	new CSquare(-135, {0, 0}, GREEN),
 	new CParallelogramL(0, {0, -sqrt(2)}, MAGENTA)
-}};*/
-CTangram house = {
-	{eTriangleS, -45, -sqrt(2)/2, -sqrt(2)/2, BROWN},
-	{eTriangleS, -135, -sqrt(2)/2, -sqrt(2)/2, YELLOW},
-	{eTriangleM, 180, sqrt(2), 0, BLUE},
-	{eTriangleL, 135, -(sqrt(2)-1), sqrt(2), RED},
-	{eTriangleL, 135, 0, 0, CYAN},
-	{eSquare, 0, 0, 1, GREEN},
-	{eParallelogramR, 45, 0, 1, MAGENTA},
-};
-TTangram turtle = {
-	{eTriangleS, 135, 0, 0, YELLOW},
-	{eTriangleS, 135, 2, 0, BROWN},
-	{eTriangleM, -135, 3, 1, BLUE},
-	{eTriangleL,0, 0, 0, CYAN},
-	{eTriangleL, 180, 2, 2, RED},
-	{eSquare, 0, -2, 1, GREEN},
-	{eParallelogramL, 45, -1, 1, MAGENTA}
-};
-TTangram fish = {
-	{eTriangleS, 0, 0, 0.5, BROWN},
-	{eTriangleS, 90, 0, -0.5, YELLOW},
-	{eTriangleM, 45, 1, 0.5, BLUE},
-	{eTriangleL, -90, 0, 0, CYAN},
-	{eTriangleL, 180, 0, 0, RED},
-	{eSquare, 0, 0, -0.5, GREEN},
-	{eParallelogramL, 45, 1, -0.5, MAGENTA},
-};
-TTangram cat = {
-	{eTriangleS, 45, 0, 0, BROWN},
-	{eTriangleS, -135, 0, 0, YELLOW},
-	{eTriangleM, -90, 0.5 * sqrt(2), -2 * sqrt(2), BLUE},
-	{eTriangleL, -135, 1.5 * sqrt(2), -sqrt(2), CYAN},
-	{eTriangleL, -90, 1.5 * sqrt(2), -(2 + sqrt(2)), RED},
-	{eSquare, 135, 0, 0, GREEN},
-	{eParallelogramR, -30, 1.5 * sqrt(2), -2 * sqrt(2), MAGENTA}
 };
 
-TTangram bird = {
-	{eTriangleS, 135, -0.5 * sqrt(2), (1 + 0.5 * sqrt(2)), BROWN},
-	{eTriangleS, 135, 0, -2, YELLOW},
-	{eTriangleM, 135, 1, -1, BLUE},
-	{eTriangleL, 180, 0, 0, CYAN},
-	{eTriangleL, 90, 0, 0, RED},
-	{eSquare, -90, 0, 0, GREEN},
-	{eParallelogramL, -45, 2, -1, MAGENTA},
+CBlock* arrhouse[] = {
+	new CTriangleS(-45, {-sqrt(2) / 2, -sqrt(2) / 2}, BROWN),
+	new CTriangleS(-135, {-sqrt(2) / 2, -sqrt(2) / 2}, YELLOW),
+	new CTriangleM(180, {sqrt(2), 0}, BLUE),
+	new CTriangleL(135, {-(sqrt(2) - 1), sqrt(2)}, RED),
+	new CTriangleL(135, {0, 0}, CYAN),
+	new CSquare(0, {0, 1}, GREEN),
+	new CParallelogramR(45, {0, 1}, MAGENTA),
 };
 
-TTangram duct = {
-	{eTriangleS, 135, -sqrt(2), sqrt(2), BROWN},
-	{eTriangleS, 135, 1.8, sqrt(0.5), YELLOW},
-	{eTriangleM, -45, sqrt(2)-1, -sqrt(2)-1, BLUE},
-	{eTriangleL, -45, sqrt(2), -sqrt(2), CYAN},
-	{eTriangleL, 135, 0, 0, RED},
-	{eSquare, -45, -sqrt(0.5), sqrt(0.5), GREEN},
-	{eParallelogramL, -90, 0, 0, MAGENTA},
+CBlock* arrturtle[] = {
+	new CTriangleS(135, {0, 0}, YELLOW),
+	new CTriangleS(135, {2, 0}, BROWN),
+	new CTriangleM(-135, {3, 1}, BLUE),
+	new CTriangleL(0, {0, 0}, CYAN),
+	new CTriangleL(180, {2, 2}, RED),
+	new CSquare(0, {-2, 1}, GREEN),
+	new CParallelogramL(45, {-1, 1}, MAGENTA)
 };
 
-TTangram shirt = {
-	{eTriangleS, 90, 0, 0, BROWN},
-	{eTriangleS, 180, 2, -1, YELLOW},
-	{eTriangleM, 135, 1, 0, BLUE},
-	{eTriangleL, 180, 1, -1, CYAN},
-	{eTriangleL, 0, -1, -3, RED},
-	{eSquare, 180, 0, 0,  GREEN},
-	{eParallelogramR, -45, -2, -2, MAGENTA},
+CBlock* arrfish[] = {
+	new CTriangleS(0, {0, 0.5}, BROWN),
+	new CTriangleS(90, {0, -0.5}, YELLOW),
+	new CTriangleM(45, {1, 0.5}, BLUE),
+	new CTriangleL(-90, {0, 0}, CYAN),
+	new CTriangleL(180, {0, 0}, RED),
+	new CSquare(0, {0, -0.5}, GREEN),
+	new CParallelogramL(45, {1, -0.5}, MAGENTA)
 };
 
-TTangram windmill = {
-	{eTriangleS, -135, 0, 0, BROWN},
-	{eTriangleS, 135, 1.5 * sqrt(2), -0.5 * sqrt(2), YELLOW},
-	{eTriangleM, 0, 0, -sqrt(2), BLUE},
-	{eTriangleL, -45, 0, 0, CYAN},
-	{eTriangleL, 45, 0.5 * sqrt(2), 0.5 * sqrt(2), RED},
-	{eSquare, 45, 0.5 * sqrt(2), -0.5 * sqrt(2), GREEN},
-	{eParallelogramL, -90, 0, -sqrt(2), MAGENTA},
+CBlock* arrcat[] = {
+	new CTriangleS(45, {0, 0}, BROWN),
+	new CTriangleS(-135, {0, 0}, YELLOW),
+	new CTriangleM(-90, {0.5 * sqrt(2), -2 * sqrt(2)}, BLUE),
+	new CTriangleL(-135, {1.5 * sqrt(2), -sqrt(2)}, CYAN),
+	new CTriangleL(-90, {1.5 * sqrt(2), -(2 + sqrt(2))}, RED),
+	new CSquare(135, {0, 0}, GREEN),
+	new CParallelogramR(-30, {1.5 * sqrt(2), -2 * sqrt(2)}, MAGENTA)
+};
+
+CBlock* arrbird[] = {
+	new CTriangleS(135, {-0.5 * sqrt(2), (1 + 0.5 * sqrt(2))}, BROWN),
+	new CTriangleS(135, {0, -2}, YELLOW),
+	new CTriangleM(135, {1, -1}, BLUE),
+	new CTriangleL(180, {0, 0}, CYAN),
+	new CTriangleL(90, {0, 0}, RED),
+	new CSquare(-90, {0, 0}, GREEN),
+	new CParallelogramL(-45, {2, -1}, MAGENTA)
+};
+
+CBlock* arrduck[] = {
+	new CTriangleS(135, {-sqrt(2), sqrt(2)}, BROWN),
+	new CTriangleS(135, {1.8, sqrt(0.5)}, YELLOW),
+	new CTriangleM(-45, {sqrt(2) - 1, -sqrt(2) - 1}, BLUE),
+	new CTriangleL(-45, {sqrt(2), -sqrt(2)}, CYAN),
+	new CTriangleL(135, {0, 0}, RED),
+	new CSquare(-45, {-sqrt(0.5), sqrt(0.5) }, GREEN),
+	new CParallelogramL(-90, {0, 0}, MAGENTA)
+};
+
+CBlock* arrshirt[] = {
+	new CTriangleS(90, {0, 0}, BROWN),
+	new CTriangleS(180, {2, -1}, YELLOW),
+	new CTriangleM(135, {1, 0}, BLUE),
+	new CTriangleL(180, {1, -1}, CYAN),
+	new CTriangleL(0, {-1, -3}, RED),
+	new CSquare(180, {0, 0},  GREEN),
+	new CParallelogramR(-45, {-2, -2}, MAGENTA)
+};
+
+CBlock* arrwindmill[] = {
+	new CTriangleS(-135, {0, 0}, BROWN),
+	new CTriangleS(135, {1.5 * sqrt(2), -0.5 * sqrt(2)}, YELLOW),
+	new CTriangleM(0, {0, -sqrt(2)}, BLUE),
+	new CTriangleL(-45, {0, 0}, CYAN),
+	new CTriangleL(45, {0.5 * sqrt(2), 0.5 * sqrt(2)}, RED),
+	new CSquare(45, {0.5 * sqrt(2), -0.5 * sqrt(2)}, GREEN),
+	new CParallelogramL(-90, {0, -sqrt(2)}, MAGENTA)
 };
 
 int main()
@@ -106,18 +107,38 @@ int main()
 	initgraph(1200, 1200);
 	setaspectratio(1, -1);
 	setorigin(0, getheight());
+	CTangram* box = new CTangram(arrbox);
+	CTangram* house = new CTangram(arrhouse);
+	CTangram* turtle = new CTangram(arrturtle);
+	CTangram* fish = new CTangram(arrfish);
+	CTangram* cat = new CTangram(arrcat);
+	CTangram* bird = new CTangram(arrbird);
+	CTangram* duck = new CTangram(arrduck);
+	CTangram* shirt = new CTangram(arrshirt);
+	CTangram* windmill = new CTangram(arrwindmill);
 
-	drawTangram(box, { 200, 1000 });
-	drawTangram(house, { 500, 1000 });
-	drawTangram(turtle, { 800, 1000 });
-	drawTangram(fish, { 200, 700 });
-	drawTangram(cat, { 450, 800 });
-	drawTangram(bird, { 800, 700 });
-	drawTangram(duct, { 200, 300 });
-	drawTangram(shirt, { 500, 400 });
-	drawTangram(windmill, { 800,300 });
+	box->drawTangram({ 200, 1000 });
+	house->drawTangram({ 500, 1000 });
+	turtle->drawTangram({ 800, 1000 });
+	fish->drawTangram({ 200, 700 });
+	cat->drawTangram({ 450, 800 });
+	bird->drawTangram({ 800, 700 });
+	duck->drawTangram({ 200, 300 });
+	shirt->drawTangram({ 500, 400 });
+	windmill->drawTangram({ 800,300 });
 	// getmessage(EX_CHAR);
 	_getch();
+
+	delete box;
+	delete house;
+	delete turtle;
+	delete fish;
+	delete cat;
+	delete bird;
+	delete duck;
+	delete shirt;
+	delete windmill;
+
 	closegraph();
 	return 0;
 }
