@@ -51,8 +51,6 @@ public:
 		m_angle = angle;
 		m_pos = pos;
 		m_color = color;
-		rotateBlock(m_angle);
-		moveBlock(m_pos);
 	};
 
 	void setColor(COLORREF color)
@@ -87,6 +85,8 @@ public:
 		m_points[1].y = 1 * ULEN;
 		m_points[2].x = 1 * ULEN;
 		m_points[2].y = 0;
+		rotateBlock(m_angle);
+		moveBlock(m_pos);
 	}
 };
 
@@ -103,6 +103,8 @@ public:
 		m_points[1].y = sqrt(2) * ULEN;
 		m_points[2].x = sqrt(2) * ULEN;
 		m_points[2].y = 0;
+		rotateBlock(m_angle);
+		moveBlock(m_pos);
 	}
 };
 
@@ -119,6 +121,8 @@ public:
 		m_points[1].y = 2 * ULEN;
 		m_points[2].x = 2 * ULEN;
 		m_points[2].y = 0;
+		rotateBlock(m_angle);
+		moveBlock(m_pos);
 	}
 };
 
@@ -137,6 +141,8 @@ public:
 		m_points[2].y = 1 * ULEN;
 		m_points[3].x = 1 * ULEN;
 		m_points[3].y = 0;
+		rotateBlock(m_angle);
+		moveBlock(m_pos);
 	}
 };
 
@@ -155,6 +161,8 @@ public:
 		m_points[2].y = sqrt(0.5) * ULEN;
 		m_points[3].x = sqrt(0.5) * ULEN;
 		m_points[3].y = sqrt(0.5) * ULEN;
+		rotateBlock(m_angle);
+		moveBlock(m_pos);
 	}
 };
 
@@ -173,6 +181,8 @@ public:
 		m_points[2].y = sqrt(0.5) * ULEN;
 		m_points[3].x = -sqrt(0.5) * ULEN;
 		m_points[3].y = sqrt(0.5) * ULEN;
+		rotateBlock(m_angle);
+		moveBlock(m_pos);
 	}
 };
 
