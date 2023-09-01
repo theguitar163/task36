@@ -79,15 +79,15 @@ CTriangleS::CTriangleS(int angle, TPoint pos, COLORREF color) : CBlock(angle, po
 // 中三角形◣，左下角为原点，边长 sqrt(2) - sqrt(2) - 2
 CTriangleM::CTriangleM(int angle, TPoint pos, COLORREF color) : CBlock(angle, pos, color)
 {
-		m_ptCount = 3;
-		m_points[0].x = 0;
-		m_points[0].y = 0;
-		m_points[1].x = 0;
-		m_points[1].y = sqrt(2) * ULEN;
-		m_points[2].x = sqrt(2) * ULEN;
-		m_points[2].y = 0;
-		rotateBlock(m_angle);
-		moveBlock(m_pos);
+	m_ptCount = 3;
+	m_points[0].x = 0;
+	m_points[0].y = 0;
+	m_points[1].x = 0;
+	m_points[1].y = sqrt(2) * ULEN;
+	m_points[2].x = sqrt(2) * ULEN;
+	m_points[2].y = 0;
+	rotateBlock(m_angle);
+	moveBlock(m_pos);
 }
 
 // 大三角形◣，左下角为原点，边长 2 - 2 - 2*sqrt(2)
