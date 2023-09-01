@@ -114,7 +114,7 @@ void drawBlock(TBlock block, TPoint pos)
 		pts[i].x = INTR(pos.x + block.points[i].x);
 		pts[i].y = INTR(pos.y + block.points[i].y);
 	}
-	fillpolygon((POINT*)pts, block.pcount);
+	fillpolygon((POINT *)pts, block.pcount);
 }
 
 // ªÊ÷∆∆ﬂ«…∞Â
