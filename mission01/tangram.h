@@ -26,4 +26,4 @@ typedef struct {
 typedef TBlock TTangram[BLOCK_COUNT];
 
 void drawTangram(TTangram tgram, TPoint pos);
-void drawBlock(TBlock block, TPoint pos);
+void drawBlock(TBlock *pblock, TPoint pos);

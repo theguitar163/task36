@@ -101,20 +101,20 @@ void initBlock(TBlock* pblock)
 	}
 }
 // 绘制板块
-void drawBlock(TBlock block, TPoint pos)
+void drawBlock(TBlock *pblock, TPoint pos)
 {
 	// 初始化板块
-	initBlock(&block);
+	initBlock(pblock);
 
 	// 按照给定的pos,对所有板块顶点进行位移
 	POINT pts[4];	// 重新定义整型顶点数组，主要是为了满足fillpolygon参数要求
-	setfillcolor(block.color);
-	for (int i = 0; i < block.pcount; i++) {
+	setfillcolor(pblock->color);
+	for (int i = 0; i < pblock->pcount; i++) {
 		// 四舍五入取整操作延迟到最后环节进行，以保证计算的精度
-		pts[i].x = INTR(pos.x + block.points[i].x);
-		pts[i].y = INTR(pos.y + block.points[i].y);
+		pts[i].x = INTR(pos.x + pblock->points[i].x);
+		pts[i].y = INTR(pos.y + pblock->points[i].y);
 	}
-	fillpolygon((POINT *)pts, block.pcount);
+	fillpolygon((POINT *)pts, pblock->pcount);
 }
 
 // 绘制七巧板
@@ -122,6 +122,11 @@ void drawTangram(TTangram tgram, TPoint pos)
 {
 	// 七巧板每个板块采用统一函数绘制
 	for (int i = 0; i < BLOCK_COUNT; i++) {
-		drawBlock(tgram[i], pos);
+		drawBlock(&tgram[i], pos);
 	}
+}
+
+void clickBlock(TBlock* pblock)
+{
+
 }
